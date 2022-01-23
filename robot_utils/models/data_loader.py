@@ -1,7 +1,7 @@
 import tempfile
+import base64
 from pathlib import Path
 from odoo import _, api, fields, models, SUPERUSER_ID
-import base64
 import tempfile
 from pathlib import Path
 from odoo import _, api, fields, models, SUPERUSER_ID
@@ -13,6 +13,7 @@ from odoo.exceptions import UserError, RedirectWarning, ValidationError
 class DataLoader(models.AbstractModel):
     _name = 'robot.data.loader'
 
+    @api.model
     def put_file(self, filecontent, dest_path):
         content = base64.b64decode(filecontent)
         dest_path = Path(dest_path)
@@ -27,6 +28,16 @@ class DataLoader(models.AbstractModel):
 
     @api.model
     def load_data(self, content, file_type, module_name, filename):
+        """Does basically the same like what at update happens when installing a module and 
+        loads the xml and csv files.
+
+        Args:
+            content ([string]): filecontent
+            file_type (string): csv or xml
+            module_name (string): faked module name
+            filename (string): 
+
+        """
 
         filepath = Path(tempfile.mkstemp(suffix=file_type)[1])
         filepath.write_text(content)
@@ -50,4 +61,4 @@ class DataLoader(models.AbstractModel):
         finally:
             filepath.unlink()
 
-        return True    @api.model
+        return True
