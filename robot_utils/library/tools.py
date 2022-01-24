@@ -38,7 +38,7 @@ class tools(object):
             return False
         return ir_model_obj[0]['res_id']
 
-    def get_guid(self):
+    def do_get_guid(self):
         return str(uuid.uuid4())
         
     def get_current_date(self):

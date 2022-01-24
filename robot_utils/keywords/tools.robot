@@ -20,7 +20,7 @@ Get Now As String       [Arguments]
 
 Get Guid        [Arguments]
                 ...           ${dummy}=${FALSE}
-  ${result}=    tools.Get Guid
+  ${result}=    tools.Do Get Guid
   [return]      ${result}
 
 Odoo Sql            [Arguments]
