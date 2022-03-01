@@ -12,8 +12,7 @@ Helps together with wodoo-framework and cicd to quickly spinup robo tests.
 ```robot-framework
 *** Settings ***
 Documentation     Smoketest
-Resource          keywords/odoo_13_ee.robot
-Resource          keywords/pim_keywords.robot
+Resource          keywords/odoo_14_ee.robot  # insert YOUR appriorate version here
 Test Setup        Setup Smoketest
 
 
@@ -25,7 +24,6 @@ Smoketest
 
 *** Keywords ***
 Setup Smoketest
-    Setup PIM Demo Data
     Login
 
 Search for the admin
