@@ -9,7 +9,7 @@ Helps together with wodoo-framework and cicd to quickly spinup robo tests.
 
 
 ## Simple Smoketest
-```robot-framework
+```robotframework
 *** Settings ***
 Documentation     Smoketest
 Resource          keywords/odoo_14_ee.robot  # insert YOUR appriorate version here
