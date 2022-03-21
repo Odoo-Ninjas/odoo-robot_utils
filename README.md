@@ -10,6 +10,8 @@ Helps together with wodoo-framework and cicd to quickly spinup robo tests.
 
 ## Simple Smoketest
 ```robotframework
+# odoo-require: module1, module        name some odoo modules, which shall be installed beforehand
+
 *** Settings ***
 Documentation     Smoketest
 Resource          keywords/odoo_14_ee.robot  # insert YOUR appriorate version here
