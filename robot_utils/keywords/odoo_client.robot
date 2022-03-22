@@ -47,8 +47,6 @@ Odoo Search Records  [Arguments]
                         ...   ${order}=${NONE}
                         ...   ${lang}=en_US
                         ...   ${context}=${None}
-    Log To Console            ${lang}
-    Log To Console            ${context}
     ${result}=  odoo.Rpc Client Search Records   ${host}  ${dbname}  ${user}  ${pwd}  ${model}  ${domain}  ${limit}  ${order}  ${count}  lang=${lang}  context=${context}
     [return]                  ${result}
 
