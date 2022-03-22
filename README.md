@@ -5,12 +5,12 @@ Helps together with wodoo-framework and cicd to quickly spinup robo tests.
 ## Setup
 
   * clone this repository into your existing project 
-  * 
+  * add robotests/utils to your addons-paths
 
 
 ## Simple Smoketest
 ```robotframework
-# odoo-require: module1, module        name some odoo modules, which shall be installed beforehand
+# odoo-require: robot_utils, web_selenium, module1, module        name some odoo modules, which shall be installed beforehand
 
 *** Settings ***
 Documentation     Smoketest
