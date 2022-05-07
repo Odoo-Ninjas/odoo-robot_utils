@@ -13,7 +13,7 @@ Open New Browser    [Arguments]     ${url}
     Set Selenium Speed	            0.5
     Set Selenium Timeout	        ${SELENIUM_TIMEOUT}
     Log To Console    ${url}
-    ${browser_id}=                  Get Driver For Browser    headlesschrome    ${CURDIR}${/}..${/}tests/download
+    ${browser_id}=                  Get Driver For Browser    ${browser}    ${CURDIR}${/}..${/}tests/download
     Set Window Size                 1920    1080
     Go To                           ${url}
     Capture Page Screenshot
