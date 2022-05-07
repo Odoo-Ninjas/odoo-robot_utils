@@ -25,6 +25,7 @@ Login   [Arguments]     ${user}=${ODOO_USER}    ${password}=${ODOO_PASSWORD}    
     Capture Page Screenshot
     Wait Until Element is Visible           name=login
     Log To Console                          Input is visible, now entering credentials for user ${user} with password ${password} 
+    Wait Until Page Contains Element        xpath=//input[@name='login']	timeout=10 sec
     Execute Javascript                      $("input[name=login]").val('${user}');
     Execute Javascript                      $("input[name=password]").val('${password}');
     Log To Console                          Clicking Login
