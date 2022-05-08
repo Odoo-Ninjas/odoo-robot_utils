@@ -6,6 +6,7 @@ Library         SeleniumLibrary
 Library         ../library/tools.py
 Resource        ./odoo_client.robot
 Resource        ./styling.robot
+Resource        ./tools.robot
 
 *** Keywords ***
 
