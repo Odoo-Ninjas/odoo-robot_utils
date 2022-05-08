@@ -32,3 +32,8 @@ Odoo Sql            [Arguments]
                     ...        ${context}=${None}
     ${result}=  tools.Execute Sql    ${host}  ${dbname}  ${user}  ${pwd}  ${sql}  context=${context}
     [return]                  ${result}
+
+
+Output Source  [Arguments]
+    ${myHtml} =    Get Source
+    Log To Console  ${myHtml}
