@@ -32,10 +32,10 @@ def convert_args(method):
         return ids
 
     def wrapper(*args, **kwargs):
-        # if 'fields' in kwargs:
-        #     kwargs['fields'] = _convert_fields(kwargs['fields'])
-        # if 'ids' in kwargs:
-        #     kwargs['ids'] = _convert_ids(kwargs['ids'])
+        if 'fields' in kwargs:
+            kwargs['fields'] = _convert_fields(kwargs['fields'])
+        if 'ids' in kwargs:
+            kwargs['ids'] = _convert_ids(kwargs['ids'])
         result = method(*args, **kwargs)
 
         return result
