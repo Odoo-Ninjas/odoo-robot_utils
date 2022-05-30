@@ -20,6 +20,7 @@ def convert_args(method):
     def _convert_fields(fields):
         if isinstance(fields, str):
             fields = fields.split(",")
+        logger.error("fields: {fields}, {type(fields)}")
         return fields
 
     def _convert_ids(ids):
@@ -36,6 +37,8 @@ def convert_args(method):
             kwargs['fields'] = _convert_fields(kwargs['fields'])
         if 'ids' in kwargs:
             kwargs['ids'] = _convert_ids(kwargs['ids'])
+        if 'id' in kwargs and kwargs['id']:
+            kwargs['id'] = _convert_ids(kwargs['id'])[0]
         result = method(*args, **kwargs)
 
         return result
@@ -151,14 +154,12 @@ class odoo(object):
         res = db.ref(xml_id)
         return res
 
-    def rpc_client_get_field(self, host, dbname, user, pwd, model, id, field, Many2one, context=None, lang=DEFAULT_LANG):
+    @convert_args
+    def rpc_client_get_field(self, host, dbname, user, pwd, model, id, field, context=None, lang=DEFAULT_LANG):
         object_informations = self.rpc_client_read(host, dbname, user, pwd, model, [id], [field], context=context, lang=lang)
         if object_informations:
             object_information = object_informations[0]
-            if Many2one:
-                return object_information[field][0]
-            else:
-                return object_information[field]
+            return object_information[field]
         else:
             return False
 

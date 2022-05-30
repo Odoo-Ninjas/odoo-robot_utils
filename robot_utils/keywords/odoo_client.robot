@@ -202,14 +202,13 @@ Odoo Read Field     [Arguments]
                     ...        ${model}
                     ...        ${id}
                     ...        ${field}
-                    ...        ${Many2one}
                     ...        ${dbname}=${ODOO_DB}
                     ...        ${host}=${ODOO_URL}
                     ...        ${user}=${ODOO_USER}
                     ...        ${pwd}=${ODOO_PASSWORD}
                     ...        ${lang}=en_US
                     ...        ${context}=${None}
-    ${result}=  odoo.Rpc Client Get Field    ${host}  ${dbname}  ${user}  ${pwd}  model=${model}  id=${id}  field=${field}    ${Many2one}  lang=${lang}  context=${context}
+    ${result}=  odoo.Rpc Client Get Field    ${host}  ${dbname}  ${user}  ${pwd}  model=${model}  id=${id}  field=${field}  lang=${lang}  context=${context}
     [return]                  ${result}
 
 Odoo Exec Sql       [Arguments]
