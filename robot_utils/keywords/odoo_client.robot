@@ -47,7 +47,27 @@ Odoo Search Records  [Arguments]
                         ...   ${order}=${NONE}
                         ...   ${lang}=en_US
                         ...   ${context}=${None}
+    Log To Console            ${lang}
+    Log To Console            ${context}
     ${result}=  odoo.Rpc Client Search Records   ${host}  ${dbname}  ${user}  ${pwd}  ${model}  ${domain}  ${limit}  ${order}  ${count}  lang=${lang}  context=${context}
+    [return]                  ${result}
+
+Odoo Search Read Records  [Arguments]
+                        ...   ${model}
+                        ...   ${domain}
+                        ...   ${fields}
+                        ...   ${dbname}=${ODOO_DB}
+                        ...   ${host}=${ODOO_URL}
+                        ...   ${user}=${ODOO_USER}
+                        ...   ${pwd}=${ODOO_PASSWORD}
+                        ...   ${count}=${FALSE}
+                        ...   ${limit}=${NONE}
+                        ...   ${order}=${NONE}
+                        ...   ${lang}=en_US
+                        ...   ${context}=${None}
+    Log To Console            ${lang}
+    Log To Console            ${context}
+    ${result}=  odoo.Rpc Client Search Read Records   ${host}  ${dbname}  ${user}  ${pwd}  ${model}  ${domain}  ${fields}  ${limit}  ${order}  ${count}  lang=${lang}  context=${context}
     [return]                  ${result}
 
 Odoo Load Data  [Arguments]
@@ -153,15 +173,15 @@ Odoo Execute    [Arguments]
                 ...                ${model}
                 ...                ${method}
                 ...                ${ids}=${FALSE}
-                ...                ${params}=[]
-                ...                ${kwparams}={}
+                ...                ${params}=${{[]}}
+                ...                ${kwparams}=${{{}}}
                 ...                ${dbname}=${ODOO_DB}
                 ...                ${host}=${ODOO_URL}
                 ...                ${user}=${ODOO_USER}
                 ...                ${pwd}=${ODOO_PASSWORD}
                 ...                ${lang}=en_US
                 ...                ${context}=${None}
-    ${result}=                     odoo.Rpc Client Execute    ${host}  ${dbname}  ${user}  ${pwd}  ${model}  ${ids}  ${method}  ${params}  ${kwparams}  lang=${lang}  context=${context}
+    ${result}=                     odoo.Rpc Client Execute    ${host}  ${dbname}  ${user}  ${pwd}  model=${model}  ids=${ids}  method=${method}  params=${params}  kwparams=${kwparams}  lang=${lang}  context=${context}
     [return]                       ${result}
 
 
@@ -175,7 +195,7 @@ Odoo Read       [Arguments]
                 ...              ${pwd}=${ODOO_PASSWORD}
                 ...              ${lang}=en_US
                 ...              ${context}=${None}
-    ${result}=  odoo.Rpc Client Read    ${host}  ${dbname}  ${user}  ${pwd}  ${model}  ${ids}  ${fields}  lang=${lang}  context=${context}
+    ${result}=  odoo.Rpc Client Read    ${host}  ${dbname}  ${user}  ${pwd}  model=${model}  ids=${ids}  fields=${fields}  lang=${lang}  context=${context}
     [return]                  ${result}
 
 Odoo Read Field     [Arguments]
@@ -189,7 +209,7 @@ Odoo Read Field     [Arguments]
                     ...        ${pwd}=${ODOO_PASSWORD}
                     ...        ${lang}=en_US
                     ...        ${context}=${None}
-    ${result}=  odoo.Rpc Client Get Field    ${host}  ${dbname}  ${user}  ${pwd}  ${model}  ${id}  ${field}    ${Many2one}  lang=${lang}  context=${context}
+    ${result}=  odoo.Rpc Client Get Field    ${host}  ${dbname}  ${user}  ${pwd}  model=${model}  id=${id}  field=${field}    ${Many2one}  lang=${lang}  context=${context}
     [return]                  ${result}
 
 Odoo Exec Sql    [Arguments]

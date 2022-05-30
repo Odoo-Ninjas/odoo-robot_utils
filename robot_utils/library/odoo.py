@@ -14,6 +14,35 @@ DEFAULT_LANG = 'en_US'
 
 #     return params
 
+
+
+def convert_args(method):
+    def _convert_fields(fields):
+        if isinstance(fields, str):
+            fields = fields.split(",")
+        return fields
+
+    def _convert_ids(ids):
+        if isinstance(ids, str):
+            ids = ids.split(",")
+        if isinstance(ids, list):
+            ids = list(map(int, ids))
+        if ids and isinstance(ids, int):
+            ids = [ids]
+        return ids
+
+    def wrapper(*args, **kwargs):
+        # if 'fields' in kwargs:
+        #     kwargs['fields'] = _convert_fields(kwargs['fields'])
+        # if 'ids' in kwargs:
+        #     kwargs['ids'] = _convert_ids(kwargs['ids'])
+        result = method(*args, **kwargs)
+
+        return result
+
+    return wrapper
+
+
 class odoo(object):
 
     def technical_testname(self, testname):
@@ -63,24 +92,38 @@ class odoo(object):
         res = obj.search_records(domain, count=count, limit=limit, order=order, context=context)
         return res
 
+    @convert_args
+    def rpc_client_search_read_records(self, host, dbname, user, pwd, model, domain, fields, limit, order, count=False, lang=DEFAULT_LANG, context=None):
+        db = self.get_conn(host, dbname, user, pwd)
+        context = self._get_context(context, lang)
+        limit = int(limit) if limit else None
+        domain = eval(domain)
+        logger.debug(f"Searching for records with domain {domain} {type(domain)}")
+        obj = db[model]
+        res = obj.search_records(domain, count=count, limit=limit, order=order, context=context)
+        res = obj.read(res, fields)
+        return res
+
+    @convert_args
     def rpc_client_read(self, host, dbname, user, pwd, model, ids, fields=[], lang=DEFAULT_LANG, context=None):
-        if isinstance(fields, str):
-            fields = fields.split(',')
         context = self._get_context(context, lang)
         db = self.get_conn(host, dbname, user, pwd)
         obj = db[model]
         return obj.read(ids, fields=fields, context=context)
 
+    @convert_args
     def rpc_client_write(self, host, dbname, user, pwd, model, ids, values, lang=DEFAULT_LANG, context=None):
         context = self._get_context(context, lang)
-        if ids and isinstance(ids, int): ids = [ids]
         db = self.get_conn(host, dbname, user, pwd)
         obj = db[model]
         return obj.write(ids, values, context=context)
 
-    def rpc_client_execute(self, host, dbname, user, pwd, model, ids=None, method=None, params=[], kwparams={}, context=None, lang=DEFAULT_LANG):
+    @convert_args
+    def rpc_client_execute(
+        self, host, dbname, user, pwd, model, ids=None, method=None,
+        params=[], kwparams={}, context=None, lang=DEFAULT_LANG
+    ):
         context = self._get_context(context, lang)
-        if ids and isinstance(ids, int): ids = [ids]
         db = self.get_conn(host, dbname, user, pwd)
         obj = db[model]
         if not ids:
