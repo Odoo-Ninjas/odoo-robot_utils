@@ -172,7 +172,7 @@ Odoo Ref    [Arguments]
 Odoo Execute    [Arguments]
                 ...                ${model}
                 ...                ${method}
-                ...                ${ids}=${FALSE}
+                ...                ${ids}=${{None}}
                 ...                ${params}=${{[]}}
                 ...                ${kwparams}=${{{}}}
                 ...                ${dbname}=${ODOO_DB}
@@ -212,11 +212,11 @@ Odoo Read Field     [Arguments]
     ${result}=  odoo.Rpc Client Get Field    ${host}  ${dbname}  ${user}  ${pwd}  model=${model}  id=${id}  field=${field}    ${Many2one}  lang=${lang}  context=${context}
     [return]                  ${result}
 
-Odoo Exec Sql    [Arguments]
-                   ...        ${sql}
-                   ...        ${dbname}=${ODOO_DB}
-                   ...        ${host}=${ODOO_URL}
-                   ...        ${user}=${ODOO_USER}
-                   ...        ${pwd}=${ODOO_PASSWORD}
+Odoo Exec Sql       [Arguments]
+                    ...        ${sql}
+                    ...        ${dbname}=${ODOO_DB}
+                    ...        ${host}=${ODOO_URL}
+                    ...        ${user}=${ODOO_USER}
+                    ...        ${pwd}=${ODOO_PASSWORD}
     ${result}=  odoo.Exec Sql    ${host}  ${dbname}  ${user}  ${pwd}  ${sql}
     [return]                  ${result}
