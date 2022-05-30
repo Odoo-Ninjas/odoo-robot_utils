@@ -2,7 +2,10 @@
 ${STRING}=                  cat
 ${NUMBER}=                  ${1}
 @{LIST}=                    one    two    three
-&{DICTIONARY}=              string=${STRING}    number=${NUMBER}    list=@{LIST}
+
+# &{DICTIONARY}=              string=${STRING}    number=${NUMBER}    list=@{LIST}
+# better:
+${values}=                       Create Dictionary  name=${CURRENT_TEST}
 ${ENVIRONMENT_VARIABLE}=    %{PATH=Default value}
 
 
