@@ -126,11 +126,12 @@ class odoo(object):
         context = self._get_context(context, lang)
         db = self.get_conn(host, dbname, user, pwd)
         obj = db[model]
+        kwparams['context'] = context
         if not ids:
             # model functions
-            return getattr(obj, method)(context=context, *params, **kwparams)
+            return getattr(obj, method)(*params, **kwparams)
         else:
-            return getattr(obj, method)(ids, context=context, *params, **kwparams)
+            return getattr(obj, method)(ids, *params, **kwparams)
 
     def rpc_client_create(self, host, dbname, user, pwd, model, values, context=None, lang=DEFAULT_LANG):
         context = self._get_context(context, lang)
