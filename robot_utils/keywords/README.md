@@ -9,7 +9,7 @@
 ```robot
 *** Settings ***
 Documentation     Smoketest
-Resource          keywords/odoo_13_ee.robot
+Resource          keywords/odoo_14_ee.robot
 Test Setup        Setup Smoketest
 
 

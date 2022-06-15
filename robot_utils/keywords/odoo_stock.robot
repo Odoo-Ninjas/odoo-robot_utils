@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation     Inventory Operations
-Resource          keywords/odoo_13_ee.robot
+Resource          keywords/odoo_14_ee.robot
 
 *** Keywords ***
 
