@@ -57,7 +57,7 @@ Odoo Load Data  [Arguments]
                 ...           ${host}=${ODOO_URL}
                 ...           ${user}=${ODOO_USER}
                 ...           ${pwd}=${ODOO_PASSWORD}
-    odoo.Load File            ${host}  ${dbname}  ${user}  ${pwd}  ${CURDIR}/../${filepath}  ${module_name}  ${TEST NAME}
+    odoo.Load File            ${host}  ${dbname}  ${user}  ${pwd}  ${TEST_DIR}/${filepath}  ${module_name}  ${TEST NAME}
 
 Odoo Put File           [Arguments]
                         ...      ${file_path}
@@ -66,7 +66,7 @@ Odoo Put File           [Arguments]
                         ...      ${host}=${ODOO_URL}
                         ...      ${user}=${ODOO_USER}
                         ...      ${pwd}=${ODOO_PASSWORD}
-    odoo.Put File            ${host}  ${dbname}  ${user}  ${pwd}  ${CURDIR}/../${file_path}  ${dest_path_on_odoo_container} 
+    odoo.Put File            ${host}  ${dbname}  ${user}  ${pwd}  ${TEST_DIR}/${file_path}  ${dest_path_on_odoo_container}
 
 Odoo Create     [Arguments]
                 ...             ${model}
