@@ -174,6 +174,7 @@ class odoo(object):
         return obj.put_file(content, dest_path_on_odoo_container)
 
     def load_file(self, host, dbname, user, pwd, filepath, module_name, test_name):
+        logger.error(filepath)
         filepath = Path(filepath).absolute()
         logger.debug(f"FilePath: {filepath}, cwd: {os.getcwd()}")
         db = self.get_conn(host, dbname, user, pwd)
