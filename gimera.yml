@@ -3,4 +3,3 @@ repos:
   path: robot_utils_common
   type: submodule
   url: https://github.com/marcwimmer/odoo-robot_utils_common
-
