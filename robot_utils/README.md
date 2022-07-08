@@ -1,12 +1,10 @@
-How to use
-~~~~~~~~~~~~
+# How to use
 
 Utilities that help using a robot framework:
 
   * data loader
 
-Authors
-~~~~~~~~~~~~~~~
+## Authors
 
 * Marc Wimmer <marc@itewimmer.de>
 
