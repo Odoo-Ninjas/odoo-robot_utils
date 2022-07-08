@@ -2,7 +2,7 @@
 
 Utilities that help using a robot framework:
 
-  * data loader
+* data loader
 
 ## Authors
 
