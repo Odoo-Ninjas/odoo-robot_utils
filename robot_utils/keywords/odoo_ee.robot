@@ -32,7 +32,7 @@ Login   [Arguments]     ${user}=${ODOO_USER}    ${password}=${ODOO_PASSWORD}    
     Click Button                            xpath=//form[@class='oe_login_form']//button[@type='submit']
     Log To Console                          Clicked login button - waiting
     Capture Page Screenshot
-    Wait Until Page Contains Element        xpath=//span[contains(@class, 'oe_topbar_name')]	timeout=10 sec
+    Wait Until Page Contains Element        xpath=//span[contains(@class, 'oe_topbar_name')]	timeout=60 sec
     ElementPostCheck
     Log To Console                          Logged In - continuing
     [return]    ${browser_id}
