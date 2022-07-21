@@ -10,24 +10,25 @@ Resource        ../../robot_utils_common/keywords/styling.robot
 
 *** Keywords ***
 
-Open New Browser    [Arguments]     ${url}
+Open Browser    [Arguments]     ${url}
     Set Selenium Speed	            0.5
     Set Selenium Timeout	        ${SELENIUM_TIMEOUT}
     Log To Console    ${url}
-    ${browser_id}=                  Get Driver For Browser    ${browser}  ${CURDIR}${/}..${/}tests/download
+    ${browser_id}=                  Get Driver For Browser    ${browser}    ${CURDIR}${/}..${/}tests/download
     Set Window Size                 1920    1080
     Go To                           ${url}
     Capture Page Screenshot
     [return]    ${browser_id}
 
 Login   [Arguments]     ${user}=${ODOO_USER}    ${password}=${ODOO_PASSWORD}    ${url}=${ODOO_URL}/web/login
-    ${browser_id}=                          Open New Browser       ${url}
+    ${browser_id}=                          Open Browser       ${url}
     # Run Keyword and Ignore error            Click element   //a[@href="/web/login"]
     Capture Page Screenshot
     Wait Until Element is Visible           name=login
+    Wait Until Element is Visible           name=password
     Log To Console                          Input is visible, now entering credentials for user ${user} with password ${password} 
-    Execute Javascript                      $("input[name=login]").val('${user}');
-    Execute Javascript                      $("input[name=password]").val('${password}');
+    Input Text                              xpath=//input[@name='login'][1]    ${user}
+    Input Text                              xpath=//input[@name='password'][1]    ${password}
     Log To Console                          Clicking Login
     Capture Page Screenshot
     Click Button                            xpath=//form[@class='oe_login_form']//button[@type='submit']
@@ -36,7 +37,14 @@ Login   [Arguments]     ${user}=${ODOO_USER}    ${password}=${ODOO_PASSWORD}    
     Wait Until Page Contains Element        xpath=//span[contains(@class, 'oe_topbar_name')]	timeout=60 sec
     ElementPostCheck
     Log To Console                          Logged In - continuing
+    #Go To                                   http://proxy/web?debug=assets
     [return]    ${browser_id}
+
+OpenForm  [Arguments]   ${model}   ${id} 
+    Open Browser  ${url}/web#model=${model}&id=${id}=view_type=form
+    Sleep  5s
+    Capture Page Screenshot
+
 
 DatabaseConnect    [Arguments]    ${db}=${db}    ${odoo_db_user}=${ODOO_DB_USER}    ${odoo_db_password}=${ODOO_DB_PASSWORD}    ${odoo_db_server}=${SERVER}    ${odoo_db_port}=${ODOO_DB_PORT}
 		Connect To Database Using Custom Params	psycopg2        database='${db}',user='${odoo_db_user}',password='${odoo_db_password}',host='${odoo_db_server}',port=${odoo_db_port}
@@ -129,28 +137,28 @@ ElementPostCheck
    # Check not AJAX request remaining (only longpolling)
    Run Keyword And Ignore Error     Wait For Ajax    1
 
-WriteInTitle                [Arguments]     ${model}    ${fieldname}    ${value}
-    # Log To Console    //div[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${fieldname}']/input
-    # ElementPreCheck         xpath=//div[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${fieldname}']/input[1]
-    Input Text              xpath=//div[@data-bt-testing-name='${fieldname}']/input[1]    ${value}
+WriteInTitle                [Arguments]     ${model}    ${field}    ${value}
+    # Log To Console    //div[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${field}']/input
+    # ElementPreCheck         xpath=//div[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${field}']/input[1]
+    Input Text              xpath=//div[@data-bt-testing-name='${field}']/input[1]    ${value}
     ElementPostCheck
 
-WriteInField                [Arguments]     ${model}    ${fieldname}    ${value}
-    ElementPreCheck         xpath=//input[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${fieldname}']|textarea[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${fieldname}']
-    Input Text              xpath=//input[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${fieldname}']|textarea[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${fieldname}']    ${value}
+WriteInField                [Arguments]     ${model}    ${field}    ${value}
+    ElementPreCheck         xpath=//input[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${field}']|textarea[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${field}']
+    Input Text              xpath=//input[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${field}']|textarea[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${field}']    ${value}
     ElementPostCheck
 
-WriteMonetaryField        [Arguments]     ${model}    ${fieldname}    ${value}
-    Input Text      xpath=//div[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${fieldname}']//input[@type='text']    ${value}
+WriteMonetaryField        [Arguments]     ${model}    ${field}    ${value}
+    Input Text      xpath=//div[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${field}']//input[@type='text']    ${value}
     ElementPostCheck
 
-WriteDateField            [Arguments]     ${model}    ${fieldname}    ${value}
-    Input Text      jquery:div[data-bt-testing-name='${fieldname}'] input       ${value}
+WriteDateField            [Arguments]     ${model}    ${field}    ${value}
+    Input Text      jquery:div[data-bt-testing-name='${field}'] input       ${value}
     ElementPostCheck
 
-ClearField                [Arguments]     ${model}    ${fieldname}
-    ElementPreCheck         xpath=//input[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${fieldname}']|textarea[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${fieldname}']
-    Clear Element Text              xpath=//input[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${fieldname}']|textarea[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${fieldname}']
+ClearField                [Arguments]     ${model}    ${field}
+    ElementPreCheck         xpath=//input[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${field}']|textarea[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${field}']
+    Clear Element Text              xpath=//input[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${field}']|textarea[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${field}']
     ElementPostCheck
 
 Radio   [Arguments]     ${model}    ${field}    ${value}
@@ -252,9 +260,9 @@ SelectListView  [Arguments]    ${model}    @{fields}
 
     # Got throught all field=value and to select the correct record
     : FOR    ${field}    IN  @{fields}
-    # Split the string in fieldname=fieldvalue
-    \    ${fieldname}    ${fieldvalue}=    Split String    ${field}    separator==    max_split=1
-    \    ${fieldxpath}=    Catenate    @data-bt-testing-model_name='${model}' and @data-field='${fieldname}'
+    # Split the string in field=fieldvalue
+    \    ${field}    ${fieldvalue}=    Split String    ${field}    separator==    max_split=1
+    \    ${fieldxpath}=    Catenate    @data-bt-testing-model_name='${model}' and @data-field='${field}'
 
          # We first check if this field is in the view and visible
          # otherwise a single field can break the whole command
@@ -263,7 +271,7 @@ SelectListView  [Arguments]    ${model}    @{fields}
     \    ${status}    ${value}=    Run Keyword And Ignore Error    Page Should Contain Element    xpath=${checkxpath}
 
          # In case the field is not there, log a error
-    \    Run Keyword Unless     '${status}' == 'PASS'    Log    Field ${fieldname} not in the view or unvisible
+    \    Run Keyword Unless     '${status}' == 'PASS'    Log    Field ${field} not in the view or unvisible
          # In case the field is there, add the path to the xpath
     \    ${xpath}=    Set Variable If    '${status}' == 'PASS'    ${xpath} and descendant::td[${fieldxpath} and string()='${fieldvalue}']    ${xpath}
 
@@ -518,3 +526,18 @@ Toggle Boolean             [Arguments]            ${model}    ${record_name}    
     ${negbool}=            Convert To Boolean     ${negate}
     ${userdict}=           Create Dictionary      ${field_name}     ${negbool}
     Odoo Write             model=${model}         ids=${rec.id}     values=${userdict}
+
+AccountingMainMenu
+    ClickMenu          menu=account_accountant.menu_accounting
+
+CRMMainMenu     
+    ClickMenu          menu=crm.crm_menu_root
+
+ContactsMainMenu 
+    ClickMenu          menu=contacts.menu_contacts
+
+InventoryMainMenu
+    ClickMenu          menu=stock.menu_stock_root
+
+SalesMainMenu
+    ClickMenu    menu=sale.sale_menu_root
