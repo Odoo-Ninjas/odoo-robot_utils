@@ -1,12 +1,13 @@
 *** Settings ***
 
 Documentation   Odoo 13 backend keywords.
-Library         ../library/browser.py
+Library         ../../robot_utils_common/library/browser.py
 Library         SeleniumLibrary
-Library         ../library/tools.py
-Resource        ./odoo_client.robot
-Resource        ./styling.robot
-Resource        ./tools.robot
+Resource        ../../robot_utils_common/keywords/odoo_client.robot
+Resource        ../../robot_utils_common/keywords/tools.robot
+Library         ../../robot_utils_common/library/tools.py
+Resource        ../../robot_utils_common/keywords/styling.robot
+Library         String  # example Random String
 
 *** Keywords ***
 
