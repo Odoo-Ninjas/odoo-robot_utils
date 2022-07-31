@@ -96,14 +96,18 @@ class DataLoader(models.AbstractModel):
         return True
 
     @api.model
-    def wait_queuejobs(self):
-        count = 1
-        while count:
-            self.env.cr.execute(
-                "select count(*) from queue_job where state not in ('done', 'failed');"
-            )
-            count = self.env.cr.fetchall()[0][0]
+    def wait_sqlcondition(self, sql):
+        condition = None
+        while condition or condition is None:
+            self.env.cr.execute(sql)
+            condition = self.env.cr.fetchall()[0][0]
             self.env.cr.commit()
             self.env.clear()
             time.sleep(0.5)
+        return True
+
+    @api.model
+    def wait_queuejobs(self):
+        self.wait_sqlcondition(
+            "select count(*) from queue_job where state not in ('done', 'failed');"
         return True
