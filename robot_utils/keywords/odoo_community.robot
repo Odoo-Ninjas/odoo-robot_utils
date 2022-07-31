@@ -27,8 +27,8 @@ Login   [Arguments]     ${user}=${ODOO_USER}    ${password}=${ODOO_PASSWORD}    
     Capture Page Screenshot
     Wait Until Element is Visible           name=login
     Log To Console                          Input is visible, now entering credentials for user ${user} with password ${password} 
-    Execute Javascript                      $("input[name=login]").val('${user}');
-    Execute Javascript                      $("input[name=password]").val('${password}');
+    Input Text                              xpath=//input[@name='login'][1]    ${user}
+    Input Text                              xpath=//input[@name='password'][1]    ${password}
     Log To Console                          Clicking Login
     Capture Page Screenshot
     Click Button                            xpath=//form[@class='oe_login_form']//button[@type='submit']
