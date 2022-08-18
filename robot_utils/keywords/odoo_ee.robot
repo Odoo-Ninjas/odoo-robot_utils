@@ -41,13 +41,15 @@ Login   [Arguments]     ${user}=${ODOO_USER}    ${password}=${ODOO_PASSWORD}    
     #Go To                                   http://proxy/web?debug=assets
     [return]    ${browser_id}
 
-OpenForm  [Arguments]   ${model}   ${id} 
+OpenForm
+    [Arguments]   ${model}   ${id}
     Open Browser  ${url}/web#model=${model}&id=${id}=view_type=form
     Sleep  5s
     Capture Page Screenshot
 
 
-DatabaseConnect    [Arguments]    ${db}=${db}    ${odoo_db_user}=${ODOO_DB_USER}    ${odoo_db_password}=${ODOO_DB_PASSWORD}    ${odoo_db_server}=${SERVER}    ${odoo_db_port}=${ODOO_DB_PORT}
+DatabaseConnect
+    [Arguments]    ${db}=${db}    ${odoo_db_user}=${ODOO_DB_USER}    ${odoo_db_password}=${ODOO_DB_PASSWORD}    ${odoo_db_server}=${SERVER}    ${odoo_db_port}=${ODOO_DB_PORT}
 		Connect To Database Using Custom Params	psycopg2        database='${db}',user='${odoo_db_user}',password='${odoo_db_password}',host='${odoo_db_server}',port=${odoo_db_port}
 
 ClickMenu    [Arguments]	${menu}
@@ -58,10 +60,13 @@ ClickMenu    [Arguments]	${menu}
 	sleep   1
 
 ApplicationMainMenuOverview
+    ${present}=  Run Keyword And Return Status    Element Should Be Visible  class:o_home_menu
+    IF  not ${present}
     Wait Until Element is visible       xpath=//a[contains(@class, 'o_menu_toggle')]
     Click Element                       jquery:a.o_menu_toggle
     Wait Until Page Contains Element	xpath=//body[contains(@class, 'o_web_client')]
 	ElementPostCheck
+    END
 
 MainMenu	[Arguments]	${menu}
     Wait Until Element is visible       xpath=//a[@data-menu='${menu}']
@@ -167,7 +172,7 @@ Radio   [Arguments]     ${model}    ${field}    ${value}
 
 Button    [Arguments]     ${model}=   ${button_name}=     ${class}=    ${name}=    ${span}=     ${contains}=    ${data_name}=    ${position}=1
     Run Keyword Unless      '${span}' == ''      Click Button    xpath=//button[not(contains(@class, 'o_invisible_modifier'))]//span[contains(text(), '${span}')]/..
-    Run Keyword Unless      '${name}' == ''      Click Button    xpath=//button[contains(@name,'${name}')]
+    Run Keyword Unless      '${name}' == ''                              Click Button       xpath=//button[contains(@name,'${name}')]
     Run Keyword Unless      '${model}' == ''     Click Button    xpath=//button[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${button_name}' and not(contains(@class,'o_form_invisible'))]
     Run Keyword Unless      '${contains}' == ''  Click Button    xpath=//button[contains(text(),'${contains}') and not(contains(@class,'o_invisible_modifier'))]
     Run Keyword Unless      '${class}' == ''     Click Button    xpath=//button[contains(@class,'${class}')]
@@ -185,7 +190,7 @@ BackButton
 
 ButtonXMLid    [Arguments]		${IR_MODEL_DATA_MODEL}    ${Model}    ${Name}
 	${MODULE}=              Fetch From Left            ${Name}              .
-    ${NAME}=                Fetch From Right           ${Name}              .
+    ${NAME}=            Fetch From Right                                                     ${Name}              .
     ${ButtonID}=		    get_button_res_id	${ODOO_URL}	${db}	${ODOO_USER}	${ODOO_PASSWORD}  ${IR_MODEL_DATA_MODEL}  ${MODULE}	${NAME}
     Run Keyword If          ${ButtonID}               Button         model=${Model}  button_name=${ButtonID}
 
