@@ -1,4 +1,5 @@
 import tempfile
+import time
 import os
 import arrow
 import base64
@@ -9,26 +10,35 @@ from pathlib import Path
 from odoo import _, api, fields, models, SUPERUSER_ID
 from io import BufferedReader, BytesIO
 from odoo.tools import convert_xml_import, convert_csv_import
-#BUGFIX1
+
+# BUGFIX1
 from odoo.exceptions import UserError, RedirectWarning, ValidationError
 
+
 class DataLoader(models.AbstractModel):
-    _name = 'robot.data.loader'
+    _name = "robot.data.loader"
 
     @api.model
-    def get_latest_file_in_folder(self, parent_dir, glob, younger_than, wait_until_exists):
+    def get_latest_file_in_folder(
+        self, parent_dir, glob, younger_than, wait_until_exists
+    ):
         younger_than = arrow.get(younger_than)
         started = arrow.get()
         while (arrow.get() - started).total_seconds() < 20:
 
-            files = list(sorted(Path(parent_dir).glob(glob or "**/*"), key=lambda x: x.stat().st_mtime))
+            files = list(
+                sorted(
+                    Path(parent_dir).glob(glob or "**/*"),
+      key=lambda x: x.stat().st_mtime,
+                )
+            )
             files = [x for x in files if arrow.get(x.stat().st_mtime) > younger_than]
             if files:
                 file = files[-1]
                 return {
                     "filename": file.name,
                     "filepath": str(file),
-                    "content": base64.b64encode(file.read_bytes()).decode('ascii')
+                    "content": base64.b64encode(file.read_bytes()).decode("ascii"),
                 }
             if not wait_until_exists:
                 break
@@ -65,8 +75,8 @@ class DataLoader(models.AbstractModel):
         filepath = Path(tempfile.mkstemp(suffix=file_type)[1])
         filepath.write_text(content)
         try:
-            if file_type == '.xml':
-                with open(filepath, 'rb') as file:
+            if file_type == ".xml":
+                with open(filepath, "rb") as file:
                     convert_xml_import(
                         self.env.cr,
                         module_name,
@@ -74,12 +84,12 @@ class DataLoader(models.AbstractModel):
                         idref={},
                         noupdate=False,
                     )
-            elif file_type == '.csv':
+            elif file_type == ".csv":
                 convert_csv_import(
                     cr=self.env.cr,
                     module=module_name,
                     fname=Path(filename).name,
-                    csvcontent=content.encode('utf-8')
+                    csvcontent=content.encode("utf-8"),
                 )
         finally:
             filepath.unlink()
@@ -99,5 +109,7 @@ class DataLoader(models.AbstractModel):
 
     @api.model
     def wait_queuejobs(self):
-        self.wait_sqlcondition("select count(*) from queue_job where state not in ('done', 'failed');")
+        self.wait_sqlcondition(
+            "select count(*) from queue_job where state not in ('done', 'failed');"
+        )
         return True
