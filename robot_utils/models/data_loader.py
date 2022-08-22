@@ -30,7 +30,7 @@ class DataLoader(models.AbstractModel):
                     "filepath": str(file),
                     "content": base64.b64encode(file.read_bytes()).decode('ascii')
                 }
-            if not wait_until_exists: 
+            if not wait_until_exists:
                 break
         return {}
 
@@ -51,14 +51,14 @@ class DataLoader(models.AbstractModel):
 
     @api.model
     def load_data(self, content, file_type, module_name, filename):
-        """Does basically the same like what at update happens when installing a module and 
+        """Does basically the same like what at update happens when installing a module and
         loads the xml and csv files.
 
         Args:
             content ([string]): filecontent
             file_type (string): csv or xml
             module_name (string): faked module name
-            filename (string): 
+            filename (string):
 
         """
 
@@ -84,4 +84,20 @@ class DataLoader(models.AbstractModel):
         finally:
             filepath.unlink()
 
+        return True
+
+    @api.model
+    def wait_sqlcondition(self, sql):
+        condition = None
+        while condition or condition is None:
+            self.env.cr.execute(sql)
+            condition = self.env.cr.fetchall()[0][0]
+            self.env.cr.commit()
+            self.env.clear()
+            time.sleep(0.5)
+        return True
+
+    @api.model
+    def wait_queuejobs(self):
+        self.wait_sqlcondition("select count(*) from queue_job where state not in ('done', 'failed');")
         return True
