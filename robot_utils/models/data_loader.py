@@ -29,7 +29,7 @@ class DataLoader(models.AbstractModel):
             files = list(
                 sorted(
                     Path(parent_dir).glob(glob or "**/*"),
-      key=lambda x: x.stat().st_mtime,
+                    key=lambda x: x.stat().st_mtime,
                 )
             )
             files = [x for x in files if arrow.get(x.stat().st_mtime) > younger_than]
