@@ -3,4 +3,4 @@ repos:
   path: robot_utils_common
   sha: 55f58a39165c540a5d39435076e9178349e98a1e
   type: submodule
-  url: ssh://git@github.com/marcwimmer/odoo-robot_utils_common
+  url: https://github.com/marcwimmer/odoo-robot_utils_common
