@@ -110,11 +110,6 @@ class DataLoader(models.AbstractModel):
     def wait_queuejobs(self):
         def _get_enqueued_job():
             self.env.cr.execute(
-                "update queue_job "
-                "set date_enqueued = eta "
-                "where date_enqueued is null and eta is not null "
-            )
-            self.env.cr.execute(
                 "select id from queue_job where state not in ('done', 'failed') "
                 "and date_enqueued >= (select now() at time zone 'utc') "
                 "order by date_enqueued limit 1"
@@ -124,6 +119,11 @@ class DataLoader(models.AbstractModel):
                 return ids[0]
 
         while True:
+            self.env.cr.execute(
+                "update queue_job "
+                "set date_enqueued = eta "
+                "where date_enqueued is null and eta is not null "
+            )
             self.wait_sqlcondition(
                 "select count(*) from queue_job where "
                 "state not in ('done', 'failed') and "
