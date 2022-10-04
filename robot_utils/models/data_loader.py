@@ -152,6 +152,7 @@ class DataLoader(models.AbstractModel):
                     "   select id from queue_job "
                     "   where state not in ('done', 'cancel') "
                     "   and not eta is null "
+                    "   and state = 'pending' "
                     "   order by eta"
                     "   limit 1"
                     ")"
