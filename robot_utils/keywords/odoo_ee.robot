@@ -2,6 +2,7 @@
 
 Documentation   Odoo 13 backend keywords.
 Library         SeleniumLibrary
+Library         String
 Library         ../../robot_utils_common/library/browser.py
 Resource        ../../robot_utils_common/keywords/odoo_client.robot
 Resource        ../../robot_utils_common/keywords/styling.robot
@@ -127,28 +128,28 @@ ElementPostCheck
    # Check not AJAX request remaining (only longpolling)
    Run Keyword And Ignore Error     Wait For Ajax    1
 
-WriteInTitle                [Arguments]     ${model}    ${fieldname}    ${value}
-    # Log To Console    //div[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${fieldname}']/input
-    # ElementPreCheck         xpath=//div[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${fieldname}']/input[1]
-    Input Text              xpath=//div[@data-bt-testing-name='${fieldname}']/input[1]    ${value}
+WriteInTitle                [Arguments]     ${model}    ${field}    ${value}
+    # Log To Console    //div[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${field}']/input
+    # ElementPreCheck         xpath=//div[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${field}']/input[1]
+    Input Text              xpath=//div[@data-bt-testing-name='${field}']/input[1]    ${value}
     ElementPostCheck
 
-WriteInField                [Arguments]     ${model}    ${fieldname}    ${value}
-    ElementPreCheck         xpath=//input[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${fieldname}']|textarea[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${fieldname}']
-    Input Text              xpath=//input[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${fieldname}']|textarea[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${fieldname}']    ${value}
+WriteInField                [Arguments]     ${model}    ${field}    ${value}
+    ElementPreCheck         xpath=//input[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${field}']|textarea[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${field}']
+    Input Text              xpath=//input[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${field}']|textarea[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${field}']    ${value}
     ElementPostCheck
 
-WriteMonetaryField        [Arguments]     ${model}    ${fieldname}    ${value}
-    Input Text      xpath=//div[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${fieldname}']//input[@type='text']    ${value}
+WriteMonetaryField        [Arguments]     ${model}    ${field}    ${value}
+    Input Text      xpath=//div[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${field}']//input[@type='text']    ${value}
     ElementPostCheck
 
-WriteDateField            [Arguments]     ${model}    ${fieldname}    ${value}
-    Input Text      jquery:div[data-bt-testing-name='${fieldname}'] input       ${value}
+WriteDateField            [Arguments]     ${model}    ${field}    ${value}
+    Input Text      jquery:div[data-bt-testing-name='${field}'] input       ${value}
     ElementPostCheck
 
-ClearField                [Arguments]     ${model}    ${fieldname}
-    ElementPreCheck         xpath=//input[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${fieldname}']|textarea[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${fieldname}']
-    Clear Element Text              xpath=//input[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${fieldname}']|textarea[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${fieldname}']
+ClearField                [Arguments]     ${model}    ${field}
+    ElementPreCheck         xpath=//input[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${field}']|textarea[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${field}']
+    Clear Element Text              xpath=//input[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${field}']|textarea[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${field}']
     ElementPostCheck
 
 Radio   [Arguments]     ${model}    ${field}    ${value}
@@ -250,9 +251,9 @@ SelectListView  [Arguments]    ${model}    @{fields}
 
     # Got throught all field=value and to select the correct record
     : FOR    ${field}    IN  @{fields}
-    # Split the string in fieldname=fieldvalue
-    \    ${fieldname}    ${fieldvalue}=    Split String    ${field}    separator==    max_split=1
-    \    ${fieldxpath}=    Catenate    @data-bt-testing-model_name='${model}' and @data-field='${fieldname}'
+    # Split the string in field=fieldvalue
+    \    ${field}    ${fieldvalue}=    Split String    ${field}    separator==    max_split=1
+    \    ${fieldxpath}=    Catenate    @data-bt-testing-model_name='${model}' and @data-field='${field}'
 
          # We first check if this field is in the view and visible
          # otherwise a single field can break the whole command
@@ -261,7 +262,7 @@ SelectListView  [Arguments]    ${model}    @{fields}
     \    ${status}    ${value}=    Run Keyword And Ignore Error    Page Should Contain Element    xpath=${checkxpath}
 
          # In case the field is not there, log a error
-    \    Run Keyword Unless     '${status}' == 'PASS'    Log    Field ${fieldname} not in the view or unvisible
+    \    Run Keyword Unless     '${status}' == 'PASS'    Log    Field ${field} not in the view or unvisible
          # In case the field is there, add the path to the xpath
     \    ${xpath}=    Set Variable If    '${status}' == 'PASS'    ${xpath} and descendant::td[${fieldxpath} and string()='${fieldvalue}']    ${xpath}
 
