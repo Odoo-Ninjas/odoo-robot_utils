@@ -62,3 +62,67 @@ class DataLoader(models.AbstractModel):
             filepath.unlink()
 
         return True
+    
+    @api.model
+    def wait_sqlcondition(self, sql):
+        condition = None
+        while condition or condition is None:
+            self.env.cr.execute(sql)
+            condition = self.env.cr.fetchall()[0][0]
+            self.env.cr.commit()
+            self.env.clear()
+            time.sleep(0.5)
+        return True
+
+    @api.model
+    def wait_queuejobs(self):
+        breakpoint()
+        def count(state):
+            self.env.cr.execute("select count(*) from queue_job where state =%s", (state,))
+            return self.env.cr.fetchone()[0]
+
+        def _get_enqueued_job():
+            self.env.cr.execute(
+                "select id from queue_job where state not in ('done', 'failed') "
+                "order by date_enqueued, id "
+                "limit 1"
+            )
+            ids = [x[0] for x in self.env.cr.fetchall()]
+            if ids:
+                return ids[0]
+
+        while True:
+            self.env.cr.execute(
+                "update queue_job "
+                "set date_enqueued = eta "
+                "where date_enqueued is null and eta is not null "
+            )
+            if count("pending") > 0 and not count('started') and not count('enqueued'):
+                self.execute_sql(
+                    "update queue_job "
+                    "set eta = null, date_enqueued = (select now() at time zone 'utc') "
+                    "where id in ("
+                    "   select id from queue_job "
+                    "   where state not in ('done', 'failed') "
+                    "   order by eta"
+                    "   limit 1"
+                    ")"
+                )
+
+            self.wait_sqlcondition(
+                "select count(*) from queue_job where "
+                "state not in ('done', 'failed') and "
+                "date_enqueued < (select now() at time zone 'utc');"
+            )
+            job_id = _get_enqueued_job()
+            if not job_id:
+                break
+            self.execute_sql(
+                "update queue_job "
+                "set date_enqueued = (select now() at time zone 'utc') "
+                f"where id={job_id}"
+            )
+            self.env.cr.commit()
+    
+
+        return True
