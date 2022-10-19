@@ -1,4 +1,5 @@
 import tempfile
+import time
 import base64
 from pathlib import Path
 from odoo import _, api, fields, models, SUPERUSER_ID
