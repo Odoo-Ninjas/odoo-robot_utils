@@ -521,3 +521,8 @@ Toggle Boolean             [Arguments]            ${model}    ${record_name}    
     ${negbool}=            Convert To Boolean     ${negate}
     ${userdict}=           Create Dictionary      ${field_name}     ${negbool}
     Odoo Write             model=${model}         ids=${rec.id}     values=${userdict}
+    
+   
+Wait To Click   [Arguments]       ${xpath}
+    Wait Until Element Is Visible          xpath=${xpath}
+    Click Element                          xpath=${xpath}
