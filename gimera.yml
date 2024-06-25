@@ -3,4 +3,4 @@ repos:
   path: robot_utils_common
   freeze_sha: true
   type: submodule
-  url: https://github.com/marcwimmer/odoo-robot_utils_common
+  url: git@github.com:Odoo-Ninjas/odoo-robot_utils_common
