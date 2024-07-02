@@ -12,16 +12,6 @@ Library         String  # example Random String
 
 *** Keywords ***
 
-Open New Browser    [Arguments]     ${url}
-    Set Selenium Speed	            0.5
-    Set Selenium Timeout	        ${SELENIUM_TIMEOUT}
-    Log To Console    ${url}
-    ${browser_id}=                  Get Driver For Browser    ${browser}    ${CURDIR}${/}..${/}tests/download
-    Set Window Size                 1920    1080
-    Go To                           ${url}
-    Capture Page Screenshot
-    [return]    ${browser_id}
-
 Login   [Arguments]     ${user}=${ODOO_USER}    ${password}=${ODOO_PASSWORD}    ${url}=${ODOO_URL}/web/login
     ${browser_id}=                          Open New Browser       ${url}
     # Run Keyword and Ignore error            Click element   //a[@href="/web/login"]
