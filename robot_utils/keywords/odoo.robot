@@ -65,10 +65,21 @@ ApplicationMainMenuOverview
     Wait Until Page Contains Element	xpath=//body[contains(@class, 'o_web_client')]
 	ElementPostCheck
 
+Is Visible  [Arguments]  ${xpath}
+    ${is_visible}=    Run Keyword And Return Status    Wait Until Element Is Visible    xpath=${xpath}   
+    [Return]  ${is_visible}
+
+
 WriteInField                [Arguments]     ${fieldname}    ${value}
     ${xpath}=               Set Variable  //input[@id='${fieldname}']|textarea[@id='${fieldname}']
     ElementPreCheck         xpath=${xpath}
     Input Text              xpath=${xpath}  ${value}
+    # wait if it is a many2one
+    ${visible}=             Is Visible   xpath=//ul[@role='listbox']
+    Log To Console          ${visible}
+    Run Keyword If          ${visible}    Click Element    xpath=//li[@class='o-autocomplete--dropdown-item ui-menu-item'][1]
+
+
     ElementPostCheck
 
 Upload File                [Arguments]     ${fieldname}    ${value}
@@ -88,7 +99,7 @@ ElementPostCheck
     # Check that page is not loading
     Run Keyword And Ignore Error     Wait Until Page Contains Element    xpath=//body[not(contains(@class, 'o_loading'))]
     # Check that page is not blocked by RPC Call
-    Run Keyword And Ignore Error     Wait Until Page Contains Element    xpath=//body[not(contains(@class, 'oe_wait'))]
+    Run Keyword And Ignore Error     Wait Until Page Contains Element    xpath=//body[not(contains(@class, 'o_ewait'))]
     # Check not AJAX request remaining (only longpolling)
     Run Keyword And Ignore Error     Wait For Ajax    1
 
