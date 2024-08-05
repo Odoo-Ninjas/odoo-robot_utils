@@ -60,14 +60,6 @@ IsModal
 	Set Selenium Implicit Wait	${SELENIUM_TIMEOUT}
 	[return]	${modal}
 
-ElementPostCheck
-   # Check that page is not loading
-   Run Keyword And Ignore Error     Wait Until Page Contains Element    xpath=//body[not(contains(@class, 'o_loading'))]
-   # Check that page is not blocked by RPC Call
-   Run Keyword And Ignore Error     Wait Until Page Contains Element    xpath=//body[not(contains(@class, 'oe_wait'))]
-   # Check not AJAX request remaining (only longpolling)
-   Run Keyword And Ignore Error     Wait For Ajax    1
-
 WriteInTitle                [Arguments]     ${model}    ${fieldname}    ${value}
     # Log To Console    //div[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${fieldname}']/input
     # ElementPreCheck         xpath=//div[@data-bt-testing-model_name='${model}' and @data-bt-testing-name='${fieldname}']/input[1]
@@ -232,11 +224,6 @@ SubMenu3    [Arguments]    ${menu}    ${menu-pos}=0    ${menu-2}=0    ${menu-2-p
     Click Link                          jquery:div.oe_secondary_menus_container div.oe_secondary_menu:visible ul li:contains('${menu}'):nth(${menu-pos}) ul li:contains('${menu-2}'):nth(${menu-2-pos}) ul li a:contains('${menu-3}'):nth(${menu-3-pos})
     Run Keyword If                     '${check}' == '1'       Wait Until Page Contains Element    jquery:div.oe_view_manager_current
     ElementPostCheck
-
-ElementPreCheck    [Arguments]    ${element}
-	Execute Javascript      console.log("${element}");
-	# Element may be in a tab. So click the parent tab. If there is no parent tab, forget about the result
-    Execute Javascript      var path="${element}".replace('xpath=','');var id=document.evaluate("("+path+")/ancestor::div[contains(@class,'oe_notebook_page')]/@id",document,null,XPathResult.STRING_TYPE,null).stringValue; if(id != ''){ window.location = "#"+id; $("a[href='#"+id+"']").click(); console.log("Clicked at #" + id); } return true;
 
 Button Smart    [Arguments]     ${name}
     Wait Until Page Contains Element	xpath=//div[contains(@class,'o_cp_pager')]

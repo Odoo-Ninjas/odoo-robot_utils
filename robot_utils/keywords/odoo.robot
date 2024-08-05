@@ -3,7 +3,7 @@
 Documentation   Odoo 13 backend keywords.
 Library         ../../robot_utils_common/library/browser.py
 Library         SeleniumLibrary
-Resource        ../../robot_utils/keywords/odoo_community_unverified.robot
+# Resource        ../../robot_utils/keywords/odoo_community_unverified.robot
 Resource        ../../robot_utils_common/keywords/odoo_client.robot
 Resource        ../../robot_utils_common/keywords/tools.robot
 Library         ../../robot_utils_common/library/tools.py
@@ -41,7 +41,7 @@ ClickMenu    [Arguments]	${menu}
     # works V16
     Log To Console     Clicking menu ${menu}
     ${xpath}=   Set Variable  //a[@data-menu-xmlid='${menu}'] | //button[@data-menu-xmlid='${menu}']
-    Wait Until Element is visible       xpath=${xpath}
+    Wait Until Element is visible       xpath=${xpath} 
 	Click Element	xpath=${xpath}
 	Wait Until Page Contains Element	xpath=//body[contains(@class, 'o_web_client')]
 	ElementPostCheck
@@ -83,3 +83,31 @@ Upload File                [Arguments]     ${fieldname}    ${value}
     Capture Page Screenshot
     Input Text              xpath=${xpath}    ${value}
     ElementPostCheck
+
+ElementPostCheck
+    # Check that page is not loading
+    Run Keyword And Ignore Error     Wait Until Page Contains Element    xpath=//body[not(contains(@class, 'o_loading'))]
+    # Check that page is not blocked by RPC Call
+    Run Keyword And Ignore Error     Wait Until Page Contains Element    xpath=//body[not(contains(@class, 'oe_wait'))]
+    # Check not AJAX request remaining (only longpolling)
+    Run Keyword And Ignore Error     Wait For Ajax    1
+
+ElementPreCheck    [Arguments]    ${element}
+    Execute Javascript      console.log("${element}");
+    # Element may be in a tab. So click the parent tab. If there is no parent tab, forget about the result
+    # not verified for V16 yet with tabs
+    ${code}=                Catenate 
+    ...    var path="${element}".replace('xpath=','');
+    ...    var id=document.evaluate("("+path+")/ancestor::div[contains(@class,'oe_notebook_page')]/@id"
+    ...        ,document,null,XPathResult.STRING_TYPE,null).stringValue;
+    ...    if (id != ''){
+    ...        window.location = "#"+id;
+    ...        $("a[href='#"+id+"']").click();
+    ...        console.log("Clicked at #" + id);
+    ...    }
+    ...    return true;
+    Execute Javascript       ${code}
+
+Wait To Click   [Arguments]       ${xpath}
+    Wait Until Element Is Visible          xpath=${xpath}
+    Click Element                          xpath=${xpath}

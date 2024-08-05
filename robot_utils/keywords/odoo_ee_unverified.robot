@@ -512,22 +512,4 @@ Toggle Boolean             [Arguments]            ${model}    ${record_name}    
     ${userdict}=           Create Dictionary      ${field_name}     ${negbool}
     Odoo Write             model=${model}         ids=${rec.id}     values=${userdict}
   
-Eval Regex
-    [Arguments]    ${regex}    ${text}
-    ${matches}=    Evaluate    re.findall($regex, $text)
-    ${result}=     Run Keyword If    "${matches}"!="[]"    Get From List    ${matches}   0
-    [Return]       ${result}
 
-Get Instance ID From Url
-    [Arguments]  ${assumed_model}
-    ${url}=    Get Location
-    Set Variable    ${url}
-    ${model}=    Eval Regex    model=([^&]+)    ${url}
-    ${id}=    Eval Regex    id=([^&]+)    ${url}
-    Should Be Equal As Strings  ${model}   ${assumed_model}
-    Log To Console    Model: ${model}
-    Log To Console    ID: ${id}
-   
-Wait To Click   [Arguments]       ${xpath}
-    Wait Until Element Is Visible          xpath=${xpath}
-    Click Element                          xpath=${xpath}
