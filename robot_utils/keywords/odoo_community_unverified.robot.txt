@@ -1,5 +1,50 @@
 *** Keywords ***
 
+<<<<<<< HEAD:robot_utils/keywords/odoo_community_unverified.robot
+=======
+Login   [Arguments]     ${user}=${ODOO_USER}    ${password}=${ODOO_PASSWORD}    ${url}=${ODOO_URL}/web/login
+    ${browser_id}=                          Open New Browser       ${url}
+    # Run Keyword and Ignore error            Click element   //a[@href="/web/login"]
+    Capture Page Screenshot
+    Wait Until Element is Visible           name=login
+    Log To Console                          Input is visible, now entering credentials for user ${user} with password ${password} 
+    Wait Until Page Contains Element        xpath=//input[@name='login']	timeout=10 sec
+    Input Text                              xpath=//input[@name='login'][1]    ${user}
+    Input Text                              xpath=//input[@name='password'][1]    ${password}
+    Log To Console                          Clicking Login
+    Capture Page Screenshot
+    Click Button                            xpath=//form[@class='oe_login_form']//button[@type='submit']
+    Log To Console                          Clicked login button - waiting
+    Capture Page Screenshot
+    Wait Until Page Contains Element        xpath=//span[contains(@class, 'oe_topbar_name')]	timeout=10 sec
+    ElementPostCheck
+    Log To Console                          Logged In - continuing
+    [return]    ${browser_id}
+
+DatabaseConnect    [Arguments]    ${db}=${db}    ${odoo_db_user}=${ODOO_DB_USER}    ${odoo_db_password}=${ODOO_DB_PASSWORD}    ${odoo_db_server}=${SERVER}    ${odoo_db_port}=${ODOO_DB_PORT}
+		Connect To Database Using Custom Params	psycopg2        database='${db}',user='${odoo_db_user}',password='${odoo_db_password}',host='${odoo_db_server}',port=${odoo_db_port}
+
+ClickMenu    [Arguments]	${menu}
+    Wait Until Element is visible       xpath=//a[@data-menu-xmlid='${menu}']
+	Click Link	xpath=//a[@data-menu-xmlid='${menu}']
+	Wait Until Page Contains Element	xpath=//body[contains(@class, 'o_web_client')]
+	ElementPostCheck
+	sleep   1
+
+ApplicationMainMenuOverview
+    Wait Until Element is visible       xpath=//a[contains(@class, 'o_menu_toggle')]
+    Click Element                       jquery:a.o_menu_toggle
+    Wait Until Page Contains Element	xpath=//body[contains(@class, 'o_web_client')]
+	ElementPostCheck
+
+MainMenu	[Arguments]	${menu}
+    Wait Until Element is visible       xpath=//a[@data-menu='${menu}']
+	Click Link	xpath=//a[@data-menu='${menu}']
+	Wait Until Page Contains Element	xpath=//body[contains(@class, 'o_web_client')]
+	ElementPostCheck
+	sleep   1
+
+>>>>>>> 4ecb5d1 (open new browser is in tools):robot_utils/keywords/odoo_ee.robot
 SubMenu	[Arguments]	${menu}
 	Wait Until Element is visible       xpath=//a[@data-menu='${menu}']
 	${menuisopened}=       Run Keyword And Return Status    Wait Until Element Is Visible       jquery=a[data-menu='${menu}'].oe_menu_opened       2
