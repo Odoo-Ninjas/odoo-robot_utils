@@ -119,6 +119,19 @@ ElementPreCheck    [Arguments]    ${element}
     ...    return true;
     Execute Javascript       ${code}
 
-Wait To Click   [Arguments]       ${xpath}
+Wait To Click   [Arguments]       ${xpath} 
+    Capture Page Screenshot
     Wait Until Element Is Visible          xpath=${xpath}
-    Click Element                          xpath=${xpath}
+    Capture Page Screenshot
+    ${result}=  Run Keyword And Return Status  Click Element  xpath=${xpath}
+
+    # try to click per javascript then; if mouse fails
+    ${js}=  Catenate  
+    ...  const xpath = "${xpath}";
+    ...  const result = document.evaluate(xpath, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+    ...  for (let i = 0; i < result.snapshotLength; i++) {
+    ...     const element = result.snapshotItem(i);
+    ...     element.click();
+    ...  }
+    Run Keyword If    not ${result}  Execute Javascript  ${js}
+    Capture Page Screenshot
