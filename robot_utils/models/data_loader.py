@@ -16,6 +16,7 @@ from odoo.exceptions import UserError, RedirectWarning, ValidationError
 
 class DataLoader(models.AbstractModel):
     _name = "robot.data.loader"
+    _description = "Robot-Test Data Loader"
 
     @api.model
     def get_latest_file_in_folder(
