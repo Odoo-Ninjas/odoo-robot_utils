@@ -6,6 +6,7 @@
     'author': 'Marc Wimmer (marc@itewimmer.de)',
     'depends': ['base'],
     'data': [],
+    "license": "Other proprietary",
     "external_dependencies": {"python": [], "bin": []},
     #"uninstall_hook": "uninstall_hook",
     #'pre_init_hook': 'pre_init_hook',
