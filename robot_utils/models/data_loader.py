@@ -25,7 +25,6 @@ class DataLoader(models.AbstractModel):
         younger_than = arrow.get(younger_than)
         started = arrow.get()
         while (arrow.get() - started).total_seconds() < 20:
-
             files = list(
                 sorted(
                     Path(parent_dir).glob(glob or "**/*"),
@@ -110,8 +109,11 @@ class DataLoader(models.AbstractModel):
     @api.model
     def wait_queuejobs(self):
         breakpoint()
+
         def count(state):
-            self.env.cr.execute("select count(*) from queue_job where state =%s", (state,))
+            self.env.cr.execute(
+                "select count(*) from queue_job where state =%s", (state,)
+            )
             return self.env.cr.fetchone()[0]
 
         def _get_enqueued_job():
@@ -130,7 +132,7 @@ class DataLoader(models.AbstractModel):
                 "set date_enqueued = eta "
                 "where date_enqueued is null and eta is not null "
             )
-            if count("pending") > 0 and not count('started') and not count('enqueued'):
+            if count("pending") > 0 and not count("started") and not count("enqueued"):
                 self.execute_sql(
                     "update queue_job "
                     "set eta = null, date_enqueued = (select now() at time zone 'utc') "
@@ -156,6 +158,5 @@ class DataLoader(models.AbstractModel):
                 f"where id={job_id}"
             )
             self.env.cr.commit()
-    
 
         return True
