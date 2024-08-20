@@ -80,18 +80,18 @@ WriteInField                [Arguments]     ${fieldname}    ${value}
     ElementPreCheck         xpath=${xpath}
     Input Text              xpath=${xpath}  ${value}
 
-    ${klass}=    Get Element Attribute   xpath=${xpath}  @class
+    ${klass}=    Get Element Attribute   xpath=${xpath}  class
     ${is_autocomplete}=   Evaluate    "o-autocomplete--input" in "${klass}"
-    Capture Page Screenshot
+    # Capture Page Screenshot
     # needs wait for ajax call if many2one field
     Run Keyword If  ${is_auto_complete}  Sleep                   3s
     # wait if it is a many2one
     ${visible}=             Is Visible   xpath=//ul[@role='listbox']
-    Capture Page Screenshot
+    # Capture Page Screenshot
     Run Keyword If          ${visible}    Click Element    xpath=//li[@class='o-autocomplete--dropdown-item ui-menu-item'][1]
 
     # Close Error Dialog And Log
-    Capture Page Screenshot
+    # Capture Page Screenshot
 
     ElementPostCheck
 
