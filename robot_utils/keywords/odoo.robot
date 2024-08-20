@@ -69,16 +69,29 @@ Is Visible  [Arguments]  ${xpath}
     ${is_visible}=    Run Keyword And Return Status    Wait Until Element Is Visible    xpath=${xpath}   
     [Return]  ${is_visible}
 
+Close Error Dialog And Log
+    ${visible_js_error_dialog}=  Is Visible  xpath=//div[contains(@class, 'o_dialog_error')]
+    Run Keyword If         ${visible_js_error_dialog}    ${errordetails}=  Get Element Attribute  xpath=//div[contains(@class, 'o_error_detail')]@innerHTML
+    Run Keyword If         ${visible_js_error_dialog}    Log To Console  ${errordetails}
+    Run Keyword If         ${visible_js_error_dialog}    Click Element  xpath=//div[contains(@class, 'o_dialog_error')]//footer/button[contains(@class, 'btn-primary')]
 
 WriteInField                [Arguments]     ${fieldname}    ${value}
     ${xpath}=               Set Variable  //input[@id='${fieldname}']|textarea[@id='${fieldname}']
     ElementPreCheck         xpath=${xpath}
     Input Text              xpath=${xpath}  ${value}
+
+    ${klass}=    Get Element Attribute   xpath=${xpath}  @class
+    ${is_autocomplete}=   Evaluate    "o-autocomplete--input" in "${klass}"
+    Capture Page Screenshot
+    # needs wait for ajax call if many2one field
+    Run Keyword If  ${is_auto_complete}  Sleep                   3s
     # wait if it is a many2one
     ${visible}=             Is Visible   xpath=//ul[@role='listbox']
-    Log To Console          ${visible}
+    Capture Page Screenshot
     Run Keyword If          ${visible}    Click Element    xpath=//li[@class='o-autocomplete--dropdown-item ui-menu-item'][1]
 
+    # Close Error Dialog And Log
+    Capture Page Screenshot
 
     ElementPostCheck
 
@@ -100,6 +113,8 @@ ElementPostCheck
     Run Keyword And Ignore Error     Wait Until Page Contains Element    xpath=//body[not(contains(@class, 'o_loading'))]
     # Check that page is not blocked by RPC Call
     Run Keyword And Ignore Error     Wait Until Page Contains Element    xpath=//body[not(contains(@class, 'o_ewait'))]
+
+    Run Keyword And Ignore Error     Wait Until Page Contains Element    xpath=//body[not(contains(@class, 'o_blockUI'))]
     # Check not AJAX request remaining (only longpolling)
     Run Keyword And Ignore Error     Wait For Ajax    1
 
@@ -119,9 +134,13 @@ ElementPreCheck    [Arguments]    ${element}
     ...    return true;
     Execute Javascript       ${code}
 
-Wait To Click   [Arguments]       ${xpath} 
+Wait Until Block Is Gone
+    Wait Until Element Is Not Visible  xpath=//div[contains(@class, 'o_blockUI')]
+
+Wait To Click   [Arguments]       ${xpath}
     Capture Page Screenshot
     Wait Until Element Is Visible          xpath=${xpath}
+    Wait Until Block Is Gone
     Capture Page Screenshot
     ${result}=  Run Keyword And Return Status  Click Element  xpath=${xpath}
 
