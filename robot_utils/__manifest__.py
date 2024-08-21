@@ -1,7 +1,7 @@
 
 {
     'name': 'robot_utils',
-    'version': '13.0.1.0',
+    'version': '17.0.1.0',
     "auto_install": False,
     'author': 'Marc Wimmer (marc@itewimmer.de)',
     'depends': ['base'],
