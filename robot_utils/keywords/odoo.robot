@@ -78,6 +78,18 @@ Close Error Dialog And Log
 WriteInField                [Arguments]     ${fieldname}    ${value}
     ${xpath}=               Set Variable  //input[@id='${fieldname}']|textarea[@id='${fieldname}']
     ElementPreCheck         xpath=${xpath}
+    ${count}=               Get Element Count           xpath=${xpath}
+    IF  ${count} == 0
+        # Odoo V17 introduced index 0 at field names
+        Log To Console      trying second time
+        ${xpath}=           Set Variable  //input[@id='${fieldname}_0']|textarea[@id='${fieldname}_0']
+        Log To Console      xpath is ${xpath}
+        ElementPreCheck     xpath=${xpath}
+        ${count}=               Get Element Count           xpath=${xpath}
+    END
+    IF  ${count} == 0
+        FAIL                Element with name ${fieldname} not found     
+    END
     Input Text              xpath=${xpath}  ${value}
 
     ${klass}=    Get Element Attribute   xpath=${xpath}  class
