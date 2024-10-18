@@ -26,13 +26,13 @@ Login   [Arguments]     ${user}=${ODOO_USER}    ${password}=${ODOO_PASSWORD}    
     Input Text                              xpath=//input[@name='password'][1]    ${password}
     Log To Console                          Clicking Login
     Capture Page Screenshot
-    Click Button                            xpath=//form[@class='oe_login_form']//button[@type='submit']
+    Click Button                            xpath=//div[contains(@class, 'oe_login_buttons')]//button[@type='submit']
     Log To Console                          Clicked login button - waiting
     Capture Page Screenshot
-    Wait Until Page Contains Element        xpath=//span[contains(@class, 'oe_topbar_name')]	timeout=${SELENIUM_TIMEOUT}
+    Wait Until Page Contains Element        xpath=//nav[contains(@class, 'o_main_navbar')]	timeout=${SELENIUM_TIMEOUT}
     ElementPostCheck
     Log To Console                          Logged In - continuing
-    [return]    ${browser_id}
+    RETURN    ${browser_id}
 
 DatabaseConnect    [Arguments]    ${db}=${db}    ${odoo_db_user}=${ODOO_DB_USER}    ${odoo_db_password}=${ODOO_DB_PASSWORD}    ${odoo_db_server}=${SERVER}    ${odoo_db_port}=${ODOO_DB_PORT}
 		Connect To Database Using Custom Params	psycopg2        database='${db}',user='${odoo_db_user}',password='${odoo_db_password}',host='${odoo_db_server}',port=${odoo_db_port}
@@ -67,7 +67,7 @@ ApplicationMainMenuOverview
 
 Is Visible  [Arguments]  ${xpath}
     ${is_visible}=    Run Keyword And Return Status    Wait Until Element Is Visible    xpath=${xpath}   
-    [Return]  ${is_visible}
+    RETURN  ${is_visible}
 
 Close Error Dialog And Log
     ${visible_js_error_dialog}=  Is Visible  xpath=//div[contains(@class, 'o_dialog_error')]
@@ -76,22 +76,28 @@ Close Error Dialog And Log
     Run Keyword If         ${visible_js_error_dialog}    Click Element  xpath=//div[contains(@class, 'o_dialog_error')]//footer/button[contains(@class, 'btn-primary')]
 
 WriteInField                [Arguments]     ${fieldname}    ${value}
-    ${xpath}=               Set Variable  //input[@id='${fieldname}']|textarea[@id='${fieldname}']
+    ${xpath}=               Set Variable  //input[@id='${fieldname}' or @id='${fieldname}_0']|textarea[@id='${fieldname}' or @id='${fieldname}_0']
     ElementPreCheck         xpath=${xpath}
+    Wait Until Element Is Visible  xpath=${xpath}
     Input Text              xpath=${xpath}  ${value}
 
+
     ${klass}=    Get Element Attribute   xpath=${xpath}  class
-    ${is_autocomplete}=   Evaluate    "o-autocomplete--input" in "${klass}"
-    # Capture Page Screenshot
-    # needs wait for ajax call if many2one field
-    Run Keyword If  ${is_auto_complete}  Sleep                   3s
-    # wait if it is a many2one
-    ${visible}=             Is Visible   xpath=//ul[@role='listbox']
-    # Capture Page Screenshot
-    Run Keyword If          ${visible}    Click Element    xpath=//li[@class='o-autocomplete--dropdown-item ui-menu-item'][1]
+    ${is_autocomplete}=   Evaluate    "o-autocomplete--input" in "${klass}"  
+    IF  ${is_autocomplete}
+        IF  ${odoo_version} == 16.0
+            Wait Until Element Is Visible  xpath=//ul[@role='listbox']
+            Click Element    xpath=//li[@class='o-autocomplete--dropdown-item ui-menu-item'][1]
+        ELIF  ${odoo_version} == 17.0
+            Wait Until Element Is Visible  xpath=//ul[@role='listbox']
+            Click Element    xpath=//li[@class='o-autocomplete--dropdown-item ui-menu-item'][1]
+        ELSE
+            FAIL  needs implementation for ${odoo_version}
+        END
+    END
 
     # Close Error Dialog And Log
-    # Capture Page Screenshot
+    Capture Page Screenshot
 
     ElementPostCheck
 
@@ -139,12 +145,17 @@ Wait Until Block Is Gone
 
 Wait To Click   [Arguments]       ${xpath}
     Capture Page Screenshot
-    Wait Until Element Is Visible          xpath=${xpath}
+    ${status}  ${error}=  Run Keyword And Ignore Error  Wait Until Element Is Visible          xpath=${xpath}
+    Run Keyword If  '${status}' == 'FAIL'  Log  Element with ${xpath} was not visible - trying per javascript click
     Wait Until Block Is Gone
     Capture Page Screenshot
-    ${result}=  Run Keyword And Return Status  Click Element  xpath=${xpath}
+    IF  '${status}' != 'FAIL'  
+        Click Element  xpath=${xpath}
+        RETURN 
+    END
 
     # try to click per javascript then; if mouse fails
+    Log  Could not identify element ${xpath} - so trying by pure javascript to click it.
     ${js}=  Catenate  
     ...  const xpath = "${xpath}";
     ...  const result = document.evaluate(xpath, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
@@ -152,5 +163,5 @@ Wait To Click   [Arguments]       ${xpath}
     ...     const element = result.snapshotItem(i);
     ...     element.click();
     ...  }
-    Run Keyword If    not ${result}  Execute Javascript  ${js}
+    Execute Javascript  ${js}
     Capture Page Screenshot
