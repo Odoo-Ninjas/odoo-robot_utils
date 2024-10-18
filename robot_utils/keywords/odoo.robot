@@ -139,12 +139,9 @@ Wait Until Block Is Gone
 
 Wait To Click   [Arguments]       ${xpath}
     Capture Page Screenshot
-    Log To Console  1
     ${status}  ${error}=  Run Keyword And Ignore Error  Wait Until Element Is Visible          xpath=${xpath}
-    Log To Console  2
     Run Keyword If  '${status}' == 'FAIL'  Log  Element with ${xpath} was not visible - trying per javascript click
     Wait Until Block Is Gone
-    Log To Console  3
     Capture Page Screenshot
     Run Keyword If  '${status}' != 'FAIL'  ${result}=  Run Keyword And Return Status  Click Element  xpath=${xpath}
 
