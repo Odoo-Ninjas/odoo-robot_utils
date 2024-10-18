@@ -81,9 +81,7 @@ WriteInField                [Arguments]     ${fieldname}    ${value}
     ${count}=               Get Element Count           xpath=${xpath}
     IF  ${count} == 0
         # Odoo V17 introduced index 0 at field names
-        Log To Console      trying second time
         ${xpath}=           Set Variable  //input[@id='${fieldname}_0']|textarea[@id='${fieldname}_0']
-        Log To Console      xpath is ${xpath}
         ElementPreCheck     xpath=${xpath}
         ${count}=               Get Element Count           xpath=${xpath}
     END
