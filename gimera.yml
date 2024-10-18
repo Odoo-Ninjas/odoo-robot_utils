@@ -1,6 +1,0 @@
-repos:
-- branch: main
-  path: robot_utils_common
-  freeze_sha: true
-  type: submodule
-  url: git@github.com:Odoo-Ninjas/odoo-robot_utils_common
