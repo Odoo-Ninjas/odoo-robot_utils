@@ -3,12 +3,9 @@
 Helps together with wodoo-framework and cicd to quickly spinup robo tests.
 This branch contains keywords used for the odoo version as the version of the branch.
 
-To have an overview please check documentation of the common odoo files which are
-located at robot_utils_common submodule.
-
 ## Setup
 
-- clone this repository into your existing project
+- clone this repository into your existing project /adoons_robot
 - update submodules
 - with wodoo framework: odoo setup robot
 
@@ -29,9 +26,9 @@ Helps together with wodoo-framework and cicd to quickly spinup robo tests.
 *** Settings ***
 Documentation     Smoketest
 Resource          keywords/odoo_ee.robot
-Resource        ../../robot_utils_common/keywords/tools.robot
-Resource        ../../robot_utils_common/keywords/odoo_client.robot
-Resource        ../../robot_utils_common/keywords/styling.robot
+Resource          ../../robot_utils/keywords/tools.robot
+Resource          ../../robot_utils/keywords/odoo_client.robot
+Resource          ../../robot_utils/keywords/styling.robot
 Test Setup        Setup Smoketest
 
 
