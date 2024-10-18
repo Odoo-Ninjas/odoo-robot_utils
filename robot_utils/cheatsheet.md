@@ -42,3 +42,20 @@ ${decimalval} =   Set variable If
 ...               '${decimalval}'=='1'       //md-option[@value='1dp']
 ...               '${decimalval}'=='2'       //md-option[@value='2dp']
 ```
+
+# Evaluate python
+```robotframework
+${click_move_left} =    Evaluate     int(${cell_width}/2) - 1
+```
+
+# IF blocks
+```robotframework
+
+IF '${var1}' == '2'
+
+ELIF
+
+ELSE
+
+END
+```

@@ -84,18 +84,34 @@ Eval Regex
     ${result}=     Run Keyword If    "${matches}"!="[]"    Get From List    ${matches}   0
     RETURN         ${result}
 
-Get Instance ID From Url
-    [Arguments]  ${assumed_model}
-    ${url}=    Get Location
-    Log To Console  Location is ${url}
-    Set Variable    ${url}
-    ${model}=    Eval Regex    model=([^&]+)    ${url}
-    ${id}=    Eval Regex    [\#\&]id=([^&]+)    ${url}
-    Should Be Equal As Strings  ${model}   ${assumed_model}
-    Log To Console  Model: ${model}
-    Log To Console  ID: ${id}
-    ${id}=  evaluate  int("${id}")
-    RETURN    ${id}
+Extract Param From Url  [Arguments]  ${param}  ${url}=${NONE}
+    IF  not ${url}
+        ${url}=  Get Location
+    END
+    TRY
+        ${param_value}=    Evaluate    urllib.parse.parse_qs(urllib.parse.urlparse("${url}").query)['${param}'][0]    modules=urllib
+    EXCEPT 
+        ${param_value}=  Evaluate    urllib.parse.parse_qs(urllib.parse.urlparse("${url}").fragment)['${param}'][0]    modules=urllib
+    END
+
+    Log To Console    Parameter value: ${param_value} from ${param} in ${url}
+    RETURN  ${param_value}
+
+Get Instance ID From Url  [Arguments]  ${expected_model}
+    ${counter}=   Set Variable  0
+    WHILE  ${counter} < 10
+        ${is_model}=  Extract Param From Url  model
+        IF  '${is_model}' == '${expected_model}'
+            BREAK
+        END
+        Sleep  1s
+    END
+    IF  '${is_model}' != '${expected_model}'
+        FAIL  Expected model ${expected_model} but got ${is_model}
+    END
+    ${id}=  Extract Param From Url  id
+    ${id}=  Evaluate  int("${id}")
+    RETURN  ${id}
 
 Get All Variables
     ${variables}=    List All Variables

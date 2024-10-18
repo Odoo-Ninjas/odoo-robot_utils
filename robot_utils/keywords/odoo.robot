@@ -1,13 +1,13 @@
 *** Settings ***
 
-Documentation   Odoo 13 backend keywords.
-Library         ../../robot_utils_common/library/browser.py
+Documentation   Odoo backend keywords.
+Library         ../library/browser.py
 Library         SeleniumLibrary
-# Resource        ../../robot_utils/keywords/odoo_community_unverified.robot
-Resource        ../../robot_utils_common/keywords/odoo_client.robot
-Resource        ../../robot_utils_common/keywords/tools.robot
-Library         ../../robot_utils_common/library/tools.py
-Resource        ../../robot_utils_common/keywords/styling.robot
+Resource        odoo_client.robot
+Resource        tools.robot
+Library         ../library/tools.py
+Resource        styling.robot
+Resource        odoo_details.robot
 Library         String  # example Random String
 
 *** Variables ***
@@ -29,7 +29,7 @@ Login   [Arguments]     ${user}=${ODOO_USER}    ${password}=${ODOO_PASSWORD}    
     Click Button                            xpath=//div[contains(@class, 'oe_login_buttons')]//button[@type='submit']
     Log To Console                          Clicked login button - waiting
     Capture Page Screenshot
-    Wait Until Page Contains Element        xpath=//nav[contains(@class, 'o_main_navbar')]	timeout=${SELENIUM_TIMEOUT}
+    Wait Until Page Contains Element        xpath=//nav[contains(@class, 'o_main_navbar')]
     ElementPostCheck
     Log To Console                          Logged In - continuing
     RETURN    ${browser_id}
@@ -38,31 +38,58 @@ DatabaseConnect    [Arguments]    ${db}=${db}    ${odoo_db_user}=${ODOO_DB_USER}
 		Connect To Database Using Custom Params	psycopg2        database='${db}',user='${odoo_db_user}',password='${odoo_db_password}',host='${odoo_db_server}',port=${odoo_db_port}
 
 ClickMenu    [Arguments]	${menu}
-    # works V16
+    Screenshot
     Log To Console     Clicking menu ${menu}
-    ${xpath}=   Set Variable  //a[@data-menu-xmlid='${menu}'] | //button[@data-menu-xmlid='${menu}']
+    ${xpath}=                           Set Variable  //a[@data-menu-xmlid='${menu}'] | //button[@data-menu-xmlid='${menu}']
     Wait Until Element is visible       xpath=${xpath} 
-	Click Element	xpath=${xpath}
-	Wait Until Page Contains Element	xpath=//body[contains(@class, 'o_web_client')]
+
+    ${attribute_value}=    Get Element Attribute    ${xpath}  aria-expanded
+
+    IF  '${attribute_value}' == 'true'
+        RETURN
+    ELSE IF  '${attribute_value}' == 'false'
+        Wait To Click	                    xpath=${xpath}
+        _While Element Attribute Value  ${xpath}  aria-expanded  ==  false
+    ELSE
+        Wait To Click	                    xpath=${xpath}
+        Wait Until Page Contains Element	xpath=//body[contains(@class, 'o_web_client')]
+    END
+
 	ElementPostCheck
-	sleep   1
 
 
 MainMenu	[Arguments]	${menu}
     # works V16
-    Wait Until Element is visible       xpath=//div[contains(@class, "o_navbar_apps_menu")]
-    Click Element                        xpath=//div[contains(@class, "o_navbar_apps_menu")]/button
-    Wait Until Element is visible       xpath=//a[@data-menu-xmlid='${menu}']
-	Click Link	xpath=//a[@data-menu-xmlid='${menu}']
-	Wait Until Page Contains Element	xpath=//body[contains(@class, 'o_web_client')]
-	ElementPostCheck
-	sleep   1
+    ${enterprise}=  _has_module_installed  web_enterprise
+    IF  ${enterprise}
+        Wait Until Element is visible       xpath=//div[contains(@class, "o_navbar_apps_menu")]
+        Click Element                       xpath=//div[contains(@class, "o_navbar_apps_menu")]/button
+        Wait Until Element is visible       xpath=//a[@data-menu-xmlid='${menu}']
+        Click Link	                        xpath=//a[@data-menu-xmlid='${menu}']
+        Wait Until Page Contains Element	xpath=//body[contains(@class, 'o_web_client')]
+        ElementPostCheck
+    ELSE
+        # Works V16
+        Log  Enterprise is not installed - there is no main menu - just the burger menu
+        ${home_menu}=                       Set Variable        //nav[@class='o_main_navbar']//button[@title='Home Menu']
+        Wait Until Element Is Visible       xpath=${home_menu}
+        Wait To Click                       xpath=${home_menu}
+        Wait To Click                       xpath=//a[@data-menu-xmlid='${menu}']
+
+    END
 
 ApplicationMainMenuOverview
-    
-    Wait Until Element is visible       xpath=//div[contains(@class, "o_main_navbar")]
-    Click Element                        xpath=//div[contains(@class, "o_main_navbar")]/button
-    Wait Until Page Contains Element	xpath=//body[contains(@class, 'o_web_client')]
+    ${enterprise}=  _has_module_installed  web_enterprise
+    IF  ${enterprise}
+        FAIL  not implemented ${odoo_version} enterprise
+    ELSE
+        IF  ${odoo_version} == 16.0
+            Wait Until Element is visible       xpath=//nav[contains(@class, "o_main_navbar")]
+            Click Element                        xpath=//nav[contains(@class, "o_main_navbar")]/button
+            Wait Until Page Contains Element	xpath=//body[contains(@class, 'o_web_client')]
+        ELSE
+            FAIL  not implemented ${odoo_version}
+    END
 	ElementPostCheck
 
 Is Visible  [Arguments]  ${xpath}
@@ -76,82 +103,53 @@ Close Error Dialog And Log
     Run Keyword If         ${visible_js_error_dialog}    Click Element  xpath=//div[contains(@class, 'o_dialog_error')]//footer/button[contains(@class, 'btn-primary')]
 
 WriteInField                [Arguments]     ${fieldname}    ${value}
-    ${xpath}=               Set Variable  //input[@id='${fieldname}' or @id='${fieldname}_0']|textarea[@id='${fieldname}' or @id='${fieldname}_0']
-    ElementPreCheck         xpath=${xpath}
-    Wait Until Element Is Visible  xpath=${xpath}
-    Input Text              xpath=${xpath}  ${value}
-
-
-    ${klass}=    Get Element Attribute   xpath=${xpath}  class
-    ${is_autocomplete}=   Evaluate    "o-autocomplete--input" in "${klass}"  
-    IF  ${is_autocomplete}
-        IF  ${odoo_version} == 16.0
-            Wait Until Element Is Visible  xpath=//ul[@role='listbox']
-            Click Element    xpath=//li[@class='o-autocomplete--dropdown-item ui-menu-item'][1]
-        ELIF  ${odoo_version} == 17.0
-            Wait Until Element Is Visible  xpath=//ul[@role='listbox']
-            Click Element    xpath=//li[@class='o-autocomplete--dropdown-item ui-menu-item'][1]
-        ELSE
-            FAIL  needs implementation for ${odoo_version}
-        END
+    # Check if it is ACE:
+    # <div name="field1" class="o_field_widget o_field_ace"
+    ${locator_if_ACE}=                        _LocatorACE  ${fieldname}
+    Run Keyword And Ignore Error              ElementPreCheck  ${locator_if_ACE}
+    ${status_is_ace}  ${testel}=              Run Keyword And Ignore Error  Get WebElement  //div[@name='${fieldname}' and contains(@class, 'o_field_ace')]
+    IF  '${status_is_ace}' != 'FAIL'
+        _WriteACEEditor  ${fieldname}  ${value}
+    ELSE
+        ${xpath}=               Set Variable  //input[@id='${fieldname}' or @id='${fieldname}_0']|textarea[@id='${fieldname}' or @id='${fieldname}_0']
+        _Write To Xpath          ${xpath}  ${value}
     END
 
-    # Close Error Dialog And Log
-    Capture Page Screenshot
-
-    ElementPostCheck
 
 Upload File                [Arguments]     ${fieldname}    ${value}
+
     File Should Exist       ${value}
-    ${xpath}=               Set Variable  //div[@name='${fieldname}']//input
-    Log                     Uploading file to ${fieldname}
+    ${xpath}=               Set Variable  //div[@name='${fieldname}']//input[@type='file']
+    Log To Console          Uploading file to ${fieldname}
     ${js_show_fileupload}=  Catenate  
     ...  const nodes = document.querySelector("div[name='${fieldname}']");
     ...  nodes.getElementsByTagName('input')[0].classList.remove("o_hidden");
 
-    Execute Javascript      ${js_show_fileupload}
-    Capture Page Screenshot
-    Input Text              xpath=${xpath}    ${value}
+    Wait Until Element Is Visible   xpath=${xpath}/..
+    Execute Javascript              ${js_show_fileupload}
+    Screenshot
+    Input Text                      xpath=${xpath}    ${value}
     ElementPostCheck
-
-ElementPostCheck
-    # Check that page is not loading
-    Run Keyword And Ignore Error     Wait Until Page Contains Element    xpath=//body[not(contains(@class, 'o_loading'))]
-    # Check that page is not blocked by RPC Call
-    Run Keyword And Ignore Error     Wait Until Page Contains Element    xpath=//body[not(contains(@class, 'o_ewait'))]
-
-    Run Keyword And Ignore Error     Wait Until Page Contains Element    xpath=//body[not(contains(@class, 'o_blockUI'))]
-    # Check not AJAX request remaining (only longpolling)
-    Run Keyword And Ignore Error     Wait For Ajax    1
-
-ElementPreCheck    [Arguments]    ${element}
-    Execute Javascript      console.log("${element}");
-    # Element may be in a tab. So click the parent tab. If there is no parent tab, forget about the result
-    # not verified for V16 yet with tabs
-    ${code}=                Catenate 
-    ...    var path="${element}".replace('xpath=','');
-    ...    var id=document.evaluate("("+path+")/ancestor::div[contains(@class,'oe_notebook_page')]/@id"
-    ...        ,document,null,XPathResult.STRING_TYPE,null).stringValue;
-    ...    if (id != ''){
-    ...        window.location = "#"+id;
-    ...        $("a[href='#"+id+"']").click();
-    ...        console.log("Clicked at #" + id);
-    ...    }
-    ...    return true;
-    Execute Javascript       ${code}
-
-Wait Until Block Is Gone
-    Wait Until Element Is Not Visible  xpath=//div[contains(@class, 'o_blockUI')]
 
 Wait To Click   [Arguments]       ${xpath}
     Capture Page Screenshot
     ${status}  ${error}=  Run Keyword And Ignore Error  Wait Until Element Is Visible          xpath=${xpath}
     Run Keyword If  '${status}' == 'FAIL'  Log  Element with ${xpath} was not visible - trying per javascript click
-    Wait Until Block Is Gone
-    Capture Page Screenshot
+    Wait Blocking
+    Screenshot
     IF  '${status}' != 'FAIL'  
-        Click Element  xpath=${xpath}
-        RETURN 
+        ${disabled_value}=  Get Element Attribute  xpath=${xpath}  disabled
+        IF  '${disabled_value}' == '1'
+            FAIL  Button at ${xpath} is disabled
+        END
+
+        ${status2}  ${result}=  Run Keyword And Ignore Error  Click Element  xpath=${xpath}
+
+        IF  '${status2}' != 'FAIL'  
+            RETURN 
+        ELSE
+            _Wait Until Element Is Not Disabled  xpath=${xpath}
+        END
     END
 
     # try to click per javascript then; if mouse fails
@@ -164,4 +162,35 @@ Wait To Click   [Arguments]       ${xpath}
     ...     element.click();
     ...  }
     Execute Javascript  ${js}
-    Capture Page Screenshot
+    Element Post Check
+
+Breadcrumb Back
+    Log To Console                  Click breadcrumb - last item
+    IF  ${odoo_version} == 17.0
+        Wait To Click               //ol[contains(@class, 'breadcrumb')]/li[a][last()]
+    ELSE IF  ${odoo_version} == 16.0
+        Wait To Click               //ol[contains(@class, 'breadcrumb')]/li[a][last()]
+    ELSE
+        FAIL  Breadcrumb Needs implementation for ${odoo_version}
+    END
+    ElementPostCheck
+
+FormSave
+    Screenshot
+    Wait To Click               xpath=//button[contains(@class, 'o_form_button_save')]
+    Screenshot
+
+
+Goto View  [Arguments]  ${model}  ${id}  ${type}=form
+    Go To   ${ODOO_URL}/web
+    Screenshot
+
+    Go To   ${ODOO_URL}/web#id=${id}&cids=1&model=${model}&view_type=${type}
+    IF  '${type}' == 'form'
+        Wait Until Element Is Visible  xpath=//div[@class='o_form_view_container']
+    ELSE IF  '${type}' == 'form' OR '${type}' == 'list'
+        Wait Until Element Is Visible  xpath=//div[@class='o_list_renderer']
+    ELSE
+        FAIL  needs implementation for ${type}
+    END
+    Screenshot
