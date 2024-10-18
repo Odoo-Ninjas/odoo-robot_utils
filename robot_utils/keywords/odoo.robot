@@ -139,10 +139,14 @@ Wait Until Block Is Gone
 
 Wait To Click   [Arguments]       ${xpath}
     Capture Page Screenshot
-    Wait Until Element Is Visible          xpath=${xpath}
+    Log To Console  1
+    ${status}  ${error}=  Run Keyword And Ignore Error  Wait Until Element Is Visible          xpath=${xpath}
+    Log To Console  2
+    Run Keyword If  '${status}' == 'FAIL'  Log  Element with ${xpath} was not visible - trying per javascript click
     Wait Until Block Is Gone
+    Log To Console  3
     Capture Page Screenshot
-    ${result}=  Run Keyword And Return Status  Click Element  xpath=${xpath}
+    Run Keyword If  '${status}' != 'FAIL'  ${result}=  Run Keyword And Return Status  Click Element  xpath=${xpath}
 
     # try to click per javascript then; if mouse fails
     ${js}=  Catenate  
@@ -152,5 +156,5 @@ Wait To Click   [Arguments]       ${xpath}
     ...     const element = result.snapshotItem(i);
     ...     element.click();
     ...  }
-    Run Keyword If    not ${result}  Execute Javascript  ${js}
+    Run Keyword If    '${status}' == 'FAIL'  Execute Javascript  ${js}
     Capture Page Screenshot
