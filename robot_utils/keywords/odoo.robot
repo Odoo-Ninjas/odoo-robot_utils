@@ -32,7 +32,7 @@ Login   [Arguments]     ${user}=${ODOO_USER}    ${password}=${ODOO_PASSWORD}    
     Wait Until Page Contains Element        xpath=//span[contains(@class, 'oe_topbar_name')]	timeout=${SELENIUM_TIMEOUT}
     ElementPostCheck
     Log To Console                          Logged In - continuing
-    [return]    ${browser_id}
+    RETURN    ${browser_id}
 
 DatabaseConnect    [Arguments]    ${db}=${db}    ${odoo_db_user}=${ODOO_DB_USER}    ${odoo_db_password}=${ODOO_DB_PASSWORD}    ${odoo_db_server}=${SERVER}    ${odoo_db_port}=${ODOO_DB_PORT}
 		Connect To Database Using Custom Params	psycopg2        database='${db}',user='${odoo_db_user}',password='${odoo_db_password}',host='${odoo_db_server}',port=${odoo_db_port}
@@ -67,7 +67,7 @@ ApplicationMainMenuOverview
 
 Is Visible  [Arguments]  ${xpath}
     ${is_visible}=    Run Keyword And Return Status    Wait Until Element Is Visible    xpath=${xpath}   
-    [Return]  ${is_visible}
+    RETURN  ${is_visible}
 
 Close Error Dialog And Log
     ${visible_js_error_dialog}=  Is Visible  xpath=//div[contains(@class, 'o_dialog_error')]
