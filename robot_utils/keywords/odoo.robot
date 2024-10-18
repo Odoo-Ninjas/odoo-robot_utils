@@ -26,10 +26,10 @@ Login   [Arguments]     ${user}=${ODOO_USER}    ${password}=${ODOO_PASSWORD}    
     Input Text                              xpath=//input[@name='password'][1]    ${password}
     Log To Console                          Clicking Login
     Capture Page Screenshot
-    Click Button                            xpath=//form[@class='oe_login_form']//button[@type='submit']
+    Click Button                            xpath=//div[contains(@class, 'oe_login_buttons')]//button[@type='submit']
     Log To Console                          Clicked login button - waiting
     Capture Page Screenshot
-    Wait Until Page Contains Element        xpath=//span[contains(@class, 'oe_topbar_name')]	timeout=${SELENIUM_TIMEOUT}
+    Wait Until Page Contains Element        xpath=//nav[contains(@class, 'o_main_navbar')]	timeout=${SELENIUM_TIMEOUT}
     ElementPostCheck
     Log To Console                          Logged In - continuing
     RETURN    ${browser_id}
