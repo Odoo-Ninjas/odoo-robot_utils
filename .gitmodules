@@ -1,4 +1,0 @@
-[submodule "robot_utils_common"]
-	path = robot_utils_common
-	url = git@github.com:Odoo-Ninjas/odoo-robot_utils_common
-	branch = main
