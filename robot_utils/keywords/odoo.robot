@@ -1,13 +1,12 @@
 *** Settings ***
 
-Documentation   Odoo 13 backend keywords.
-Library         ../../robot_utils/library/browser.py
+Documentation   Odoo backend keywords.
+Library         ../library/browser.py
 Library         SeleniumLibrary
-# Resource        ../../robot_utils/keywords/odoo_community_unverified.robot
-Resource        ../../robot_utils/keywords/odoo_client.robot
-Resource        ../../robot_utils/keywords/tools.robot
-Library         ../../robot_utils/library/tools.py
-Resource        ../../robot_utils/keywords/styling.robot
+Resource        odoo_client.robot
+Resource        tools.robot
+Library         ../library/tools.py
+Resource        styling.robot
 Library         String  # example Random String
 
 *** Variables ***
@@ -77,6 +76,9 @@ Close Error Dialog And Log
 
 WriteInField                [Arguments]     ${fieldname}    ${value}
     ${xpath}=               Set Variable  //input[@id='${fieldname}' or @id='${fieldname}_0']|textarea[@id='${fieldname}' or @id='${fieldname}_0']
+    Write To Xpath          ${xpath}  ${value}
+
+Write To Xpath           [Arguments]     ${xpath}    ${value}
     ElementPreCheck         xpath=${xpath}
     Wait Until Element Is Visible  xpath=${xpath}
     Input Text              xpath=${xpath}  ${value}
@@ -85,12 +87,14 @@ WriteInField                [Arguments]     ${fieldname}    ${value}
     ${klass}=    Get Element Attribute   xpath=${xpath}  class
     ${is_autocomplete}=   Evaluate    "o-autocomplete--input" in "${klass}"  
     IF  ${is_autocomplete}
+        Log To Console  Version is ${odoo_version}
         IF  ${odoo_version} == 16.0
             Wait Until Element Is Visible  xpath=//ul[@role='listbox']
             Click Element    xpath=//li[@class='o-autocomplete--dropdown-item ui-menu-item'][1]
-        ELIF  ${odoo_version} == 17.0
-            Wait Until Element Is Visible  xpath=//ul[@role='listbox']
-            Click Element    xpath=//li[@class='o-autocomplete--dropdown-item ui-menu-item'][1]
+        ELSE IF  ${odoo_version} == 17.0
+            ${xpath}=       Set Variable     //ul[@role='menu' and contains(@class, 'o-autocomplete--dropdown-menu')]  
+            Wait Until Element Is Visible  xpath=${xpath}
+            Click Element    xpath=${xpath}/li[1]
         ELSE
             FAIL  needs implementation for ${odoo_version}
         END
