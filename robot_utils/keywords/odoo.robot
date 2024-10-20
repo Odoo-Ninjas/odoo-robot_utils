@@ -127,3 +127,6 @@ Wait To Click   [Arguments]       ${xpath}
     ...  }
     Execute Javascript  ${js}
     Capture Page Screenshot
+
+FormSave
+    Wait To Click               xpath=//button[contains(@class, 'o_form_button_save')]
