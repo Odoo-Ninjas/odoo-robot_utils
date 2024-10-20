@@ -128,7 +128,6 @@ Wait To Click   [Arguments]       ${xpath}
     Execute Javascript  ${js}
     Capture Page Screenshot
 
-
 Breadcrumb Back
     IF  ${odoo_version} == 17.0
         Wait To Click               //ol[contains(@class, 'breadcrumb')]/li[last()]
@@ -137,3 +136,6 @@ Breadcrumb Back
     ELSE
         FAIL  Breadcrumb Needs implementation for ${odoo_version}
     END
+
+FormSave
+    Wait To Click               xpath=//button[contains(@class, 'o_form_button_save')]
