@@ -7,6 +7,7 @@ Resource        odoo_client.robot
 Resource        tools.robot
 Library         ../library/tools.py
 Resource        styling.robot
+Resource        odoo_details.robot
 Library         String  # example Random String
 
 *** Variables ***
@@ -75,35 +76,18 @@ Close Error Dialog And Log
     Run Keyword If         ${visible_js_error_dialog}    Click Element  xpath=//div[contains(@class, 'o_dialog_error')]//footer/button[contains(@class, 'btn-primary')]
 
 WriteInField                [Arguments]     ${fieldname}    ${value}
-    ${xpath}=               Set Variable  //input[@id='${fieldname}' or @id='${fieldname}_0']|textarea[@id='${fieldname}' or @id='${fieldname}_0']
-    Write To Xpath          ${xpath}  ${value}
-
-Write To Xpath           [Arguments]     ${xpath}    ${value}
-    ElementPreCheck         xpath=${xpath}
-    Wait Until Element Is Visible  xpath=${xpath}
-    Input Text              xpath=${xpath}  ${value}
-
-
-    ${klass}=    Get Element Attribute   xpath=${xpath}  class
-    ${is_autocomplete}=   Evaluate    "o-autocomplete--input" in "${klass}"  
-    IF  ${is_autocomplete}
-        Log To Console  Version is ${odoo_version}
-        IF  ${odoo_version} == 16.0
-            Wait Until Element Is Visible  xpath=//ul[@role='listbox']
-            Click Element    xpath=//li[@class='o-autocomplete--dropdown-item ui-menu-item'][1]
-        ELSE IF  ${odoo_version} == 17.0
-            ${xpath}=       Set Variable     //ul[@role='menu' and contains(@class, 'o-autocomplete--dropdown-menu')]  
-            Wait Until Element Is Visible  xpath=${xpath}
-            Click Element    xpath=${xpath}/li[1]
-        ELSE
-            FAIL  needs implementation for ${odoo_version}
-        END
+    # Check if it is ACE:
+    # <div name="field1" class="o_field_widget o_field_ace"
+    ${locator_if_ACE}=                        _LocatorACE  ${fieldname}
+    Run Keyword And Ignore Error              ElementPreCheck  ${locator_if_ACE}
+    ${status_is_ace}  ${testel}=              Run Keyword And Ignore Error  Get WebElement  //div[@name='${fieldname}' and contains(@class, 'o_field_ace')]
+    IF  '${status_is_ace}' != 'FAIL'
+        _WriteACEEditor  ${fieldname}  ${value}
+    ELSE
+        ${xpath}=               Set Variable  //input[@id='${fieldname}' or @id='${fieldname}_0']|textarea[@id='${fieldname}' or @id='${fieldname}_0']
+        _Write To Xpath          ${xpath}  ${value}
     END
 
-    # Close Error Dialog And Log
-    Capture Page Screenshot
-
-    ElementPostCheck
 
 Upload File                [Arguments]     ${fieldname}    ${value}
     File Should Exist       ${value}
@@ -117,32 +101,6 @@ Upload File                [Arguments]     ${fieldname}    ${value}
     Capture Page Screenshot
     Input Text              xpath=${xpath}    ${value}
     ElementPostCheck
-
-ElementPostCheck
-    # Check that page is not loading
-    Run Keyword And Ignore Error     Wait Until Page Contains Element    xpath=//body[not(contains(@class, 'o_loading'))]
-    # Check that page is not blocked by RPC Call
-    Run Keyword And Ignore Error     Wait Until Page Contains Element    xpath=//body[not(contains(@class, 'o_ewait'))]
-
-    Run Keyword And Ignore Error     Wait Until Page Contains Element    xpath=//body[not(contains(@class, 'o_blockUI'))]
-    # Check not AJAX request remaining (only longpolling)
-    Run Keyword And Ignore Error     Wait For Ajax    1
-
-ElementPreCheck    [Arguments]    ${element}
-    Execute Javascript      console.log("${element}");
-    # Element may be in a tab. So click the parent tab. If there is no parent tab, forget about the result
-    # not verified for V16 yet with tabs
-    ${code}=                Catenate 
-    ...    var path="${element}".replace('xpath=','');
-    ...    var id=document.evaluate("("+path+")/ancestor::div[contains(@class,'oe_notebook_page')]/@id"
-    ...        ,document,null,XPathResult.STRING_TYPE,null).stringValue;
-    ...    if (id != ''){
-    ...        window.location = "#"+id;
-    ...        $("a[href='#"+id+"']").click();
-    ...        console.log("Clicked at #" + id);
-    ...    }
-    ...    return true;
-    Execute Javascript       ${code}
 
 Wait Until Block Is Gone
     Wait Until Element Is Not Visible  xpath=//div[contains(@class, 'o_blockUI')]
