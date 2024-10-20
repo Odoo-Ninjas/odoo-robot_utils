@@ -127,3 +127,13 @@ Wait To Click   [Arguments]       ${xpath}
     ...  }
     Execute Javascript  ${js}
     Capture Page Screenshot
+
+
+Breadcrumb Back
+    IF  ${odoo_version} == 17.0
+        Wait To Click               //ol[contains(@class, 'breadcrumb')]/li[last()]
+    ELSE IF  ${odoo_version} == 16.0
+        Wait To Click               //ol[contains(@class, 'breadcrumb')]/li[last()]
+    ELSE
+        FAIL  Breadcrumb Needs implementation for ${odoo_version}
+    END
