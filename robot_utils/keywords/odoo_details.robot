@@ -88,3 +88,23 @@ ElementPreCheck    [Arguments]    ${element}
     ...    }
     ...    return true;
     Execute Javascript       ${code}
+
+
+_has_module_installed  [Arguments]  ${modulename}
+    Log To Console  Checking ${modulename} installed
+    ${modules}=  Odoo Search Records  ir.module.module  [('name', '=', "${modulename}")]
+    ${length}=   Get Length  ${modules}
+    IF  not ${length}
+        Log To Console  Checking ${modulename} installed: False
+        RETURN  ${False}
+    END
+
+    ${state}=  Evaluate  ${modules}[0].state
+
+    IF  '${state}' == 'installed'
+        Log To Console  Checking ${modulename} installed: True
+        RETURN  ${True}
+    END
+
+    Log To Console  Checking ${modulename} installed: False
+    RETURN  ${False}
