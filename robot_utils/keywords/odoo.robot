@@ -129,8 +129,10 @@ Wait To Click   [Arguments]       ${xpath}
     Wait Until Block Is Gone
     Capture Page Screenshot
     IF  '${status}' != 'FAIL'  
-        Click Element  xpath=${xpath}
-        RETURN 
+        ${status2}  ${result}=  Run Keyword And Ignore Error  Click Element  xpath=${xpath}
+        IF  '${status2}' != 'FAIL'  
+            RETURN 
+        END
     END
 
     # try to click per javascript then; if mouse fails
