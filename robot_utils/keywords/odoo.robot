@@ -38,7 +38,7 @@ DatabaseConnect    [Arguments]    ${db}=${db}    ${odoo_db_user}=${ODOO_DB_USER}
 		Connect To Database Using Custom Params	psycopg2        database='${db}',user='${odoo_db_user}',password='${odoo_db_password}',host='${odoo_db_server}',port=${odoo_db_port}
 
 ClickMenu    [Arguments]	${menu}
-    # works V16
+    Screenshot
     Log To Console     Clicking menu ${menu}
     ${xpath}=   Set Variable  //a[@data-menu-xmlid='${menu}'] | //button[@data-menu-xmlid='${menu}']
     Wait Until Element is visible       xpath=${xpath} 
@@ -50,19 +50,36 @@ ClickMenu    [Arguments]	${menu}
 
 MainMenu	[Arguments]	${menu}
     # works V16
-    Wait Until Element is visible       xpath=//div[contains(@class, "o_navbar_apps_menu")]
-    Click Element                        xpath=//div[contains(@class, "o_navbar_apps_menu")]/button
-    Wait Until Element is visible       xpath=//a[@data-menu-xmlid='${menu}']
-	Click Link	xpath=//a[@data-menu-xmlid='${menu}']
-	Wait Until Page Contains Element	xpath=//body[contains(@class, 'o_web_client')]
-	ElementPostCheck
-	sleep   1
+    ${enterprise}=  _has_module_installed  web_enterprise
+    IF  ${enterprise}
+        Wait Until Element is visible       xpath=//div[contains(@class, "o_navbar_apps_menu")]
+        Click Element                       xpath=//div[contains(@class, "o_navbar_apps_menu")]/button
+        Wait Until Element is visible       xpath=//a[@data-menu-xmlid='${menu}']
+        Click Link	                        xpath=//a[@data-menu-xmlid='${menu}']
+        Wait Until Page Contains Element	xpath=//body[contains(@class, 'o_web_client')]
+        ElementPostCheck
+    ELSE
+        # Works V16
+        Log  Enterprise is not installed - there is no main menu - just the burger menu
+        ${home_menu}=                       Set Variable        //nav[@class='o_main_navbar']//button[@title='Home Menu']
+        Wait Until Element Is Visible       xpath=${home_menu}
+        Wait To Click                       xpath=${home_menu}
+        Wait To Click                       xpath=//a[@data-menu-xmlid='${menu}']
+
+    END
 
 ApplicationMainMenuOverview
-    
-    Wait Until Element is visible       xpath=//div[contains(@class, "o_main_navbar")]
-    Click Element                        xpath=//div[contains(@class, "o_main_navbar")]/button
-    Wait Until Page Contains Element	xpath=//body[contains(@class, 'o_web_client')]
+    ${enterprise}=  _has_module_installed  web_enterprise
+    IF  ${enterprise}
+        FAIL  not implemented ${odoo_version} enterprise
+    ELSE
+        IF  ${odoo_version} == 16.0
+            Wait Until Element is visible       xpath=//nav[contains(@class, "o_main_navbar")]
+            Click Element                        xpath=//nav[contains(@class, "o_main_navbar")]/button
+            Wait Until Page Contains Element	xpath=//body[contains(@class, 'o_web_client')]
+        ELSE
+            FAIL  not implemented ${odoo_version}
+    END
 	ElementPostCheck
 
 Is Visible  [Arguments]  ${xpath}
