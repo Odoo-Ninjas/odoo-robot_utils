@@ -47,15 +47,15 @@ _Write To Xpath           [Arguments]     ${xpath}    ${value}
     IF  ${is_autocomplete}
         IF  ${odoo_version} == 16.0
             ${xpath}=                       Set Variable    //ul[contains(@class, 'o-autocomplete--dropdown-menu dropdown-menu')]
-            Wait Until Element Is Visible   xpath=${xpath}
-            Click Element                   xpath=${xpath}/li[1]
+            Wait To Click                   xpath=${xpath}/li[1]
         ELSE IF  ${odoo_version} == 17.0
             ${xpath}=                       Set Variable    //ul[@role='menu' and contains(@class, 'o-autocomplete--dropdown-menu')]  
-            Wait Until Element Is Visible   xpath=${xpath}
-            Click Element                   xpath=${xpath}/li[1]
+            Wait To Click                   xpath=${xpath}/li[1]
         ELSE
             FAIL  needs implementation for ${odoo_version}
         END
+        # sometimes 
+        Sleep  1s
     END
 
     # Close Error Dialog And Log

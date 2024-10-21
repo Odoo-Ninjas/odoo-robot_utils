@@ -218,6 +218,7 @@ class odoo(object):
         lang=DEFAULT_LANG,
     ):
         context = self._get_context(context, lang)
+        print("aaaaaaaa1")
         db = self.get_conn(host, dbname, user, pwd)
         obj = db[model]
         kwparams["context"] = context

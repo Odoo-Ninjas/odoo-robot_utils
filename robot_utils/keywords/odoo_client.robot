@@ -146,9 +146,8 @@ Odoo Search Unlink
     ...                    ${limit}=${None}
     ...                    ${order}=${None}
     ${ids}=                odoo.Rpc Client Search     ${host}          ${dbname}       ${user}             ${pwd}          ${model}      ${domain}         ${limit}      ${order}        lang=${lang}          context=${context}
-    Set Global Variable    ${result}                  ${None}
     IF                     ${ids}
-    ${result}=             odoo.Rpc Client Execute    method=unlink    host=${host}    dbname=${dbname}    user=${user}    pwd=${pwd}    model=${model}    ids=${ids}    lang=${lang}    context=${context}
+        ${result}=             odoo.Rpc Client Execute    method=unlink    host=${host}    dbname=${dbname}    user=${user}    pwd=${pwd}    model=${model}    ids=${ids}    lang=${lang}    context=${context}
     END
 
     RETURN    ${True}
