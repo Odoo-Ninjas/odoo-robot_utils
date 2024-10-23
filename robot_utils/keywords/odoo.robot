@@ -50,7 +50,7 @@ ClickMenu    [Arguments]	${menu}
         RETURN
     ELSE IF  '${attribute_value}' == 'false'
         Wait To Click	                    xpath=${xpath}
-        _While Element Attribute Value  ${xpath}  aria-expanded  ==  false
+        _While Element Attribute Value  ${xpath}  aria-expanded  ==  false  as_bool
     ELSE
         Wait To Click	                    xpath=${xpath}
         Wait Until Page Contains Element	xpath=//body[contains(@class, 'o_web_client')]
@@ -174,9 +174,9 @@ Wait To Click   [Arguments]       ${xpath}
     ...         callback();
     ...     });
     ...     element.click();
+    ...     setTimeout(callback, 2000);
     ...  }
     Execute Async Javascript  ${js}
-    Screenshot
     _Wait Until Element Is Not Disabled  xpath=${xpath}
     Screenshot
     Element Post Check

@@ -139,15 +139,33 @@ _has_module_installed  [Arguments]  ${modulename}
     RETURN  ${False}
 
 
-_While Element Attribute Value  [Arguments]  ${xpath}  ${attribute}  ${operator}  ${param_value}
+_While Element Attribute Value  [Arguments]  ${xpath}  ${attribute}  ${operator}  ${param_value}  ${conversion}=${None}
+
+    IF  '${conversion}' == 'as_bool'
+        ${param_value}=  Convert To Boolean  ${param_value}
+    END
     WHILE  ${TRUE}
         ${value}=  Get Element Attribute  xpath=${xpath}  ${attribute}
-        IF  '${value}' ${operator} '${param_value}'
+        Log To Console  Waiting for ${xpath} ${attribute} ${operator} ${param_value} - got ${value}
+        IF  '${conversion}' == 'as_bool'
+            ${status}    ${integer_number}=    Run Keyword And Ignore Error  Convert To Integer    ${value}
+            IF  '${status}' != 'FAIL'
+                ${value}=    Set Variable  ${integer_number}
+            END
+            ${value}=  Convert To Boolean  ${value}
+        END
+        ${testcondition}=  Set Variable  '${value}' ${operator} '${param_value}'
+        Log To Console  ${testcondition}
+        ${condition}=  Evaluate  ${testcondition}
+        Log To Console  ${condition}
+        IF  ${condition}
+            Log To Console  Sleeping
             Sleep  0.2s
         ELSE
+            Log To Console  Returning from While Element Attribute value
             RETURN
         END
     END
 
 _Wait Until Element Is Not Disabled  [Arguments]  ${xpath}
-    _While Element Attribute Value  ${xpath}  disabled  ==  1
+    _While Element Attribute Value  ${xpath}  disabled  ==  true  as_bool
