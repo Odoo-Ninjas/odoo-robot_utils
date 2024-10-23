@@ -146,7 +146,7 @@ _While Element Attribute Value  [Arguments]  ${xpath}  ${attribute}  ${operator}
     END
     WHILE  ${TRUE}
         ${value}=  Get Element Attribute  xpath=${xpath}  ${attribute}
-        Log To Console  Waiting for ${xpath} ${attribute} ${operator} ${param_value} - got ${value}
+        # Log To Console  Waiting for ${xpath} ${attribute} ${operator} ${param_value} - got ${value}
         IF  '${conversion}' == 'as_bool'
             ${status}    ${integer_number}=    Run Keyword And Ignore Error  Convert To Integer    ${value}
             IF  '${status}' != 'FAIL'
@@ -155,9 +155,9 @@ _While Element Attribute Value  [Arguments]  ${xpath}  ${attribute}  ${operator}
             ${value}=  Convert To Boolean  ${value}
         END
         ${testcondition}=  Set Variable  '${value}' ${operator} '${param_value}'
-        Log To Console  ${testcondition}
+        # Log To Console  ${testcondition}
         ${condition}=  Evaluate  ${testcondition}
-        Log To Console  ${condition}
+        # Log To Console  ${condition}
         IF  ${condition}
             Log To Console  Sleeping
             Sleep  0.2s

@@ -174,7 +174,6 @@ Wait To Click   [Arguments]       ${xpath}
     ...         callback();
     ...     });
     ...     element.click();
-    ...     setTimeout(callback, 2000);
     ...  }
     Execute Async Javascript  ${js}
     _Wait Until Element Is Not Disabled  xpath=${xpath}
