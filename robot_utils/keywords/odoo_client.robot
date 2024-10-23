@@ -32,9 +32,21 @@ Odoo Search
     ...            ${count}=${FALSE}
     ...            ${limit}=${NONE}
     ...            ${order}=${NONE}
+    ...            ${offset}=${NONE}
     ...            ${lang}=en_US
     ...            ${context}=${NONE}
-    ${result}=     odoo.Rpc Client Search     ${host}    ${dbname}    ${user}    ${pwd}    ${model}    ${domain}    ${limit}    ${order}    ${count}    lang=${lang}    context=${context}
+    IF  ${odoo_version} >= 17.0
+        IF  ${count}
+            ${method}=  Set Variable  search_count
+            ${kwparams}=  Create Dictionary  limit=${limit}
+        ELSE
+            ${kwparams}=  Create Dictionary  limit=${limit}  offset=${offset}  order=${order}
+            ${method}=  Set Variable  search
+        END
+        ${result}=     Odoo Execute  ${model}  ${method}  kwparams=${kwparams}
+    ELSE
+        ${result}=     odoo.Rpc Client Search     ${host}    ${dbname}    ${user}    ${pwd}    ${model}    ${domain}    ${limit}    ${order}    ${count}    lang=${lang}    context=${context}
+    END
     RETURN         ${result}
 
 Odoo Search Records
@@ -50,7 +62,13 @@ Odoo Search Records
     ...               ${order}=${NONE}
     ...               ${lang}=en_US
     ...               ${context}=${None}
-    ${result}=        odoo.Rpc Client Search Records    ${host}    ${dbname}    ${user}    ${pwd}    ${model}    ${domain}    ${limit}    ${order}    ${count}    lang=${lang}    context=${context}
+
+    IF  ${odoo_version} >= 17.0
+        IF  ${count}
+            FAIL  Please do not use count=True for Odoo Search Records
+        END
+    END
+    ${result}=        odoo.Rpc Client Search Records    ${host}    ${dbname}    ${user}    ${pwd}    ${model}    ${domain}    limit=${limit}    order=${order}    lang=${lang}    context=${context}
     RETURN            ${result}
 
 Odoo Search Read Records
@@ -144,10 +162,11 @@ Odoo Search Unlink
     ...                    ${lang}=en_US
     ...                    ${context}=${None}
     ...                    ${limit}=${None}
+    ...                    ${offset}=${offset}
     ...                    ${order}=${None}
-    ${ids}=                odoo.Rpc Client Search     ${host}          ${dbname}       ${user}             ${pwd}          ${model}      ${domain}         ${limit}      ${order}        lang=${lang}          context=${context}
+    ${ids}=                Odoo Search         ${model}      ${domain}         limit=${limit}      order=${order}    offset=${offset}    lang=${lang}          context=${context}
     IF                     ${ids}
-        ${result}=             odoo.Rpc Client Execute    method=unlink    host=${host}    dbname=${dbname}    user=${user}    pwd=${pwd}    model=${model}    ids=${ids}    lang=${lang}    context=${context}
+        ${result}=             Odoo Execute    ${model}  unlink    host=${host}    dbname=${dbname}    user=${user}    pwd=${pwd}    ids=${ids}    lang=${lang}    context=${context}
     END
 
     RETURN    ${True}

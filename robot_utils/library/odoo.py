@@ -10,6 +10,7 @@ from robot.utils.dotdict import DotDict
 
 DEFAULT_LANG = "en_US"
 
+
 def _convert_fields(fields):
     if isinstance(fields, str):
         fields = fields.split(",")
@@ -86,6 +87,28 @@ class odoo(object):
         )
         return db
 
+    def rpc_client_search_count(
+        self,
+        host,
+        dbname,
+        user,
+        pwd,
+        model,
+        domain,
+        limit,
+        lang=DEFAULT_LANG,
+        context=None,
+    ):
+        db = self.get_conn(host, dbname, user, pwd)
+        context = self._get_context(context, lang)
+        limit = int(limit) if limit else None
+        domain = eval(domain)
+        logger.debug(f"Searching Count for records with domain {domain} {type(domain)}")
+        obj = db[model]
+        kwparams = {x:y for x,y in {'limit': limit, 'context': context}.items() if y}
+
+        return obj.search_count(domain, **kwparams)
+
     def rpc_client_search(
         self,
         host,
@@ -96,6 +119,7 @@ class odoo(object):
         domain,
         limit,
         order,
+        offset=None,
         count=False,
         lang=DEFAULT_LANG,
         context=None,
@@ -106,9 +130,9 @@ class odoo(object):
         domain = eval(domain)
         logger.debug(f"Searching for records with domain {domain} {type(domain)}")
         obj = db[model]
-        return obj.search(
-            domain, count=count, limit=limit, order=order, context=context
-        )
+        kwparams = {x:y for x,y in {'offset': offset, 'count': count, 'limit': limit, 'order': order, 'context': context}.items() if y}
+
+        return obj.search(domain, **kwparams)
 
     def rpc_client_search_records(
         self,
@@ -121,6 +145,7 @@ class odoo(object):
         limit,
         order,
         count=False,
+        offset=None,
         lang=DEFAULT_LANG,
         context=None,
     ):
@@ -130,8 +155,9 @@ class odoo(object):
         domain = eval(domain)
         logger.debug(f"Searching for records with domain {domain} {type(domain)}")
         obj = db[model]
+        kwparams = {x:y for x,y in {'offset': offset, 'count': count, 'limit': limit, 'order': order, 'context': context}.items() if y}
         res = obj.search_records(
-            domain, count=count, limit=limit, order=order, context=context
+            domain, **kwparams
         )
         return res
 
@@ -148,6 +174,7 @@ class odoo(object):
         limit,
         order,
         count=False,
+        offset=None,
         lang=DEFAULT_LANG,
         context=None,
     ):
@@ -159,7 +186,7 @@ class odoo(object):
         logger.debug(f"Searching for records with domain {domain} {type(domain)}")
         obj = db[model]
         res = obj.search_records(
-            domain, count=count, limit=limit, order=order, context=context
+            domain, **kwparams,
         )
         res = obj.read(res, fields)
         return res
