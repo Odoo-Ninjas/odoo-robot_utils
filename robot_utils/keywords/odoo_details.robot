@@ -145,7 +145,12 @@ _While Element Attribute Value  [Arguments]  ${xpath}  ${attribute}  ${operator}
         ${param_value}=  Convert To Boolean  ${param_value}
     END
     WHILE  ${TRUE}
-        ${value}=  Get Element Attribute  xpath=${xpath}  ${attribute}
+        ${status}  ${vaule}=  Run Keyword And Ignore Error  Get Element Attribute  xpath=${xpath}  ${attribute}
+        IF  '${status}' == 'FAIL'
+            # in V17 a newbutton is quickly gone and checking is not possible
+            # decision to return False
+            RETURN 
+        END
         # Log To Console  Waiting for ${xpath} ${attribute} ${operator} ${param_value} - got ${value}
         IF  '${conversion}' == 'as_bool'
             ${status}    ${integer_number}=    Run Keyword And Ignore Error  Convert To Integer    ${value}

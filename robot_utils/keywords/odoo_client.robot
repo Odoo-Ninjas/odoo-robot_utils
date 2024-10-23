@@ -38,12 +38,13 @@ Odoo Search
     IF  ${odoo_version} >= 17.0
         IF  ${count}
             ${method}=  Set Variable  search_count
-            ${kwparams}=  Create Dictionary  limit=${limit}
+            ${kwparams}=  Create Dictionary  
         ELSE
             ${kwparams}=  Create Dictionary  limit=${limit}  offset=${offset}  order=${order}
             ${method}=  Set Variable  search
         END
-        ${result}=     Odoo Execute  ${model}  ${method}  kwparams=${kwparams}
+        Log To Console  Doing odoo execute with [${domain}] and ${kwparams}
+        ${result}=     Odoo Execute  ${model}  ${method}  params=${{ [${domain}] }}  kwparams=${kwparams}
     ELSE
         ${result}=     odoo.Rpc Client Search     ${host}    ${dbname}    ${user}    ${pwd}    ${model}    ${domain}    ${limit}    ${order}    ${count}    lang=${lang}    context=${context}
     END

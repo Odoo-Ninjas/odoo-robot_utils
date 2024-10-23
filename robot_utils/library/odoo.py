@@ -87,28 +87,6 @@ class odoo(object):
         )
         return db
 
-    def rpc_client_search_count(
-        self,
-        host,
-        dbname,
-        user,
-        pwd,
-        model,
-        domain,
-        limit,
-        lang=DEFAULT_LANG,
-        context=None,
-    ):
-        db = self.get_conn(host, dbname, user, pwd)
-        context = self._get_context(context, lang)
-        limit = int(limit) if limit else None
-        domain = eval(domain)
-        logger.debug(f"Searching Count for records with domain {domain} {type(domain)}")
-        obj = db[model]
-        kwparams = {x:y for x,y in {'limit': limit, 'context': context}.items() if y}
-
-        return obj.search_count(domain, **kwparams)
-
     def rpc_client_search(
         self,
         host,
