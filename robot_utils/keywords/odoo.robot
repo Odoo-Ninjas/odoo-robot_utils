@@ -3,6 +3,7 @@
 Documentation   Odoo backend keywords.
 Library         ../library/browser.py
 Library         SeleniumLibrary
+Library         OperatingSystem
 Resource        odoo_client.robot
 Resource        tools.robot
 Library         ../library/tools.py
@@ -122,11 +123,13 @@ Upload File                [Arguments]     ${fieldname}    ${value}
     ${xpath}=               Set Variable  //div[@name='${fieldname}']//input[@type='file']
     Log To Console          Uploading file to ${fieldname}
     ${js_show_fileupload}=  Catenate  
+    ...  const callback = arguments[arguments.length - 1];
     ...  const nodes = document.querySelector("div[name='${fieldname}']");
     ...  nodes.getElementsByTagName('input')[0].classList.remove("o_hidden");
+    ...  callback();
 
     Wait Until Element Is Visible   xpath=${xpath}/..
-    Execute Javascript              ${js_show_fileupload}
+    Execute Async Javascript        ${js_show_fileupload}
     Screenshot
     Input Text                      xpath=${xpath}    ${value}
     ElementPostCheck
@@ -151,17 +154,31 @@ Wait To Click   [Arguments]       ${xpath}
             _Wait Until Element Is Not Disabled  xpath=${xpath}
         END
     END
+    Log To Console  Wait To Click using fallback with javascript, as element was not clickable.
 
     # try to click per javascript then; if mouse fails
     Log  Could not identify element ${xpath} - so trying by pure javascript to click it.
+    ${guid}=  Get Guid
+    ${libdir}=  library Directory
+    ${wait_for_disabled_and_enabled}=  Get File    ${libdir}/../keywords/js/waitForChange.js
     ${js}=  Catenate  
+    ...  const callback = arguments[arguments.length - 1];
     ...  const xpath = "${xpath}";
-    ...  const result = document.evaluate(xpath, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+    ...  ${wait_for_disabled_and_enabled};
+    ...  const result = document.evaluate(xpath, document, null, 
+    ...     XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
     ...  for (let i = 0; i < result.snapshotLength; i++) {
     ...     const element = result.snapshotItem(i);
+    ...     waitForDisabledAndEnabled(element).then(() => {
+    ...         console.log("Element went through disable/enable cycle");
+    ...         callback();
+    ...     });
     ...     element.click();
     ...  }
-    Execute Javascript  ${js}
+    Execute Async Javascript  ${js}
+    Screenshot
+    _Wait Until Element Is Not Disabled  xpath=${xpath}
+    Screenshot
     Element Post Check
 
 Breadcrumb Back

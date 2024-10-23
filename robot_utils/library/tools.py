@@ -11,6 +11,10 @@ import xmlrpc.client
 from robot.api.deco import keyword
 from robot.utils.dotdict import DotDict
 from robot.libraries.BuiltIn import BuiltIn
+import inspect
+import os
+from pathlib import Path
+current_dir = Path(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))))
 
 
 class Encoder(json.JSONEncoder):
@@ -153,4 +157,8 @@ class tools(object):
     def My_Assert(self, expr, msg=""):
         res = bool(eval(expr))
         if not res:
+            msg = f"Assertion failed: {expr}\n{msg}"
             raise Exception(msg)
+
+    def libraryDirectory(self):
+        return str(current_dir)

@@ -22,12 +22,14 @@ _WriteACEEditor              [Arguments]     ${fieldname}    ${value}
     ${tempId} =             Generate Random String    8
     Assign Id To Element    locator=${locator}    id=${tempId}
     ${js}=                  Catenate  
+    ...                     const callback = arguments[arguments.length - 1];
     ...                     var editor = ace.edit(document.getElementById("${tempId}")); 
     ...                     editor.focus();
     ...                     editor.setValue(`${value}`, 1); 
     ...                     document.activeElement.blur();
+    ...                     callback();
     Screenshot
-    Execute Javascript      ${js}
+    Execute Async Javascript  ${js}
     Assign Id To Element    locator=${locator}    id=${origId}
     Screenshot
 
@@ -42,7 +44,7 @@ _Write To Xpath           [Arguments]     ${xpath}    ${value}
         Log To Console    Could not regularly insert text to ${xpath} - trying to scroll into view first
 
         ${element}=    Get WebElement    xpath=${xpath}
-        Execute JavaScript    arguments[0].scrollIntoView(true);    ${element}
+        Execute Async JavaScript    const callback = arguments[arguments.length - 1]; arguments[0].scrollIntoView(true); callback();   ${element}
 
         Input Text  xpath=${xpath}  ${value}
 
@@ -66,7 +68,7 @@ _Write To Xpath           [Arguments]     ${xpath}    ${value}
     END
 
     # Try to blur to show save button
-    Execute Javascript  document.activeElement ? document.activeElement.blur() : null;
+    Execute Async Javascript  const callback = arguments[arguments.length-1];document.activeElement ? document.activeElement.blur() : null; callback();
 
     # Close Error Dialog And Log
     Screenshot
@@ -99,10 +101,10 @@ ElementPostCheck
 
 ElementPreCheck    [Arguments]    ${element}
     Wait Blocking
-    Execute Javascript      console.log("${element}");
     # Element may be in a tab. So click the parent tab. If there is no parent tab, forget about the result
     # not verified for V16 yet with tabs
     ${code}=                Catenate 
+    ...    const callback = arguments[arguments.length - 1];
     ...    var path="${element}".replace('xpath=','');
     ...    var id=document.evaluate("("+path+")/ancestor::div[contains(@class,'oe_notebook_page')]/@id"
     ...        ,document,null,XPathResult.STRING_TYPE,null).stringValue;
@@ -111,8 +113,9 @@ ElementPreCheck    [Arguments]    ${element}
     ...        $("a[href='#"+id+"']").click();
     ...        console.log("Clicked at #" + id);
     ...    }
+    ...    callback();
     ...    return true;
-    Execute Javascript       ${code}
+    Execute Async Javascript       ${code}
     Wait Blocking
 
 
@@ -137,10 +140,13 @@ _has_module_installed  [Arguments]  ${modulename}
 
 
 _While Element Attribute Value  [Arguments]  ${xpath}  ${attribute}  ${operator}  ${param_value}
-    ${value}=  Get Element Attribute  xpath=${xpath}  ${attribute}
-    WHILE  '${value}' ${operator} '${param_value}'
-        Sleep  0.2s
+    WHILE  ${TRUE}
         ${value}=  Get Element Attribute  xpath=${xpath}  ${attribute}
+        IF  '${value}' ${operator} '${param_value}'
+            Sleep  0.2s
+        ELSE
+            RETURN
+        END
     END
 
 _Wait Until Element Is Not Disabled  [Arguments]  ${xpath}
