@@ -32,7 +32,7 @@ Odoo Search
     ...            ${count}=${FALSE}
     ...            ${limit}=${NONE}
     ...            ${order}=${NONE}
-    ...            ${offset}=${NONE}
+    ...            ${offset}=0
     ...            ${lang}=en_US
     ...            ${context}=${NONE}
     IF  ${odoo_version} >= 17.0
@@ -163,7 +163,7 @@ Odoo Search Unlink
     ...                    ${lang}=en_US
     ...                    ${context}=${None}
     ...                    ${limit}=${None}
-    ...                    ${offset}=${None}
+    ...                    ${offset}=0
     ...                    ${order}=${None}
     ${ids}=                Odoo Search         ${model}      ${domain}         limit=${limit}      order=${order}    offset=${offset}    lang=${lang}          context=${context}
     IF                     ${ids}
