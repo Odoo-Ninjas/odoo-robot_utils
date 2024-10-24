@@ -118,7 +118,7 @@ Get Instance ID From Url  [Arguments]  ${expected_model}
             BREAK
         EXCEPT
             Log To Console  Sometimes the id is not in the url, seems so some reloading happens. So wait a little bit and give a chance
-            Sleep 1s
+            Sleep  1s
         END
     END
     RETURN  ${id}
