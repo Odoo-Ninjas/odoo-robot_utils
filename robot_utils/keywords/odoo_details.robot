@@ -145,7 +145,7 @@ _While Element Attribute Value  [Arguments]  ${xpath}  ${attribute}  ${operator}
         ${param_value}=  Convert To Boolean  ${param_value}
     END
     WHILE  ${TRUE}
-        ${status}  ${vaule}=  Run Keyword And Ignore Error  Get Element Attribute  xpath=${xpath}  ${attribute}
+        ${status}  ${value}=  Run Keyword And Ignore Error  Get Element Attribute  xpath=${xpath}  ${attribute}
         IF  '${status}' == 'FAIL'
             # in V17 a newbutton is quickly gone and checking is not possible
             # decision to return False
