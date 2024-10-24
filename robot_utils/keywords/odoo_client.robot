@@ -163,7 +163,7 @@ Odoo Search Unlink
     ...                    ${lang}=en_US
     ...                    ${context}=${None}
     ...                    ${limit}=${None}
-    ...                    ${offset}=${offset}
+    ...                    ${offset}=${None}
     ...                    ${order}=${None}
     ${ids}=                Odoo Search         ${model}      ${domain}         limit=${limit}      order=${order}    offset=${offset}    lang=${lang}          context=${context}
     IF                     ${ids}
