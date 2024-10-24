@@ -54,7 +54,7 @@ _Write To Xpath           [Arguments]     ${xpath}    ${value}
     ${klass}=    Get Element Attribute   xpath=${xpath}  class
     ${is_autocomplete}=   Evaluate    "o-autocomplete--input" in "${klass}"  
     IF  ${is_autocomplete}
-        Wait Blocker
+        Wait Blocking
         IF  ${odoo_version} == 16.0
             ${xpath}=                       Set Variable    //ul[contains(@class, 'o-autocomplete--dropdown-menu dropdown-menu')]
             Wait To Click                   xpath=${xpath}/li[1]
@@ -64,7 +64,7 @@ _Write To Xpath           [Arguments]     ${xpath}    ${value}
         ELSE
             FAIL  needs implementation for ${odoo_version}
         END
-        Wait Blocker
+        Wait Blocking
     END
 
     # Try to blur to show save button
