@@ -10,9 +10,9 @@ from pathlib import Path
 from odoo import _, api, fields, models, SUPERUSER_ID
 from io import BufferedReader, BytesIO
 from odoo.tools import convert_xml_import, convert_csv_import
+import inspect
 
 from odoo.exceptions import UserError, RedirectWarning, ValidationError
-
 
 class DataLoader(models.AbstractModel):
     _name = "robot.data.loader"
@@ -74,11 +74,20 @@ class DataLoader(models.AbstractModel):
 
         filepath = Path(tempfile.mkstemp(suffix=file_type)[1])
         filepath.write_text(content)
+
+        # V17 changed params
+        signature = inspect.signature(convert_csv_import)
+        parameters = signature.parameters
+
+        param1 = self.env.cr
+        if 'env' in parameters:
+            param1 = self.env
+
         try:
             if file_type == ".xml":
                 with open(filepath, "rb") as file:
                     convert_xml_import(
-                        self.env.cr,
+                        param1,
                         module_name,
                         file,
                         idref={},
@@ -86,7 +95,7 @@ class DataLoader(models.AbstractModel):
                     )
             elif file_type == ".csv":
                 convert_csv_import(
-                    cr=self.env.cr,
+                    param1,
                     module=module_name,
                     fname=Path(filename).name,
                     csvcontent=content.encode("utf-8"),
