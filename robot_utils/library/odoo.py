@@ -162,6 +162,7 @@ class odoo(object):
         limit = int(limit) if limit else None
         domain = eval(domain)
         logger.debug(f"Searching for records with domain {domain} {type(domain)}")
+        kwparams = {x:y for x,y in {'offset': int(offset or 0), 'count': count, 'limit': limit, 'order': order, offset: int(offset or 0), 'context': context}.items() if y}
         obj = db[model]
         res = obj.search_records(
             domain, **kwparams,
