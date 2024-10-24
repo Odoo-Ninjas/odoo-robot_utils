@@ -46,7 +46,8 @@ _Write To Xpath           [Arguments]     ${xpath}    ${value}
         ${element}=    Get WebElement    xpath=${xpath}
         Execute Async JavaScript    const callback = arguments[arguments.length - 1]; arguments[0].scrollIntoView(true); callback();   ${element}
 
-        Input Text  xpath=${xpath}  ${value}
+		Set Focus To Element        xpath=${xpath}
+        Input Text                  xpath=${xpath}  ${value}
 
     END
 
@@ -68,6 +69,7 @@ _Write To Xpath           [Arguments]     ${xpath}    ${value}
     END
 
     # Try to blur to show save button
+    Screenshot
     Execute Async Javascript  const callback = arguments[arguments.length-1];document.activeElement ? document.activeElement.blur() : null; callback();
 
     # Close Error Dialog And Log
