@@ -162,3 +162,8 @@ class tools(object):
 
     def libraryDirectory(self):
         return str(current_dir)
+
+    def Base64_Encode_File_Content(self, filepath):
+        import base64
+        bytes = Path(filepath).read_bytes()
+        return base64.b64encode(bytes).decode('utf8')

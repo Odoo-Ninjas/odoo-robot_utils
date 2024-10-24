@@ -115,8 +115,6 @@ WriteInField                [Arguments]     ${fieldname}    ${value}
         ${xpath}=               Set Variable  //input[@id='${fieldname}' or @id='${fieldname}_0']|textarea[@id='${fieldname}' or @id='${fieldname}_0']
         _Write To Xpath          ${xpath}  ${value}
     END
-
-
 Upload File                [Arguments]     ${fieldname}    ${value}
 
     File Should Exist       ${value}
@@ -125,7 +123,9 @@ Upload File                [Arguments]     ${fieldname}    ${value}
     ${js_show_fileupload}=  Catenate  
     ...  const callback = arguments[arguments.length - 1];
     ...  const nodes = document.querySelector("div[name='${fieldname}']");
-    ...  nodes.getElementsByTagName('input')[0].classList.remove("o_hidden");
+    ...  const inputel = nodes.getElementsByTagName('input')[0];
+    ...  inputel.classList.remove("o_hidden");
+    ...  inputel.classList.remove("d-none");
     ...  callback();
 
     Wait Until Element Is Visible   xpath=${xpath}/..
