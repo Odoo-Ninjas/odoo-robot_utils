@@ -54,16 +54,17 @@ _Write To Xpath           [Arguments]     ${xpath}    ${value}
     ${klass}=    Get Element Attribute   xpath=${xpath}  class
     ${is_autocomplete}=   Evaluate    "o-autocomplete--input" in "${klass}"  
     IF  ${is_autocomplete}
-        Wait Blocking
+        Wait Blocker
         IF  ${odoo_version} == 16.0
             ${xpath}=                       Set Variable    //ul[contains(@class, 'o-autocomplete--dropdown-menu dropdown-menu')]
+            Wait To Click                   xpath=${xpath}/li[1]
         ELSE IF  ${odoo_version} == 17.0
             ${xpath}=                       Set Variable    //ul[@role='menu' and contains(@class, 'o-autocomplete--dropdown-menu')]  
+            Wait To Click                   xpath=${xpath}/li[1]/a
         ELSE
             FAIL  needs implementation for ${odoo_version}
         END
-        Wait To Click                   xpath=${xpath}/li[1]
-        Wait Blocking
+        Wait Blocker
     END
 
     # Try to blur to show save button
@@ -75,28 +76,23 @@ _Write To Xpath           [Arguments]     ${xpath}    ${value}
     ElementPostCheck
 
 Wait Blocking
-    ${counter}=  Set Variable  0
-    # While to try to catch loading indicator
-    WHILE  ${counter} < 10
-        Repeat Keyword  10 times    Run Keyword And Ignore Error     Wait Until Element Is Not Visible   xpath=//span[contains(@class, 'o_loading_indicator')]
+    # TODO something not ok here - if --timeout is 30 then this function
+    # executes 20 times slower then with robot --timeout 10
+    Repeat Keyword  10 times    Run Keyword And Ignore Error     Wait Until Element Is Not Visible   xpath=//span[contains(@class, 'o_loading_indicator')]
 
-        ${state}  ${result}=  Run Keyword And Ignore Error     Wait Until Element Is Not Visible   xpath=//div[contains(@class, 'o_blockUI')]  
-        IF  '${state}' == 'FAIL'
-            Log To Console  o_blockUI still visible
-        END
+    ${state}  ${result}=  Run Keyword And Ignore Error     Wait Until Element Is Not Visible   xpath=//div[contains(@class, 'o_blockUI')]  
+    IF  '${state}' == 'FAIL'
+        Log To Console  o_blockUI still visible
+    END
 
-        ${state}  ${result}=  Run Keyword And Ignore Error     Wait Until Element Is Not Visible   xpath=//body[contains(@class, 'o_loading')]
-        IF  '${state}' == 'FAIL'
-            Log To Console  o_loading still visible
-        END
+    ${state}  ${result}=  Run Keyword And Ignore Error     Wait Until Element Is Not Visible   xpath=//body[contains(@class, 'o_loading')]
+    IF  '${state}' == 'FAIL'
+        Log To Console  o_loading still visible
+    END
 
-        ${state}  ${result}=  Run Keyword And Ignore Error     Wait Until Element Is Not Visible   xpath=//body[contains(@class, 'o_ewait')]
-        IF  '${state}' == 'FAIL'
-            Log To Console  o_ewait still visible
-        END
-
-        Sleep  20ms
-        ${counter}=  Set Variable  ${{ ${counter} + 1 }}
+    ${state}  ${result}=  Run Keyword And Ignore Error     Wait Until Element Is Not Visible   xpath=//body[contains(@class, 'o_ewait')]
+    IF  '${state}' == 'FAIL'
+        Log To Console  o_ewait still visible
     END
 
 ElementPostCheck
