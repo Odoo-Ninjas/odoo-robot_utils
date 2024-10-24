@@ -99,7 +99,7 @@ Extract Param From Url  [Arguments]  ${param}  ${url}=${NONE}
 
 Get Instance ID From Url  [Arguments]  ${expected_model}
     ${counter}=   Set Variable  0
-    WHILE  ${counter} < 10
+    WHILE  ${counter} < ${SELENIUM_TIMEOUT}
         ${is_model}=  Extract Param From Url  model
         IF  '${is_model}' == '${expected_model}'
             BREAK
@@ -109,8 +109,18 @@ Get Instance ID From Url  [Arguments]  ${expected_model}
     IF  '${is_model}' != '${expected_model}'
         FAIL  Expected model ${expected_model} but got ${is_model}
     END
-    ${id}=  Extract Param From Url  id
-    ${id}=  Evaluate  int("${id}")
+
+    ${counter}=  Set Variable  0
+    WHILE  ${counter} < ${SELENIUM_TIMEOUT}
+        TRY
+            ${id}=  Extract Param From Url  id
+            ${id}=  Evaluate  int("${id}")
+            BREAK
+        EXCEPT
+            Log To Console  Sometimes the id is not in the url, seems so some reloading happens. So wait a little bit and give a chance
+            Sleep 1s
+        END
+    END
     RETURN  ${id}
 
 Get All Variables
