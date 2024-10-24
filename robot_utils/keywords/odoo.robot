@@ -121,6 +121,7 @@ Upload File                [Arguments]     ${fieldname}    ${value}
 
     File Should Exist       ${value}
     ${xpath}=               Set Variable  //div[@name='${fieldname}']//input[@type='file']
+    ElementPreCheck         xpath=${xpath}/..
     Log To Console          Uploading file to ${fieldname}
     ${js_show_fileupload}=  Catenate  
     ...  const callback = arguments[arguments.length - 1];
