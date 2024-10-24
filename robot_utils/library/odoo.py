@@ -108,7 +108,7 @@ class odoo(object):
         domain = eval(domain)
         logger.debug(f"Searching for records with domain {domain} {type(domain)}")
         obj = db[model]
-        kwparams = {x:y for x,y in {'offset': int(offset), 'count': count, 'limit': limit, 'order': order, 'context': context}.items() if y}
+        kwparams = {x:y for x,y in {'offset': int(offset or 0), 'count': count, 'limit': limit, 'order': order, 'context': context}.items() if y}
 
         return obj.search(domain, **kwparams)
 
@@ -133,7 +133,7 @@ class odoo(object):
         domain = eval(domain)
         logger.debug(f"Searching for records with domain {domain} {type(domain)}")
         obj = db[model]
-        kwparams = {x:y for x,y in {'offset': int(offset), 'count': count, 'limit': limit, 'order': order, 'context': context}.items() if y}
+        kwparams = {x:y for x,y in {'offset': int(offset or 0), 'count': count, 'limit': limit, 'order': order, offset: int(offset or 0), 'context': context}.items() if y}
         res = obj.search_records(
             domain, **kwparams
         )

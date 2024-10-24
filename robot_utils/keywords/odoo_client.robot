@@ -36,6 +36,7 @@ Odoo Search
     ...            ${lang}=en_US
     ...            ${context}=${NONE}
     IF  ${odoo_version} >= 17.0
+        ${count}=       Convert To Boolean  ${count}
         IF  ${count}
             ${method}=  Set Variable  search_count
             ${kwparams}=  Create Dictionary  
@@ -46,7 +47,7 @@ Odoo Search
         Log To Console  Doing odoo execute with [${domain}] and ${kwparams}
         ${result}=     Odoo Execute  ${model}  ${method}  params=${{ [${domain}] }}  kwparams=${kwparams}
     ELSE
-        ${result}=     odoo.Rpc Client Search     ${host}    ${dbname}    ${user}    ${pwd}    ${model}    ${domain}    ${limit}    ${order}    ${count}    lang=${lang}    context=${context}
+        ${result}=     odoo.Rpc Client Search     ${host}    ${dbname}    ${user}    ${pwd}    ${model}    ${domain}    limit=${limit}    order=${order}    count=${count}    lang=${lang}    context=${context}
     END
     RETURN         ${result}
 
@@ -84,9 +85,10 @@ Odoo Search Read Records
     ...               ${count}=${FALSE}
     ...               ${limit}=${NONE}
     ...               ${order}=${NONE}
+    ...               ${offset}=0
     ...               ${lang}=en_US
     ...               ${context}=${None}
-    ${result}=        odoo.Rpc Client Search Read Records    ${host}    ${dbname}    ${user}    ${pwd}    ${model}    ${domain}    ${fields}    ${limit}    ${order}    ${count}    lang=${lang}    context=${context}
+    ${result}=        odoo.Rpc Client Search Read Records    ${host}    ${dbname}    ${user}    ${pwd}    ${model}    ${domain}    ${fields}    limit=${limit}    order=${order}    count=${count}    offset=${offset}  lang=${lang}    context=${context}
     RETURN            ${result}
 
 Odoo Load Data
