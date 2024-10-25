@@ -137,7 +137,7 @@ Upload File                [Arguments]     ${fieldname}    ${value}
     Screenshot
     Input Text                      xpath=${xpath}    ${value}
     ElementPostCheck
-	Log To Console          Done UploadFile ${filename}=${value}
+	Log To Console          Done UploadFile ${fieldname}=${value}
 
 Wait To Click   [Arguments]       ${xpath}
 	Log To Console                  Wait To Click ${xpath}
