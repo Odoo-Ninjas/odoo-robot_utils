@@ -80,6 +80,7 @@ class DataLoader(models.AbstractModel):
         parameters = signature.parameters
 
         param1 = self.env.cr
+        breakpoint()
         if 'env' in parameters:
             param1 = self.env
 

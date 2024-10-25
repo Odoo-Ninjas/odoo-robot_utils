@@ -161,7 +161,7 @@ Wait To Click   [Arguments]       ${xpath}
             _Wait Until Element Is Not Disabled  xpath=${xpath}
         END
     END
-    Log To Console  Wait To Click using fallback with javascript, as element was not clickable.
+    Log To Console  Wait To Click using fallback with javascript, as element was not clickable: ${xpath}
 
     # try to click per javascript then; if mouse fails
     Log  Could not identify element ${xpath} - so trying by pure javascript to click it.
