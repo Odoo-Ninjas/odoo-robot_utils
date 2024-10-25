@@ -115,6 +115,7 @@ WriteInField                [Arguments]     ${fieldname}    ${value}  ${ignore_a
     ELSE
         ${xpath}=               Catenate  
         ...                     //div[@name='${fieldname}']//input
+        ...                     | //div[@name='${fieldname}']//textarea
         ...                     | //input[@id='${fieldname}' or @id='${fieldname}_0']
         ...                     | textarea[@id='${fieldname}' or @id='${fieldname}_0']
         _Write To Xpath          ${xpath}  ${value}  ignore_auto_complete=${ignore_auto_complete}

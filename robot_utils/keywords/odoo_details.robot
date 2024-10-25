@@ -35,48 +35,55 @@ _WriteACEEditor              [Arguments]     ${fieldname}    ${value}
 
 
 _Write To Xpath           [Arguments]     ${xpath}    ${value}  ${ignore_auto_complete}=False
-    Log To Console                     _Write To XPath called with ${xpath} ${value} ${ignore_auto_complete}
-    ElementPreCheck                    xpath=${xpath}
+    Log2                               _Write To XPath called with ${xpath} ${value} ${ignore_auto_complete}
+    ElementPreCheck                     xpath=${xpath}
     Wait Until Element Is Visible       xpath=${xpath}
 
 
-    ${status}  ${error}=  Run Keyword And Ignore Error  Input Text              xpath=${xpath}  ${value}
+    ${status}  ${error}=  Run Keyword And Ignore Error  Input Text  xpath=${xpath}  ${value}
     IF  '${status}' == 'FAIL'
         Log To Console    Could not regularly insert text to ${xpath} - trying to scroll into view first
-
         ${element}=    Get WebElement    xpath=${xpath}
         Execute Async JavaScript    const callback = arguments[arguments.length - 1]; arguments[0].scrollIntoView(true); callback();   ${element}
-
         Set Focus To Element        xpath=${xpath}
         Input Text                  xpath=${xpath}  ${value}
-
     END
 
 
     ${klass}=    Get Element Attribute   xpath=${xpath}  class
     ${is_autocomplete}=   Evaluate    "o-autocomplete--input" in "${klass}"  
     IF  ${is_autocomplete} and not ${ignore_auto_complete}
-        Wait Blocking
-        IF  ${odoo_version} == 16.0
-            ${xpath}=                       Set Variable    //ul[contains(@class, 'o-autocomplete--dropdown-menu dropdown-menu')]
-            Wait To Click                   xpath=${xpath}/li[1]
-        ELSE IF  ${odoo_version} == 17.0
-            ${xpath}=                       Set Variable    //ul[@role='menu' and contains(@class, 'o-autocomplete--dropdown-menu')]  
-            Wait To Click                   xpath=${xpath}/li[1]/a
-        ELSE
-            FAIL  needs implementation for ${odoo_version}
-        END
-        Wait Blocking
+        _Write To XPath AutoComplete
     END
 
     # Try to blur to show save button
     Screenshot
-    Execute Async Javascript  const callback = arguments[arguments.length-1];document.activeElement ? document.activeElement.blur() : null; callback();
+    ${js}=                    Catenate  SEPARATOR=;
+    ...                       const callback = arguments[arguments.length-1]
+    ...                       document.activeElement ? document.activeElement.blur() : null
+    ...                       callback()
+    Execute Async Javascript  ${js}
 
     # Close Error Dialog And Log
+
     Screenshot
 
     ElementPostCheck
+
+_Write To XPath AutoComplete
+    Wait Blocking
+    IF  ${odoo_version} == 16.0
+        ${xpath}=                       Catenate  
+        ...                             //ul[contains(@class, 'o-autocomplete--dropdown-menu dropdown-menu')][not(//*[contains(@class, 'fa-spin')])]
+        Wait To Click                   xpath=${xpath}/li[1]
+    ELSE IF  ${odoo_version} == 17.0
+        ${xpath}=                       Catenate    
+        ...                             //ul[@role='menu' and contains(@class, 'o-autocomplete--dropdown-menu')][not(//*[contains(@class, 'fa-spin')])]
+        Wait To Click                   xpath=${xpath}/li[1]/a
+    ELSE
+        FAIL  needs implementation for ${odoo_version}
+    END
+    Wait Blocking
 
 Wait Blocking
     Log To Console                       Wait Blocking
@@ -105,7 +112,7 @@ ElementPostCheck
     Screenshot
 
 ElementPreCheck    [Arguments]    ${element}
-    Log To Console              Element Precheck ${element}
+    Log2                  Element Precheck ${element}
     Wait Blocking
     # Element may be in a tab. So click the parent tab. If there is no parent tab, forget about the result
     # not verified for V16 yet with tabs
@@ -123,7 +130,7 @@ ElementPreCheck    [Arguments]    ${element}
     ...    return true;
     Execute Async Javascript       ${code}
     Wait Blocking
-    Log To Console              Done: Element Precheck ${element}
+    Log2                            Done: Element Precheck ${element}
 
 
 _has_module_installed  [Arguments]  ${modulename}

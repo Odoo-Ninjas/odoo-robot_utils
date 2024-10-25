@@ -137,6 +137,10 @@ Log Keyword Parameters
     Log Many         ${params}
     Log To Console   ${params}
 
+Log2  [Arguments]  ${msg}
+    Log To Console  ${msg}
+    Log  ${msg}
+
 Assert  [Arguments]  ${expr}  ${msg}=Assertion failed
     tools.My_Assert  ${expr}  ${msg}
 
