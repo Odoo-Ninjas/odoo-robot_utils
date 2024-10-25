@@ -139,3 +139,6 @@ Log Keyword Parameters
 
 Assert  [Arguments]  ${expr}  ${msg}=Assertion failed
     tools.My_Assert  ${expr}  ${msg}
+
+Screenshot
+	Capture Page Screenshot

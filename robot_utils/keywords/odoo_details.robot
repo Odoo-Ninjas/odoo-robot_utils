@@ -34,10 +34,11 @@ _WriteACEEditor              [Arguments]     ${fieldname}    ${value}
     Screenshot
 
 
-_Write To Xpath           [Arguments]     ${xpath}    ${value}
+_Write To Xpath           [Arguments]     ${xpath}    ${value}  ${ignore_auto_complete}=False
+    Log To Console                     _Write To XPath called with ${xpath} ${value} ${ignore_auto_complete}
     ElementPreCheck                    xpath=${xpath}
     Wait Until Element Is Visible       xpath=${xpath}
-    
+
 
     ${status}  ${error}=  Run Keyword And Ignore Error  Input Text              xpath=${xpath}  ${value}
     IF  '${status}' == 'FAIL'
@@ -46,7 +47,7 @@ _Write To Xpath           [Arguments]     ${xpath}    ${value}
         ${element}=    Get WebElement    xpath=${xpath}
         Execute Async JavaScript    const callback = arguments[arguments.length - 1]; arguments[0].scrollIntoView(true); callback();   ${element}
 
-		Set Focus To Element        xpath=${xpath}
+        Set Focus To Element        xpath=${xpath}
         Input Text                  xpath=${xpath}  ${value}
 
     END
@@ -54,7 +55,7 @@ _Write To Xpath           [Arguments]     ${xpath}    ${value}
 
     ${klass}=    Get Element Attribute   xpath=${xpath}  class
     ${is_autocomplete}=   Evaluate    "o-autocomplete--input" in "${klass}"  
-    IF  ${is_autocomplete}
+    IF  ${is_autocomplete} and not ${ignore_auto_complete}
         Wait Blocking
         IF  ${odoo_version} == 16.0
             ${xpath}=                       Set Variable    //ul[contains(@class, 'o-autocomplete--dropdown-menu dropdown-menu')]

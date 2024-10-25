@@ -103,18 +103,21 @@ Close Error Dialog And Log
     Run Keyword If         ${visible_js_error_dialog}    Log To Console  ${errordetails}
     Run Keyword If         ${visible_js_error_dialog}    Click Element  xpath=//div[contains(@class, 'o_dialog_error')]//footer/button[contains(@class, 'btn-primary')]
 
-WriteInField                [Arguments]     ${fieldname}    ${value}
+WriteInField                [Arguments]     ${fieldname}    ${value}  ${ignore_auto_complete}=False
     # Check if it is ACE:
     # <div name="field1" class="o_field_widget o_field_ace"
-    Log To Console                            WriteInField ${fieldname}=${value}
+    Log To Console                            WriteInField ${fieldname}=${value} ignore_auto_complete=${ignore_auto_complete}
     ${locator_if_ACE}=                        _LocatorACE  ${fieldname}
     Run Keyword And Ignore Error              ElementPreCheck  ${locator_if_ACE}
     ${status_is_ace}  ${testel}=              Run Keyword And Ignore Error  Get WebElement  //div[@name='${fieldname}' and contains(@class, 'o_field_ace')]
     IF  '${status_is_ace}' != 'FAIL'
         _WriteACEEditor  ${fieldname}  ${value}
     ELSE
-        ${xpath}=               Set Variable  //input[@id='${fieldname}' or @id='${fieldname}_0']|textarea[@id='${fieldname}' or @id='${fieldname}_0']
-        _Write To Xpath          ${xpath}  ${value}
+        ${xpath}=               Catenate  
+        ...                     //div[@name='${fieldname}']//input
+        ...                     | //input[@id='${fieldname}' or @id='${fieldname}_0']
+        ...                     | textarea[@id='${fieldname}' or @id='${fieldname}_0']
+        _Write To Xpath          ${xpath}  ${value}  ignore_auto_complete=${ignore_auto_complete}
     END
     Log To Console                            Done: WriteInField ${fieldname}=${value}
 
