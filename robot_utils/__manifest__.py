@@ -7,5 +7,5 @@
     'depends': ['base'],
     'data': [],
     "license": "Other proprietary",
-    "external_dependencies": {"python": [], "bin": []},
+    "external_dependencies": {"python": ['arrow'], "bin": []},
 }
