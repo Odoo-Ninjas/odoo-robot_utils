@@ -78,6 +78,7 @@ _Write To Xpath           [Arguments]     ${xpath}    ${value}
     ElementPostCheck
 
 Wait Blocking
+    Log To Console                       Wait Blocking
     # TODO something not ok here - if --timeout is 30 then this function
     # executes 20 times slower then with robot --timeout 10
     Repeat Keyword  10 times    Run Keyword And Ignore Error     Wait Until Element Is Not Visible   xpath=//span[contains(@class, 'o_loading_indicator')]
@@ -96,12 +97,14 @@ Wait Blocking
     IF  '${state}' == 'FAIL'
         Log To Console  o_ewait still visible
     END
+    Log To Console                       Wait Blocking Done
 
 ElementPostCheck
     Wait Blocking
     Screenshot
 
 ElementPreCheck    [Arguments]    ${element}
+    Log To Console              Element Precheck ${element}
     Wait Blocking
     # Element may be in a tab. So click the parent tab. If there is no parent tab, forget about the result
     # not verified for V16 yet with tabs
@@ -119,6 +122,7 @@ ElementPreCheck    [Arguments]    ${element}
     ...    return true;
     Execute Async Javascript       ${code}
     Wait Blocking
+    Log To Console              Done: Element Precheck ${element}
 
 
 _has_module_installed  [Arguments]  ${modulename}
@@ -142,6 +146,7 @@ _has_module_installed  [Arguments]  ${modulename}
 
 
 _While Element Attribute Value  [Arguments]  ${xpath}  ${attribute}  ${operator}  ${param_value}  ${conversion}=${None}
+    Log To Console  While Element Attribute Value ${xpath} ${attribute} ${operator} ${param_value} ${conversion}
 
     IF  '${conversion}' == 'as_bool'
         ${param_value}=  Convert To Boolean  ${param_value}
@@ -166,13 +171,13 @@ _While Element Attribute Value  [Arguments]  ${xpath}  ${attribute}  ${operator}
         ${condition}=  Evaluate  ${testcondition}
         # Log To Console  ${condition}
         IF  ${condition}
-            Log To Console  Sleeping
             Sleep  0.2s
         ELSE
             Log To Console  Returning from While Element Attribute value
             RETURN
         END
     END
+    Log To Console  Done: While Element Attribute Value ${xpath} ${attribute} ${operator} ${param_value} ${conversion}
 
 _Wait Until Element Is Not Disabled  [Arguments]  ${xpath}
     _While Element Attribute Value  ${xpath}  disabled  ==  true  as_bool

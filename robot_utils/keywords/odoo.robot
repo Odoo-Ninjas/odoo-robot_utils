@@ -106,6 +106,7 @@ Close Error Dialog And Log
 WriteInField                [Arguments]     ${fieldname}    ${value}
     # Check if it is ACE:
     # <div name="field1" class="o_field_widget o_field_ace"
+    Log To Console                            WriteInField ${fieldname}=${value}
     ${locator_if_ACE}=                        _LocatorACE  ${fieldname}
     Run Keyword And Ignore Error              ElementPreCheck  ${locator_if_ACE}
     ${status_is_ace}  ${testel}=              Run Keyword And Ignore Error  Get WebElement  //div[@name='${fieldname}' and contains(@class, 'o_field_ace')]
@@ -115,8 +116,11 @@ WriteInField                [Arguments]     ${fieldname}    ${value}
         ${xpath}=               Set Variable  //input[@id='${fieldname}' or @id='${fieldname}_0']|textarea[@id='${fieldname}' or @id='${fieldname}_0']
         _Write To Xpath          ${xpath}  ${value}
     END
+    Log To Console                            Done: WriteInField ${fieldname}=${value}
+
 Upload File                [Arguments]     ${fieldname}    ${value}
 
+	Log To Console          UploadFile ${fieldnme}=${value}
     File Should Exist       ${value}
     ${xpath}=               Set Variable  //div[@name='${fieldname}']//input[@type='file']
     Log To Console          Uploading file to ${fieldname}
@@ -133,8 +137,10 @@ Upload File                [Arguments]     ${fieldname}    ${value}
     Screenshot
     Input Text                      xpath=${xpath}    ${value}
     ElementPostCheck
+	Log To Console          Done UploadFile ${filename}=${value}
 
 Wait To Click   [Arguments]       ${xpath}
+	Log To Console                  Wait To Click ${xpath}
     Capture Page Screenshot
     ${status}  ${error}=  Run Keyword And Ignore Error  Wait Until Element Is Visible          xpath=${xpath}
     Run Keyword If  '${status}' == 'FAIL'  Log  Element with ${xpath} was not visible - trying per javascript click
@@ -149,6 +155,7 @@ Wait To Click   [Arguments]       ${xpath}
         ${status2}  ${result}=  Run Keyword And Ignore Error  Click Element  xpath=${xpath}
 
         IF  '${status2}' != 'FAIL'  
+            Log To Console                  Done Wait To Click ${xpath} - but failed softly
             RETURN 
         ELSE
             _Wait Until Element Is Not Disabled  xpath=${xpath}
@@ -179,6 +186,7 @@ Wait To Click   [Arguments]       ${xpath}
     _Wait Until Element Is Not Disabled  xpath=${xpath}
     Screenshot
     Element Post Check
+	Log To Console                  Done Wait To Click ${xpath}
 
 Breadcrumb Back
     Log To Console                  Click breadcrumb - last item
@@ -198,6 +206,7 @@ FormSave
 
 
 Goto View  [Arguments]  ${model}  ${id}  ${type}=form
+    Log To Console                   Goto View ${model} ${id} ${type}
     Go To   ${ODOO_URL}/web
     Screenshot
 
@@ -210,3 +219,4 @@ Goto View  [Arguments]  ${model}  ${id}  ${type}=form
         FAIL  needs implementation for ${type}
     END
     Screenshot
+    Log To Console                   Goto View ${model} ${id} ${type} Done
