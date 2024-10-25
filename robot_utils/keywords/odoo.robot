@@ -120,7 +120,7 @@ WriteInField                [Arguments]     ${fieldname}    ${value}
 
 Upload File                [Arguments]     ${fieldname}    ${value}
 
-	Log To Console          UploadFile ${fieldnme}=${value}
+	Log To Console          UploadFile ${fieldname}=${value}
     File Should Exist       ${value}
     ${xpath}=               Set Variable  //div[@name='${fieldname}']//input[@type='file']
     Log To Console          Uploading file to ${fieldname}
