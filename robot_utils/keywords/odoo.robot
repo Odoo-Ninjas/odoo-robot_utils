@@ -110,10 +110,10 @@ Close Error Dialog And Log
         ...    xpath=//div[contains(@class, 'o_dialog_error')]//footer/button[contains(@class, 'btn-primary')]
     END
 
-WriteInField    [Arguments]    ${fieldname}    ${value}    ${ignore_auto_complete}=False    ${parent}=${None}
+WriteInField    [Arguments]    ${fieldname}    ${value}    ${ignore_auto_complete}=False    ${parent}=${NONE}
     # Check if it is ACE:
     # <div name="field1" class="o_field_widget o_field_ace"
-    IF    ${parent}
+    IF    '${parent}' != '${NONE}'
         ${parent}=    Catenate    SEPARATOR=|    //div[@name='${parent}' or @id='${parent}']
     END
     Log2    WriteInField ${fieldname}=${value} ignore_auto_complete=${ignore_auto_complete} with parent=${parent}

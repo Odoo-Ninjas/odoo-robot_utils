@@ -36,8 +36,8 @@ Test One2many
     ClickMenu    sale.sale_order_menu
     ClickMenu    sale.menu_sale_order
     Wait To Click    //button[contains(@class, 'o_list_button_add')]
-    Write In Field    partner_id  Deco Addict
+    Write In Field    partner_id    Deco Addict
     Screenshot
 
     Wait To Click    //a[text() = 'Add a product']
-    Write In Field    product_template_id=Conference Chair    parent=order_line
+    Write In Field    product_template_id    Conference Chair    parent=order_line
