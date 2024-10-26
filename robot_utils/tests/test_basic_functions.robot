@@ -1,31 +1,43 @@
-#odoo-require: crm
+*** Comments ***
+# odoo-require: crm,sale_stock, sale_management
+
+
 *** Settings ***
-Library    		OperatingSystem
-Library    		SeleniumLibrary
-Documentation   Testing Basic Functions of the Robot Keywords
-Resource        ../keywords/odoo.robot
-Test Setup      Login
+Documentation       Testing Basic Functions of the Robot Keywords
 
-*** Variables ***
+Library             OperatingSystem
+Library             SeleniumLibrary
+Resource            ../keywords/odoo.robot
 
-*** Keywords ***
+Test Setup          Login
+
 
 *** Test Cases ***
-
-Create A Partner
+Test Many2one
     Capture Page Screenshot
-    MainMenu  contacts.menu_contacts
+    MainMenu    contacts.menu_contacts
     Capture Page Screenshot
 
-    Odoo Search Unlink  res.partner  [('name', '=', 'Mickey Mouse')]
+    Odoo Search Unlink    res.partner    [('name', '=', 'Mickey Mouse')]
 
-    Wait To Click  //button[contains(text(), 'New')]
+    Wait To Click    //button[contains(text(), 'New')]
 
-    WriteInField  fieldname=name  value=Mickey Mouse  ignore_auto_complete=True
-    WriteInField   category_id  value=Services
-    Wait To Click  //button[contains(@class, 'o_form_button_save')]
+    WriteInField    fieldname=name    value=Mickey Mouse    ignore_auto_complete=True
+    WriteInField    category_id    value=Services
+    Wait To Click    //button[contains(@class, 'o_form_button_save')]
 
-    ${partners}=  			Odoo Search             res.partner  []  order=id desc  limit=1
-    ${value}=               Odoo Read Field  		res.partner  ${partners}  category_id
-    Log To Console          ${value}
-    Assert                  bool(${value})
+    ${partners}=    Odoo Search    res.partner    []    order=id desc    limit=1
+    ${value}=    Odoo Read Field    res.partner    ${partners}    category_id
+    Log To Console    ${value}
+    Assert    bool(${value})
+
+Test One2many
+    MainMenu    sale.sale_menu_root
+    ClickMenu    sale.sale_order_menu
+    ClickMenu    sale.menu_sale_order
+    Wait To Click    //button[contains(@class, 'o_list_button_add')]
+    Write In Field    name  Deco Addict
+    Screenshot
+
+    Wait To Click    a[text() = 'Add a product']
+    Write In Field    product_template_id=Conference Chair    parent=order_line
