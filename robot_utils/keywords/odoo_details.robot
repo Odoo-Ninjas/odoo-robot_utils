@@ -18,7 +18,7 @@ _prepend_parent    [Arguments]    ${path}    ${parent}
     IF    ${is_list}
         ${new_path}=    Create List
         FOR    ${item}    IN    @{path}
-            IF    ${parent}
+            IF    '${parent}' != '${NONE}'
                 ${item}=    Set Variable    ${parent}${item}
             END
             Append To List    ${new_path}    ${item}
