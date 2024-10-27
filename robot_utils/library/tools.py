@@ -14,6 +14,8 @@ from robot.libraries.BuiltIn import BuiltIn
 import inspect
 import os
 from pathlib import Path
+import logging
+logger = logging.getLogger()
 current_dir = Path(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))))
 
 
@@ -155,6 +157,14 @@ class tools(object):
         return signature.parameters
 
     def My_Assert(self, expr, msg=""):
+        if expr is False or expr is True:
+            return expr
+        if isinstance(expr, (int, float)):
+            return bool(expr)
+
+        if not isinstance(expr, str):
+            raise Exception(f"Expression must be string at assert not: {type(expr)} {expr}")
+
         res = bool(eval(expr))
         if not res:
             msg = f"Assertion failed: {expr}\n{msg}"
@@ -167,3 +177,15 @@ class tools(object):
         import base64
         bytes = Path(filepath).read_bytes()
         return base64.b64encode(bytes).decode('utf8')
+
+    def Get_Var_Type(self, var):
+        return str(type(var))
+
+    def Is_Empty_String(self, var):
+        if var is True:
+            return True
+        # logger.error(f"Checking is empty string: var: {var} type: {type(var)} and result is {not bool(var)}")
+        return not bool(var)
+
+    def Is_Not_Empty_String(self, var):
+        return not self.Is_Empty_String(var)
