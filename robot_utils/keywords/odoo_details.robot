@@ -13,19 +13,23 @@ Library             String    # example Random String
 *** Keywords ***
 _prepend_parent    [Arguments]    ${path}    ${parent}
     # Check if path is a list
+    Log2    at prepend parent with ${path} ${parent}
     ${is_list}=    Run Keyword And Return Status    Should Be List    ${path}
+    ${is_parent_set}=  Is Not Empty String  ${parent}
 
     IF    ${is_list}
+        Log2    prepend parent is list
         ${new_path}=    Create List
         FOR    ${item}    IN    @{path}
-            IF    '${parent}' != '${NONE}'
+            IF    ${is_parent_set}
+                Log2    parent is set
                 ${item}=    Set Variable    ${parent}${item}
             END
             Append To List    ${new_path}    ${item}
         END
         ${path}=    Set Variable    ${new_path}
     ELSE
-        IF    ${parent}
+        IF    ${is_parent_set}
             ${path}=    Set Variable    ${parent}${path}
         END
     END

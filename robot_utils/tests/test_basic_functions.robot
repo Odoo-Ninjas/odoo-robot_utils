@@ -13,6 +13,17 @@ Test Setup          Login
 
 
 *** Test Cases ***
+Test One2many
+    MainMenu    sale.sale_menu_root
+    ClickMenu    sale.sale_order_menu
+    ClickMenu    sale.menu_sale_order
+    Wait To Click    //button[contains(@class, 'o_list_button_add')]
+    Write In Field    partner_id    Deco Addict
+    Screenshot
+
+    Wait To Click    //a[text() = 'Add a product']
+    Write In Field    product_template_id    Conference Chair    parent=order_line
+
 Test Many2one
     Capture Page Screenshot
     MainMenu    contacts.menu_contacts
@@ -30,14 +41,3 @@ Test Many2one
     ${value}=    Odoo Read Field    res.partner    ${partners}    category_id
     Log To Console    ${value}
     Assert    bool(${value})
-
-Test One2many
-    MainMenu    sale.sale_menu_root
-    ClickMenu    sale.sale_order_menu
-    ClickMenu    sale.menu_sale_order
-    Wait To Click    //button[contains(@class, 'o_list_button_add')]
-    Write In Field    partner_id    Deco Addict
-    Screenshot
-
-    Wait To Click    //a[text() = 'Add a product']
-    Write In Field    product_template_id    Conference Chair    parent=order_line
