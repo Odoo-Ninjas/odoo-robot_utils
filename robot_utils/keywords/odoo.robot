@@ -161,7 +161,7 @@ Wait To Click    [Arguments]    ${xpath}    ${WaitDisabledEnabled}=${True}
     Log To Console    Wait To Click ${xpath}
 
     Capture Page Screenshot
-    Wait Until Page Contains Element  xpath=${xpath}
+    Wait Until Page Contains Element    xpath=${xpath}
     Wait Blocking
     Capture Page Screenshot
 
@@ -207,7 +207,7 @@ Breadcrumb Back
     END
     ElementPostCheck
 
-FormSave
+Form Save
     Screenshot
     Wait To Click    xpath=//button[contains(@class, 'o_form_button_save')]
     Screenshot
@@ -227,3 +227,8 @@ Goto View    [Arguments]    ${model}    ${id}    ${type}=form
     END
     Screenshot
     Log To Console    Goto View ${model} ${id} ${type} Done
+
+Write One2many    [Arguments]    ${fieldname}    ${data}
+    FOR    ${key}    ${value}    IN    ${data.items()}
+        Write In Field    ${key}    ${value}    parent=${fieldname}
+    END

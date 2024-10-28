@@ -167,7 +167,7 @@ class odoo(object):
         res = obj.search_records(
             domain, **kwparams,
         )
-        res = obj.read(res, fields)
+        res = res.read(fields)
         return res
 
     @convert_args
