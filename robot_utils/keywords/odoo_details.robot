@@ -13,16 +13,13 @@ Library             String    # example Random String
 *** Keywords ***
 _prepend_parent    [Arguments]    ${path}    ${parent}
     # Check if path is a list
-    Log2    at prepend parent with ${path} ${parent}
-    ${is_list}=    Run Keyword And Return Status    Should Be List    ${path}
+    ${is_list}=    Is List  ${path}
     ${is_parent_set}=  Is Not Empty String  ${parent}
 
     IF    ${is_list}
-        Log2    prepend parent is list
         ${new_path}=    Create List
         FOR    ${item}    IN    @{path}
             IF    ${is_parent_set}
-                Log2    parent is set
                 ${item}=    Set Variable    ${parent}${item}
             END
             Append To List    ${new_path}    ${item}
@@ -33,7 +30,6 @@ _prepend_parent    [Arguments]    ${path}    ${parent}
             ${path}=    Set Variable    ${parent}${path}
         END
     END
-    Log2    ${path}
     RETURN    ${path}
 
 _LocatorACE    [Arguments]    ${fieldname}    ${parent}
@@ -102,15 +98,16 @@ _Write To XPath AutoComplete
     IF    ${odoo_version} == 16.0
         ${xpath}=    Catenate
         ...    //ul[contains(@class, 'o-autocomplete--dropdown-menu dropdown-menu')][not(//*[contains(@class, 'fa-spin')])]
-        Wait To Click    xpath=${xpath}/li[1]
+        Wait To Click    xpath=${xpath}/li[1]  WaitDisabledEnabled=${FALSE}
     ELSE IF    ${odoo_version} == 17.0
         ${xpath}=    Catenate
         ...    //ul[@role='menu' and contains(@class, 'o-autocomplete--dropdown-menu')][not(//*[contains(@class, 'fa-spin')])]
-        Wait To Click    xpath=${xpath}/li[1]/a
+        Wait To Click    xpath=${xpath}/li[1]/a  WaitDisabledEnabled=${FALSE}
     ELSE
         FAIL    needs implementation for ${odoo_version}
     END
     Wait Blocking
+
 
 Wait Blocking
     Log To Console    Wait Blocking

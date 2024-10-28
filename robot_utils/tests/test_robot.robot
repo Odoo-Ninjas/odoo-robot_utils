@@ -25,7 +25,7 @@ Test Is List
 
 Test Empty String
     ${result}=    Is Empty String    abcd
-    Log2  ${result}
+    Log2    ${result}
     Assert    not ${result}
     ${result}=    Is Empty String    1235
     Assert    not ${result}
@@ -59,4 +59,13 @@ Test Prepend
     ${result}=    _prepend_parent    a1    ${NONE}
     Assert    '''${result}''' == 'a1'
 
-
+    ${xpaths}=    Create List
+    ...    //div[@name='a1']//input
+    ...    //div[@name='a2']//input
+    ${xpaths}=    _prepend_parent    ${xpaths}    //vorne
+    Log2    ${xpaths}
+    ${is_list}=  Is List  ${xpaths}
+    Assert  ${is_list} == True
+    ${el}   Get From List  ${xpaths}  0
+    Assert  "${el}" == "//vorne//div[@name='a1']//input"
+    # Assert  ${xpaths}[1] == '//vorne//div[@name='a2']//input'

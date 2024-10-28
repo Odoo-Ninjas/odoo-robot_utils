@@ -129,7 +129,7 @@ WriteInField    [Arguments]    ${fieldname}    ${value}    ${ignore_auto_complet
         ...    //div[@name='${fieldname}']//input
         ...    //div[@name='${fieldname}']//textarea
         ...    //input[@id='${fieldname}' or @id='${fieldname}_0']
-        ...    textarea[@id='${fieldname}' or @id='${fieldname}_0']
+        ...    //textarea[@id='${fieldname}' or @id='${fieldname}_0']
         ${xpaths}=    _prepend_parent    ${xpaths}    ${parent}
         ${xpath}=    Catenate    SEPARATOR=|    @{xpaths}
         _Write To Xpath    ${xpath}    ${value}    ignore_auto_complete=${ignore_auto_complete}
@@ -157,55 +157,43 @@ Upload File    [Arguments]    ${fieldname}    ${value}
     ElementPostCheck
     Log To Console    Done UploadFile ${fieldname}=${value}
 
-Wait To Click    [Arguments]    ${xpath}
+Wait To Click    [Arguments]    ${xpath}    ${WaitDisabledEnabled}=${True}
     Log To Console    Wait To Click ${xpath}
+
     Capture Page Screenshot
-    ${status}    ${error}=    Run Keyword And Ignore Error    Wait Until Element Is Visible    xpath=${xpath}
-    IF    '${status}' == 'FAIL'
-        Log    Element with ${xpath} was not visible - trying per javascript click
-    END
+    Wait Until Page Contains Element  xpath=${xpath}
     Wait Blocking
-    Screenshot
-    IF    '${status}' != 'FAIL'
-        ${disabled_value}=    Get Element Attribute    xpath=${xpath}    disabled
-        IF    '${disabled_value}' == '1'
-            FAIL    Button at ${xpath} is disabled
-        END
+    Capture Page Screenshot
 
-        ${status2}    ${result}=    Run Keyword And Ignore Error    Click Element    xpath=${xpath}
-
-        IF    '${status2}' != 'FAIL'
-            Log To Console    Done Wait To Click ${xpath} - but failed softly
-            RETURN
-        ELSE
-            _Wait Until Element Is Not Disabled    xpath=${xpath}
-        END
-    END
-    Log To Console    Wait To Click using fallback with javascript, as element was not clickable: ${xpath}
-
-    # try to click per javascript then; if mouse fails
+    Capture Page Screenshot
     Log    Could not identify element ${xpath} - so trying by pure javascript to click it.
+    Capture Page Screenshot
     ${guid}=    Get Guid
     ${libdir}=    library Directory
     ${wait_for_disabled_and_enabled}=    Get File    ${libdir}/../keywords/js/waitForChange.js
+    ${WaitDisabledEnabled}=    Convert To Boolean    ${WaitDisabledEnabled}
     ${js}=    Catenate
     ...    const callback = arguments[arguments.length - 1];
+    ...    const waitDisabledEnabled = ${{ str(${WaitDisabledEnabled}).lower() }};
     ...    const xpath = "${xpath}";
     ...    ${wait_for_disabled_and_enabled};
     ...    const result = document.evaluate(xpath, document, null,
     ...    XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
     ...    for (let i = 0; i < result.snapshotLength; i++) {
     ...    const element = result.snapshotItem(i);
-    ...    waitForDisabledAndEnabled(element).then(() => {
+    ...    waitForDisabledAndEnabled(element, waitDisabledEnabled).then(() => {
     ...    console.log("Element went through disable/enable cycle");
     ...    callback();
     ...    });
     ...    element.click();
     ...    }
-    Execute Async Javascript    ${js}
+    Capture Page Screenshot
+    ${jsresult}=    Execute Async Javascript    ${js}
+    Capture Page Screenshot
     _Wait Until Element Is Not Disabled    xpath=${xpath}
-    Screenshot
+    Capture Page Screenshot
     Element Post Check
+    Capture Page Screenshot
     Log To Console    Done Wait To Click ${xpath}
 
 Breadcrumb Back

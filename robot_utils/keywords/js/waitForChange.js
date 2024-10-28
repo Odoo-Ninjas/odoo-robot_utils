@@ -1,6 +1,12 @@
 const TIMEOUT_TO_CHECK_IF_DISABLED_IS_TOUCHED = 1000;
 
-function waitForDisabledAndEnabled(element) {
+function waitForDisabledAndEnabled(element, enabled) {
+    if (!enabled){
+        return new Promise((resolve) => {
+            resolve();
+            return true;
+        });
+    }
     return new Promise((resolve) => {
         var touched_disabled = false;
         var let_pass = false;

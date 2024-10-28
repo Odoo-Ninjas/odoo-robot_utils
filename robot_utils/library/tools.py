@@ -182,10 +182,11 @@ class tools(object):
         return str(type(var))
 
     def Is_Empty_String(self, var):
-        if var is True:
-            return True
         # logger.error(f"Checking is empty string: var: {var} type: {type(var)} and result is {not bool(var)}")
         return not bool(var)
 
     def Is_Not_Empty_String(self, var):
         return not self.Is_Empty_String(var)
+
+    def Is_List(self, var):
+        return isinstance(var, (tuple, list))
