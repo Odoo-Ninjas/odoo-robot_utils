@@ -229,6 +229,6 @@ Goto View    [Arguments]    ${model}    ${id}    ${type}=form
     Log To Console    Goto View ${model} ${id} ${type} Done
 
 Write One2many    [Arguments]    ${fieldname}    ${data}
-    FOR    ${key}    ${value}    IN    ${data.items()}
+    FOR    ${key}    ${value}    IN    &{data}
         Write In Field    ${key}    ${value}    parent=${fieldname}
     END
