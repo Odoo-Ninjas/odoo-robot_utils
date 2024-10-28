@@ -1,5 +1,3 @@
-const TIMEOUT_TO_CHECK_IF_DISABLED_IS_TOUCHED = 1000;
-
 function waitForDisabledAndEnabled(element, enabled) {
     if (!enabled){
         return new Promise((resolve) => {
@@ -35,12 +33,6 @@ function waitForDisabledAndEnabled(element, enabled) {
         });
         // Start observing the element for attribute changes
         observer.observe(element, { attributes: true });
-        setTimeout(() => {
-            if (!touched_disabled) {
-                observer.disconnect();
-                resolve();
-            }
-        }, TIMEOUT_TO_CHECK_IF_DISABLED_IS_TOUCHED);
     });
 
 }
