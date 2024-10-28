@@ -45,17 +45,17 @@ ClickMenu    [Arguments]    ${menu}
     Screenshot
     Log To Console    Clicking menu ${menu}
     ${xpath}=    Set Variable    //a[@data-menu-xmlid='${menu}'] | //button[@data-menu-xmlid='${menu}']
-    Wait Until Element is visible    xpath=${xpath}
+    Wait Until Element is visible    xpath=${xpath}  WaitDisabledEnabled=${False}
 
     ${attribute_value}=    Get Element Attribute    ${xpath}    aria-expanded
 
     IF    '${attribute_value}' == 'true'
         RETURN
     ELSE IF    '${attribute_value}' == 'false'
-        Wait To Click    xpath=${xpath}
+        Wait To Click    xpath=${xpath}  WaitDisabledEnabled=${False}
         _While Element Attribute Value    ${xpath}    aria-expanded    ==    false    as_bool
     ELSE
-        Wait To Click    xpath=${xpath}
+        Wait To Click    xpath=${xpath}  WaitDisabledEnabled=${False}
         Wait Until Page Contains Element    xpath=//body[contains(@class, 'o_web_client')]
     END
 
@@ -66,18 +66,18 @@ MainMenu    [Arguments]    ${menu}
     ${enterprise}=    _has_module_installed    web_enterprise
     IF    ${enterprise}
         Wait Until Element is visible    xpath=//div[contains(@class, "o_navbar_apps_menu")]
-        Click Element    xpath=//div[contains(@class, "o_navbar_apps_menu")]/button
-        Wait Until Element is visible    xpath=//a[@data-menu-xmlid='${menu}']
-        Click Link    xpath=//a[@data-menu-xmlid='${menu}']
+        Wait To Click    xpath=//div[contains(@class, "o_navbar_apps_menu")]/button    WaitDisabledEnabled=${False}
+        Wait Until Page Contains Element    xpath=//a[@data-menu-xmlid='${menu}']
+        Wait To Click    xpath=//a[@data-menu-xmlid='${menu}']    WaitDisabledEnabled=${False}
         Wait Until Page Contains Element    xpath=//body[contains(@class, 'o_web_client')]
         ElementPostCheck
     ELSE
         # Works V16
-        Log    Enterprise is not installed - there is no main menu - just the burger menu
+        Log To Console    Enterprise is not installed - there is no main menu - just the burger menu
         ${home_menu}=    Set Variable    //nav[@class='o_main_navbar']//button[@title='Home Menu']
-        Wait Until Element Is Visible    xpath=${home_menu}
-        Wait To Click    xpath=${home_menu}
-        Wait To Click    xpath=//a[@data-menu-xmlid='${menu}']
+        Wait Until Page Contains Element    xpath=${home_menu}
+        Wait To Click    xpath=${home_menu}    WaitDisabledEnabled=${False}
+        Wait To Click    xpath=//a[@data-menu-xmlid='${menu}']  WaitDisabledEnabled=${False}
     END
 
 ApplicationMainMenuOverview
