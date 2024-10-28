@@ -158,6 +158,8 @@ Upload File    [Arguments]    ${fieldname}    ${value}
     Log To Console    Done UploadFile ${fieldname}=${value}
 
 Wait To Click    [Arguments]    ${xpath}    ${WaitDisabledEnabled}=${True}
+    # V17: they disable also menuitems and enable to avoid double clicks; not 
+    # so in <= V16
     Log To Console    Wait To Click ${xpath}
 
     Capture Page Screenshot
