@@ -45,7 +45,7 @@ ClickMenu    [Arguments]    ${menu}
     Screenshot
     Log To Console    Clicking menu ${menu}
     ${xpath}=    Set Variable    //a[@data-menu-xmlid='${menu}'] | //button[@data-menu-xmlid='${menu}']
-    Wait Until Element is visible    xpath=${xpath}  WaitDisabledEnabled=${False}
+    Wait Until Element is visible    xpath=${xpath}  
 
     ${attribute_value}=    Get Element Attribute    ${xpath}    aria-expanded
 
