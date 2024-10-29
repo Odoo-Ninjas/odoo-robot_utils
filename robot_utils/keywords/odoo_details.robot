@@ -98,11 +98,11 @@ _Write To XPath AutoComplete
     IF    ${odoo_version} == 16.0
         ${xpath}=    Catenate
         ...    //ul[contains(@class, 'o-autocomplete--dropdown-menu dropdown-menu')][not(//*[contains(@class, 'fa-spin')])]
-        Wait To Click    xpath=${xpath}/li[1]  WaitDisabledEnabled=${FALSE}
+        Wait To Click    xpath=${xpath}/li[1]  
     ELSE IF    ${odoo_version} == 17.0
         ${xpath}=    Catenate
         ...    //ul[@role='menu' and contains(@class, 'o-autocomplete--dropdown-menu')][not(//*[contains(@class, 'fa-spin')])]
-        Wait To Click    xpath=${xpath}/li[1]/a  WaitDisabledEnabled=${FALSE}
+        Wait To Click    xpath=${xpath}/li[1]/a  
     ELSE
         FAIL    needs implementation for ${odoo_version}
     END
