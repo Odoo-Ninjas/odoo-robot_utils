@@ -156,3 +156,25 @@ Assert    [Arguments]    ${expr}    ${msg}=Assertion failed
 
 Screenshot
     Capture Page Screenshot
+
+Set Element Attribute
+    # UNTESTED
+    [Arguments]    ${xpath}    ${attribute}    ${value}
+    ${js}=    Catenate    SEPARATOR=;
+    ...    element.setAttribute("${attribute}", "${value}");
+    JS On Element    ${xpath}    ${js}
+
+JS On Element    [Arguments]    ${xpath}    ${jscode}
+
+    ${js}=    Catenate
+    ...    const callback = arguments[arguments.length - 1];
+    ...    const xpath = "${xpath}";
+    ...    const result = document.evaluate(
+    ...    xpath, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+    ...    for (let i = 0; i < result.snapshotLength; i++) {
+    ...    const element = result.snapshotItem(i);
+    ...    ${jscode};
+    ...    }
+    ...    callback();
+
+    Execute Async Javascript    ${js}

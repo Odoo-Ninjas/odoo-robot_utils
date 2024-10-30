@@ -52,10 +52,10 @@ ClickMenu    [Arguments]    ${menu}
     IF    '${attribute_value}' == 'true'
         RETURN
     ELSE IF    '${attribute_value}' == 'false'
-        Wait To Click    xpath=${xpath}    
+        Wait To Click    xpath=${xpath}
         _While Element Attribute Value    ${xpath}    aria-expanded    ==    false    as_bool
     ELSE
-        Wait To Click    xpath=${xpath}    
+        Wait To Click    xpath=${xpath}
         Wait Until Page Contains Element    xpath=//body[contains(@class, 'o_web_client')]
     END
 
@@ -66,9 +66,9 @@ MainMenu    [Arguments]    ${menu}
     ${enterprise}=    _has_module_installed    web_enterprise
     IF    ${enterprise}
         Wait Until Element is visible    xpath=//div[contains(@class, "o_navbar_apps_menu")]
-        Wait To Click    xpath=//div[contains(@class, "o_navbar_apps_menu")]/button    
+        Wait To Click    xpath=//div[contains(@class, "o_navbar_apps_menu")]/button
         Wait Until Page Contains Element    xpath=//a[@data-menu-xmlid='${menu}']
-        Wait To Click    xpath=//a[@data-menu-xmlid='${menu}']    
+        Wait To Click    xpath=//a[@data-menu-xmlid='${menu}']
         Wait Until Page Contains Element    xpath=//body[contains(@class, 'o_web_client')]
         ElementPostCheck
     ELSE
@@ -76,8 +76,8 @@ MainMenu    [Arguments]    ${menu}
         Log To Console    Enterprise is not installed - there is no main menu - just the burger menu
         ${home_menu}=    Set Variable    //nav[@class='o_main_navbar']//button[@title='Home Menu']
         Wait Until Page Contains Element    xpath=${home_menu}
-        Wait To Click    xpath=${home_menu}    
-        Wait To Click    xpath=//a[@data-menu-xmlid='${menu}']    
+        Wait To Click    xpath=${home_menu}
+        Wait To Click    xpath=//a[@data-menu-xmlid='${menu}']
     END
 
 ApplicationMainMenuOverview
@@ -128,8 +128,8 @@ WriteInField    [Arguments]    ${fieldname}    ${value}    ${ignore_auto_complet
         ${xpaths}=    Create List
         ...    //div[@name='${fieldname}']//input
         ...    //div[@name='${fieldname}']//textarea
-        ...    //input[@id='${fieldname}' or @id='${fieldname}_0']
-        ...    //textarea[@id='${fieldname}' or @id='${fieldname}_0']
+        ...    //input[@id='${fieldname}' or @id='${fieldname}_0' or @name='${fieldname}']
+        ...    //textarea[@id='${fieldname}' or @id='${fieldname}_0' or @name='${fieldname}']
         ${xpaths}=    _prepend_parent    ${xpaths}    ${parent}
         ${xpath}=    Catenate    SEPARATOR=|    @{xpaths}
         _Write To Xpath    ${xpath}    ${value}    ignore_auto_complete=${ignore_auto_complete}
@@ -157,7 +157,7 @@ Upload File    [Arguments]    ${fieldname}    ${value}
     ElementPostCheck
     Log To Console    Done UploadFile ${fieldname}=${value}
 
-Wait To Click    [Arguments]    ${xpath}    
+Wait To Click    [Arguments]    ${xpath}
     # V17: they disable also menuitems and enable to avoid double clicks; not
     # so in <= V16
     Log To Console    Wait To Click ${xpath}
@@ -166,26 +166,9 @@ Wait To Click    [Arguments]    ${xpath}
     Wait Until Page Contains Element    xpath=${xpath}
     Wait Blocking
     Capture Page Screenshot
-
-    Capture Page Screenshot
     Log    Could not identify element ${xpath} - so trying by pure javascript to click it.
     Capture Page Screenshot
-    ${guid}=    Get Guid
-    ${libdir}=    library Directory
-    ${wait_for_disabled_and_enabled}=    Get File    ${libdir}/../keywords/js/waitForChange.js
-    ${js}=    Catenate
-    ...    const callback = arguments[arguments.length - 1];
-    ...    const xpath = "${xpath}";
-    ...    ${wait_for_disabled_and_enabled};
-    ...    const result = document.evaluate(xpath, document, null,
-    ...    XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-    ...    for (let i = 0; i < result.snapshotLength; i++) {
-    ...    const element = result.snapshotItem(i);
-    ...    element.click();
-    ...    callback();
-    ...    }
-    Capture Page Screenshot
-    ${jsresult}=    Execute Async Javascript    ${js}
+    JS On Element    ${xpath}    element.click()
     Capture Page Screenshot
     Sleep    30ms    # Give chance to become disabled
     _Wait Until Element Is Not Disabled    xpath=${xpath}

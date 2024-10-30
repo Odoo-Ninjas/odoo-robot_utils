@@ -9,7 +9,7 @@ Library             OperatingSystem
 Library             SeleniumLibrary
 Resource            ../keywords/odoo.robot
 
-Test Setup          Login
+Test Setup          Setup Test
 
 
 *** Test Cases ***
@@ -22,8 +22,8 @@ Test One2many-Give Dict
     Write In Field    partner_id    Deco Addict
     Screenshot
 
-    Wait To Click    //a[text() = 'Add a product']
-    ${data}=    Create Dictionary    product_template_id=E-COM11    product_uom_qty=25
+    Wait To Click    //div[@id='order_line' or @name='order_line']//a[text() = 'Add a product']
+    ${data}=    Create Dictionary    product_id=E-COM11    product_uom_qty=25
     Write One2many    order_line    ${data}
     Form Save
     Check if there are orderlines    ${LastId}
@@ -37,8 +37,8 @@ Test One2many-Field By Field
     Write In Field    partner_id    Deco Addict
     Screenshot
 
-    Wait To Click    //a[text() = 'Add a product']
-    Write In Field    product_template_id    E-COM11    parent=order_line
+    Wait To Click    //div[@id='order_line' or @name='order_line']//a[text() = 'Add a product']
+    Write In Field    product_id    E-COM11    parent=order_line
     Form Save
     Check if there are orderlines    ${LastId}
 
@@ -49,7 +49,8 @@ Test Many2one
 
     Odoo Search Unlink    res.partner    [('name', '=', 'Mickey Mouse')]
 
-    Wait To Click    //button[contains(text(), 'New')]
+	# V15 is create
+    Wait To Click    //button[contains(text(), 'New') or contains(text(), 'Create')]
 
     WriteInField    fieldname=name    value=Mickey Mouse    ignore_auto_complete=True
     WriteInField    category_id    value=Services
@@ -71,3 +72,10 @@ Check if there are orderlines    [Arguments]    ${LastId}=
     ...    limit=1
     ${order}=    Get From List    ${order}    0
     Assert    len(${order['order_line']}) > 0
+
+Setup Test
+    Login
+    ${count}=    Odoo Search    res.partner    [('name', '=', 'Deco Addict')]    count=${TRUE}
+    IF    not ${count}
+        Odoo Create    res.partner    ${{ {'name': 'Deco Addict'} }}
+    END

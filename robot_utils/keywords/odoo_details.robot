@@ -13,8 +13,8 @@ Library             String    # example Random String
 *** Keywords ***
 _prepend_parent    [Arguments]    ${path}    ${parent}
     # Check if path is a list
-    ${is_list}=    Is List  ${path}
-    ${is_parent_set}=  Is Not Empty String  ${parent}
+    ${is_list}=    Is List    ${path}
+    ${is_parent_set}=    Is Not Empty String    ${parent}
 
     IF    ${is_list}
         ${new_path}=    Create List
@@ -58,56 +58,83 @@ _WriteACEEditor    [Arguments]    ${fieldname}    ${value}
     Screenshot
 
 _Write To Xpath    [Arguments]    ${xpath}    ${value}    ${ignore_auto_complete}=False
+    ${libdir}=    library Directory
     Log2    _Write To XPath called with ${xpath} ${value} ${ignore_auto_complete}
     ElementPreCheck    xpath=${xpath}
     Wait Until Element Is Visible    xpath=${xpath}
-
-    ${status}    ${error}=    Run Keyword And Ignore Error    Input Text    xpath=${xpath}    ${value}
-    IF    '${status}' == 'FAIL'
-        Log To Console    Could not regularly insert text to ${xpath} - trying to scroll into view first
-        ${element}=    Get WebElement    xpath=${xpath}
-        Execute Async JavaScript
-        ...    const callback = arguments[arguments.length - 1]; arguments[0].scrollIntoView(true); callback();
-        ...    ${element}
-        Set Focus To Element    xpath=${xpath}
-        Input Text    xpath=${xpath}    ${value}
-    END
-
     ${klass}=    Get Element Attribute    xpath=${xpath}    class
-    ${is_autocomplete}=    Evaluate    "o-autocomplete--input" in "${klass}"
-    IF    ${is_autocomplete} and not ${ignore_auto_complete}
-        _Write To XPath AutoComplete
+    ${is_autocomplete}=    Evaluate    "autocomplete" in "${klass}"    # works for V15 and V16 and V17
+    ${element}=    Get WebElement    xpath=${xpath}
+
+    Capture Page Screenshot
+    Run Keyword And Ignore Error    JS On Element    ${xpath}    element.scrollIntoView(true);
+    IF    ${odoo_version} <= 15.0
+        Set Focus To Element    xpath=${xpath}
+        IF    ${is_autocomplete} and not ${ignore_auto_complete}
+            ${arrow_down_event}=    Get File    ${libdir}/../keywords/js/events.js
+
+            # Set value in combobox and press down cursor to select
+            ${js}=    Catenate    SEPARATOR=;
+            ...    ${arrow_down_event};
+            ...    element.value = "${value}";
+            ...    element.dispatchEvent(downArrowEvent);
+            JS On Element    ${xpath}    ${js}
+            Capture Page Screenshot
+            # Wait until options appear
+            Wait Until Page Contains Element
+            ...    xpath=//ul[contains(@class, 'ui-autocomplete')][@style != 'display: none;'][not(//*[contains(@class, 'fa-spin')])]
+            Capture Page Screenshot
+
+            ${js}=    Catenate    SEPARATOR=;
+            ...    ${arrow_down_event};
+            ...    element.dispatchEvent(enterEvent);
+            JS On Element    ${xpath}    ${js}
+            Sleep  500ms   # required; needed to set element value
+            Capture Page Screenshot
+        ELSE
+            Set Focus To Element    xpath=${xpath}
+            Input Text    ${xpath}    ${value}
+            _blur_active_element
+        END
+    ELSE
+        ${status}    ${error}=    Run Keyword And Ignore Error    Input Text    ${xpath}    ${value}
+        IF    '${status}' == 'FAIL'
+            Log To Console    Could not regularly insert text to ${xpath} - trying to scroll into view first
+            JS On Element    ${xpath}    element.scrollIntoView(true);
+            Set Focus To Element    xpath=${xpath}
+            Input Text    xpath=${xpath}    ${value}
+        END
+        IF    ${is_autocomplete} and not ${ignore_auto_complete}
+            _Write To XPath AutoComplete
+        END
+        # Try to blur to show save button
+        _blur_active_element
     END
 
-    # Try to blur to show save button
-    Screenshot
-    ${js}=    Catenate    SEPARATOR=;
+    Capture Page Screenshot
+
+    ElementPostCheck
+
+_blur_active_element    ${js}=    Catenate    SEPARATOR=;
     ...    const callback = arguments[arguments.length-1]
     ...    document.activeElement ? document.activeElement.blur() : null
     ...    callback()
     Execute Async Javascript    ${js}
-
-    # Close Error Dialog And Log
-
-    Screenshot
-
-    ElementPostCheck
 
 _Write To XPath AutoComplete
     Wait Blocking
     IF    ${odoo_version} == 16.0
         ${xpath}=    Catenate
         ...    //ul[contains(@class, 'o-autocomplete--dropdown-menu dropdown-menu')][not(//*[contains(@class, 'fa-spin')])]
-        Wait To Click    xpath=${xpath}/li[1]  
+        Wait To Click    xpath=${xpath}/li[1]
     ELSE IF    ${odoo_version} == 17.0
         ${xpath}=    Catenate
         ...    //ul[@role='menu' and contains(@class, 'o-autocomplete--dropdown-menu')][not(//*[contains(@class, 'fa-spin')])]
-        Wait To Click    xpath=${xpath}/li[1]/a  
+        Wait To Click    xpath=${xpath}/li[1]/a
     ELSE
         FAIL    needs implementation for ${odoo_version}
     END
     Wait Blocking
-
 
 Wait Blocking
     Log To Console    Wait Blocking
