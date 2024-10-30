@@ -23,7 +23,11 @@ Test One2many-Give Dict
     Screenshot
 
     Wait To Click    //div[@id='order_line' or @name='order_line']//a[text() = 'Add a product']
-    ${data}=    Create Dictionary    product_id=E-COM11    product_uom_qty=25
+    IF  ${odoo_version} < 16.0
+        ${data}=    Create Dictionary    product_id=E-COM11    product_uom_qty=25
+    ELSE
+        ${data}=    Create Dictionary    product_template_id=E-COM11    product_uom_qty=25
+    END
     Write One2many    order_line    ${data}
     Form Save
     Check if there are orderlines    ${LastId}
@@ -38,7 +42,11 @@ Test One2many-Field By Field
     Screenshot
 
     Wait To Click    //div[@id='order_line' or @name='order_line']//a[text() = 'Add a product']
+    IF  ${odoo_version} < 16.0
     Write In Field    product_id    E-COM11    parent=order_line
+    ELSE
+    Write In Field    product_template_id    E-COM11    parent=order_line
+    END
     Form Save
     Check if there are orderlines    ${LastId}
 
