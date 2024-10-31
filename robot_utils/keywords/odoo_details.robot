@@ -38,10 +38,10 @@ _LocatorACE    [Arguments]    ${fieldname}    ${parent}
     ${result}=    _prepend_parent    ${result}    ${parent}
     RETURN    ${result}
 
-_WriteACEEditor    [Arguments]    ${fieldname}    ${value}
+_WriteACEEditor    [Arguments]    ${fieldname}    ${value}  ${parent}
     # V17
     # <div name="field1" class="o_field_widget o_field_ace"
-    ${locator}=    _LocatorACE    ${fieldname}
+    ${locator}=    _LocatorACE    ${fieldname}  ${parent}
     ${origId}=    Get Element Attribute    ${locator}    id
     ${tempId}=    Generate Random String    8
     Assign Id To Element    locator=${locator}    id=${tempId}

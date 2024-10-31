@@ -123,7 +123,7 @@ WriteInField    [Arguments]    ${fieldname}    ${value}    ${ignore_auto_complet
     ...    Get WebElement    ${locator_ACE}
     IF    '${status_is_ace}' != 'FAIL'
         ElementPreCheck    ${locator_ACE}
-        _WriteACEEditor    ${fieldname}    ${value}
+        _WriteACEEditor    ${fieldname}    ${value}  ${parent}
     ELSE
         ${xpaths}=    Create List
         ...    //div[@name='${fieldname}']//input
