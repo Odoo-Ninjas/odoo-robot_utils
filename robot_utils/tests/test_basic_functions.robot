@@ -1,5 +1,6 @@
 *** Comments ***
 # odoo-require: crm,sale_stock, sale_management
+# odoo-uninstall: partner_autocomplete
 
 
 *** Settings ***
@@ -13,6 +14,28 @@ Test Setup          Setup Test
 
 
 *** Test Cases ***
+Test Many2one
+    Capture Page Screenshot
+    MainMenu    contacts.menu_contacts
+    Capture Page Screenshot
+
+    Odoo Search Unlink    res.partner    [('name', '=', 'Mickey Mouse')]
+
+    # V15 is create
+    Wait To Click    //button[contains(text(), 'New') or contains(text(), 'Create')]
+
+    WriteInField    fieldname=name    value=Mickey Mouse    ignore_auto_complete=True
+    WriteInField    category_id    value=Services
+    Form Save
+
+    ${partners}=    Odoo Search    res.partner    []    order=id desc    limit=1
+    ${value}=    Odoo Read Field    res.partner    ${partners}    name
+    Log To Console    ${value}
+    Should Be Equal As Strings    ${value}    Mickey Mouse
+    ${value}=    Odoo Read Field    res.partner    ${partners}    category_id
+    Log To Console    ${value}
+    Assert    bool(${value})
+
 Test One2many-Give Dict
     ${LastId}=    Odoo Search    sale.order    []    order=id desc    limit=1
     MainMenu    sale.sale_menu_root
@@ -23,7 +46,7 @@ Test One2many-Give Dict
     Screenshot
 
     Wait To Click    //div[@id='order_line' or @name='order_line']//a[text() = 'Add a product']
-    IF  ${odoo_version} < 16.0
+    IF    ${odoo_version} < 16.0
         ${data}=    Create Dictionary    product_id=E-COM11    product_uom_qty=25
     ELSE
         ${data}=    Create Dictionary    product_template_id=E-COM11    product_uom_qty=25
@@ -42,32 +65,13 @@ Test One2many-Field By Field
     Screenshot
 
     Wait To Click    //div[@id='order_line' or @name='order_line']//a[text() = 'Add a product']
-    IF  ${odoo_version} < 16.0
-    Write In Field    product_id    E-COM11    parent=order_line
+    IF    ${odoo_version} < 16.0
+        Write In Field    product_id    E-COM11    parent=order_line
     ELSE
-    Write In Field    product_template_id    E-COM11    parent=order_line
+        Write In Field    product_template_id    E-COM11    parent=order_line
     END
     Form Save
     Check if there are orderlines    ${LastId}
-
-Test Many2one
-    Capture Page Screenshot
-    MainMenu    contacts.menu_contacts
-    Capture Page Screenshot
-
-    Odoo Search Unlink    res.partner    [('name', '=', 'Mickey Mouse')]
-
-	# V15 is create
-    Wait To Click    //button[contains(text(), 'New') or contains(text(), 'Create')]
-
-    WriteInField    fieldname=name    value=Mickey Mouse    ignore_auto_complete=True
-    WriteInField    category_id    value=Services
-    Form Save
-
-    ${partners}=    Odoo Search    res.partner    []    order=id desc    limit=1
-    ${value}=    Odoo Read Field    res.partner    ${partners}    category_id
-    Log To Console    ${value}
-    Assert    bool(${value})
 
 
 *** Keywords ***

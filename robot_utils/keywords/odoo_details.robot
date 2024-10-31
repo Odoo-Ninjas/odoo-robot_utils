@@ -38,10 +38,10 @@ _LocatorACE    [Arguments]    ${fieldname}    ${parent}
     ${result}=    _prepend_parent    ${result}    ${parent}
     RETURN    ${result}
 
-_WriteACEEditor    [Arguments]    ${fieldname}    ${value}  ${parent}
+_WriteACEEditor    [Arguments]    ${fieldname}    ${value}    ${parent}
     # V17
     # <div name="field1" class="o_field_widget o_field_ace"
-    ${locator}=    _LocatorACE    ${fieldname}  ${parent}
+    ${locator}=    _LocatorACE    ${fieldname}    ${parent}
     ${origId}=    Get Element Attribute    ${locator}    id
     ${tempId}=    Generate Random String    8
     Assign Id To Element    locator=${locator}    id=${tempId}
@@ -89,7 +89,7 @@ _Write To Xpath    [Arguments]    ${xpath}    ${value}    ${ignore_auto_complete
             ...    ${arrow_down_event};
             ...    element.dispatchEvent(enterEvent);
             JS On Element    ${xpath}    ${js}
-            Sleep  500ms   # required; needed to set element value
+            Sleep    500ms    # required; needed to set element value
             Capture Page Screenshot
         ELSE
             Set Focus To Element    xpath=${xpath}
@@ -109,6 +109,7 @@ _Write To Xpath    [Arguments]    ${xpath}    ${value}    ${ignore_auto_complete
         END
         # Try to blur to show save button
         _blur_active_element
+
     END
 
     Capture Page Screenshot
