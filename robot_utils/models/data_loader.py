@@ -119,7 +119,6 @@ class DataLoader(models.AbstractModel):
 
     @api.model
     def wait_queuejobs(self):
-        breakpoint()
         def count(state):
             self.env.cr.execute("select count(*) from queue_job where state =%s", (state,))
             return self.env.cr.fetchone()[0]
