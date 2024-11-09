@@ -161,7 +161,7 @@ Upload File    [Arguments]    ${fieldname}    ${filepath}
 
     Wait Until Element Is Visible    xpath=${xpath}/..
     Screenshot
-    Input Text    xpath=${xpath}    ${value}
+    Choose File    xpath=${xpath}    ${filepath}
     ElementPostCheck
     Log To Console    Done UploadFile ${fieldname}=${filepath}
 
