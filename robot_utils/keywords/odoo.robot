@@ -123,7 +123,7 @@ WriteInField    [Arguments]    ${fieldname}    ${value}    ${ignore_auto_complet
     ...    Get WebElement    ${locator_ACE}
     IF    '${status_is_ace}' != 'FAIL'
         ElementPreCheck    ${locator_ACE}
-        _WriteACEEditor    ${fieldname}    ${value}  ${parent}
+        _WriteACEEditor    ${fieldname}    ${value}    ${parent}
     ELSE
         ${xpaths}=    Create List
         ...    //div[@name='${fieldname}']//input
@@ -136,26 +136,34 @@ WriteInField    [Arguments]    ${fieldname}    ${value}    ${ignore_auto_complet
     END
     Log To Console    Done: WriteInField ${fieldname}=${value}
 
-Upload File    [Arguments]    ${fieldname}    ${value}
+Upload File    [Arguments]    ${fieldname}    ${filepath}
 
-    Log To Console    UploadFile ${fieldname}=${value}
-    File Should Exist    ${value}
+    Log To Console    UploadFile ${fieldname}=${filepath}
+    File Should Exist    ${filepath}
     ${xpath}=    Set Variable    //div[@name='${fieldname}']//input[@type='file']
     Log To Console    Uploading file to ${fieldname}
-    ${js_show_fileupload}=    Catenate
+    ${js_show_fileupload}=    Catenate  SEPARATOR=\n
     ...    const callback = arguments[arguments.length - 1];
-    ...    const nodes = document.querySelector("div[name='${fieldname}']");
-    ...    const inputel = nodes.getElementsByTagName('input')[0];
-    ...    inputel.classList.remove("o_hidden");
-    ...    inputel.classList.remove("d-none");
+    ...    const nodes = Array.from(document.querySelectorAll("div[name='${fieldname}'] input[type='file'], div.o_field_binary_file[name='${fieldname}'] div.o_hidden_input_file, div.o_field_binary_file[name='${fieldname}'] div.o_hidden"));
+    ...    nodes.forEach(inputel => {
+    ...        inputel.classList.remove("o_hidden_input_file");
+	...        inputel.classList.remove("o_hidden");
+	...        inputel.style.display = "";
+    ...    });
     ...    callback();
+    Screenshot
+    Wait Until Page Contains Element    xpath=${xpath}/..
+
+    Screenshot
+    Log TO Console    ${js_show_fileupload}
+    Execute Async Javascript    ${js_show_fileupload}
+    Screenshot
 
     Wait Until Element Is Visible    xpath=${xpath}/..
-    Execute Async Javascript    ${js_show_fileupload}
     Screenshot
     Input Text    xpath=${xpath}    ${value}
     ElementPostCheck
-    Log To Console    Done UploadFile ${fieldname}=${value}
+    Log To Console    Done UploadFile ${fieldname}=${filepath}
 
 Wait To Click    [Arguments]    ${xpath}
     # V17: they disable also menuitems and enable to avoid double clicks; not
