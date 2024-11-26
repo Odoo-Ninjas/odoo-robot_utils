@@ -76,9 +76,10 @@ Test One2many-Field By Field
 
 *** Keywords ***
 Check if there are orderlines    [Arguments]    ${LastId}=
+    ${LastId}=    Evaluate    (${LastId} or [0])[0]
     ${order}=    Odoo Search Read Records
     ...    sale.order
-    ...    [('id', '>', ${LastId[0]})]
+    ...    [('id', '>', ${LastId})]
     ...    order_line
     ...    order=id desc
     ...    limit=1
