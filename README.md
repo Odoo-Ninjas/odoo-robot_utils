@@ -91,3 +91,11 @@ END
 
 Wait For Marker  products_on_stock
 ```
+
+## Available Variables (also in loaded xml files)
+
+* ODOO_DB
+* ODOO_USER
+* ODOO_PASSWORD
+* ODOO_URL
+* TOKEN

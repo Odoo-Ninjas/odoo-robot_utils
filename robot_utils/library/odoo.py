@@ -293,6 +293,7 @@ class odoo(object):
         # replace some environment variables:
         test_name = self.technical_testname()
         content = content.replace("${CURRENT_TEST}", test_name)
+        content = content.replace("${ODOO_DB}", dbname)
 
         module_name = module_name.lower()
 

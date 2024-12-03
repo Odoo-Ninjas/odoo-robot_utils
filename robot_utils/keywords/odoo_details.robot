@@ -38,6 +38,19 @@ _LocatorACE    [Arguments]    ${fieldname}    ${parent}
     ${result}=    _prepend_parent    ${result}    ${parent}
     RETURN    ${result}
 
+_LocatorSelect    [Arguments]    ${fieldname}    ${parent}
+    ${result}=    Set Variable
+    ...    xpath=//div[@name='${fieldname}' and contains(@class, 'o_field_selection')]//select
+    ${result}=    _prepend_parent    ${result}    ${parent}
+    RETURN    ${result}
+
+_WriteSelect    [Arguments]    ${fieldname}    ${value}    ${parent}
+    Screenshot
+    ${locator}=    _LocatorSelect    ${fieldname}    ${parent}
+    Log   The select locator is ${locator}
+    Select From List By Label  ${locator}  ${value}
+    Screenshot
+
 _WriteACEEditor    [Arguments]    ${fieldname}    ${value}    ${parent}
     # V17
     # <div name="field1" class="o_field_widget o_field_ace"
@@ -166,6 +179,31 @@ Wait Blocking
 ElementPostCheck
     Wait Blocking
     Screenshot
+    Eval JS Error Dialog
+
+Eval JS Error Dialog
+    ${locator}=  Set Variable  //div[@role='alert']
+    ${status}=  Run Keyword And Return Status  Get WebElement  xpath=${locator}
+    Log  ${status}
+    IF  ${status}
+        Screenshot
+        ${html_content}    Execute JavaScript    return document.documentElement.outerHTML;
+        Log    ${html_content}
+
+        Click Element  xpath=//button[text() = 'See details']
+        Screenshot
+        ${locator}=   Set Variable  //div[contains(@class, 'o_error_detail')]
+        ${code_content}   Get Text    xpath=${locator}/pre
+
+
+        Log  ${code_content}
+        Log To Console  Error dialog was shown
+        JS On Element  ${locator}  element.scrollTop = element.scrollHeight;
+        Screenshot
+
+        FAIL  error dialog was shown - please check
+    END
+
 
 ElementPreCheck    [Arguments]    ${element}
     Log2    Element Precheck ${element}

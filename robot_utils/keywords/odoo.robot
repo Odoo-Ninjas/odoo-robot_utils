@@ -113,17 +113,26 @@ Close Error Dialog And Log
 WriteInField    [Arguments]    ${fieldname}    ${value}    ${ignore_auto_complete}=False    ${parent}=${NONE}
     # Check if it is ACE:
     # <div name="field1" class="o_field_widget o_field_ace"
+    Screenshot
     IF    '${parent}' != '${NONE}'
         ${parent}=    Catenate    SEPARATOR=|    //div[@name='${parent}' or @id='${parent}']
     END
     Log2    WriteInField ${fieldname}=${value} ignore_auto_complete=${ignore_auto_complete} with parent=${parent}
     ${locator_ACE}=    _LocatorACE    ${fieldname}    ${parent}
 
+    ${locator_select}=  _LocatorSelect  ${fieldname}  ${parent}
+    Screenshot
+
     ${status_is_ace}    ${testel}=    Run Keyword And Ignore Error
     ...    Get WebElement    ${locator_ACE}
+    ${status_is_select}    ${testel}=    Run Keyword And Ignore Error
+    ...    Get WebElement    ${locator_select}
     IF    '${status_is_ace}' != 'FAIL'
         ElementPreCheck    ${locator_ACE}
         _WriteACEEditor    ${fieldname}    ${value}    ${parent}
+    ELSE IF    '${status_is_select}' != 'FAIL'
+        ElementPreCheck    ${locator_ACE}
+        _WriteSelect    ${fieldname}    ${value}    ${parent}
     ELSE
         ${xpaths}=    Create List
         ...    //div[@name='${fieldname}']//input
@@ -135,6 +144,7 @@ WriteInField    [Arguments]    ${fieldname}    ${value}    ${ignore_auto_complet
         _Write To Xpath    ${xpath}    ${value}    ignore_auto_complete=${ignore_auto_complete}
     END
     Log To Console    Done: WriteInField ${fieldname}=${value}
+    Screenshot
 
 Upload File    [Arguments]    ${fieldname}    ${filepath}
 
