@@ -182,14 +182,10 @@ ElementPostCheck
     Eval JS Error Dialog
 
 Eval JS Error Dialog
-    ${locator}=  Set Variable  //div[@role='alert']
-    ${status}=  Run Keyword And Return Status  Get WebElement  xpath=${locator}
+    ${locator}=  Set Variable  //div[@role='alert'][//buton[text() = 'See details']]
+    ${status}=  Run Keyword And Return Status  Get WebElement  xpath=${locator}  
     Log  ${status}
     IF  ${status}
-        Screenshot
-        ${html_content}    Execute JavaScript    return document.documentElement.outerHTML;
-        Log    ${html_content}
-
         Click Element  xpath=//button[text() = 'See details']
         Screenshot
         ${locator}=   Set Variable  //div[contains(@class, 'o_error_detail')]
@@ -201,7 +197,7 @@ Eval JS Error Dialog
         JS On Element  ${locator}  element.scrollTop = element.scrollHeight;
         Screenshot
 
-        FAIL  error dialog was shown - please check
+        FAIL  error dialog was shown - please check ${code_content}
     END
 
 
@@ -235,7 +231,7 @@ _has_module_installed    [Arguments]    ${modulename}
         RETURN    ${False}
     END
 
-    ${state}=    Evaluate    ${modules}[0].state
+    ${state}=    Eval   modules[0].state   modules=${modules}
 
     IF    '${state}' == 'installed'
         Log To Console    Checking ${modulename} installed: True

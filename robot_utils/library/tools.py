@@ -190,3 +190,10 @@ class tools(object):
 
     def Is_List(self, var):
         return isinstance(var, (tuple, list))
+
+    def eval(self, expr, **vars):
+        """
+        Usage:
+        ${item}=      Eval  m[0].state  m=${modules}
+        """
+        return eval(expr, vars)

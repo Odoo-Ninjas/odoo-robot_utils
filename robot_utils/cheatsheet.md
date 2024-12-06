@@ -1,4 +1,17 @@
-# Multi-Line Documentation
+<!-- TOC -->
+
+- [Robotframework Basics](#robotframework-basics)
+	- [Multi-Line Documentation](#multi-line-documentation)
+	- [Show all variables](#show-all-variables)
+	- [Multiline](#multiline)
+	- [Dictionaries](#dictionaries)
+	- [x-nary](#x-nary)
+	- [Evaluate python](#evaluate-python)
+	- [IF blocks](#if-blocks)
+
+<!-- /TOC -->
+# Robotframework Basics
+## Multi-Line Documentation
 
 ```robotframework
 Test Case 1
@@ -10,18 +23,18 @@ Test Case 1
         | aliqua. Ut enim ad minim veniam, quis nostrud exercitation
         | ullamco laboris nisi ut aliquip ex ea commodo consequat.
 ```
-# Show all variables
+## Show all variables
 	${variables}=    Get All Variables
 	Log To Console  ${variables}
 
 
-# Multiline
+## Multiline
   ${var1}=    Catenate  
   ... test1
   ... test2
   ... test3
 
-# Dictionaries
+## Dictionaries
 
 ```robotframework
 ${values}=      Create Dictionary
@@ -35,7 +48,7 @@ ${values}=      Create Dictionary
                 ...   postgres_server_id=${postgres}
 ```
 
-# x-nary
+## x-nary
 ```robotframework
 ${decimalval} =   Set variable If
 ...               '${decimalval}'=='0'       //md-option[@value='0dp']
@@ -43,12 +56,15 @@ ${decimalval} =   Set variable If
 ...               '${decimalval}'=='2'       //md-option[@value='2dp']
 ```
 
-# Evaluate python
+## Evaluate python
 ```robotframework
 ${click_move_left} =    Evaluate     int(${cell_width}/2) - 1
+
+# better with custom function (more clear):
+${item}=      Eval  m[0].state  m=${modules}
 ```
 
-# IF blocks
+## IF blocks
 ```robotframework
 
 IF '${var1}' == '2'

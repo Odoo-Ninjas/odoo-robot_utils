@@ -1,38 +1,42 @@
-# odoo-robot_utils
-
-Helps together with wodoo-framework and cicd to quickly spinup robo tests.
-This branch contains keywords used for the odoo version as the version of the branch.
-
-## Setup
-
-- clone this repository into your existing project /adoons_robot
-- update submodules
-- with wodoo framework: odoo setup robot
-
-# odoo-robot_utils
-
 Helps together with wodoo-framework and cicd to quickly spinup robo tests.
 
-## Setup
+# Setup
 
-  * clone this repository into your existing project 
-  * 
+## Add gimera.yml config
+
+```
+- branch: main
+  path: addons_robot
+  type: integrated
+  url: git@github.com:marcwimmer/odoo-robot_utils.git
+```
+
+```bash
+gimera apply addons_robot
+```
+
+Create a test folder in /tests and put the robot-files there.
+
+# Run a test
+```bash
+odoo robot run <filepath>
+
+```
 
 
-## Simple Smoketest
+# Simple Smoketest
+
 ```robotframework
 # odoo-require: module1, module        name some odoo modules, which shall be installed beforehand
+# odoo-uninstall: partner_autocomplete
 
 *** Settings ***
 Documentation     Smoketest
-Resource          keywords/odoo_ee.robot
-Resource          ../../robot_utils/keywords/tools.robot
-Resource          ../../robot_utils/keywords/odoo_client.robot
-Resource          ../../robot_utils/keywords/styling.robot
+Resource            ../../addons_robot/robot_utils/keywords/odoo.robot
+Resource            ../../addons_robot/robot_utils/keywords/tools.robot
+Resource            ../../addons_robot/robot_utils/keywords/wodoo.robot
 Test Setup        Setup Smoketest
 
-
-*** Keywords ***
 
 *** Test Cases ***
 Smoketest
@@ -41,7 +45,7 @@ Smoketest
 *** Keywords ***
 Setup Smoketest
     Login
-    Click Element                    xpath=//a[@class[contains(., 'full')]]
+    MainMenu                         purchase.menu_purchase_root
 
 Search for the admin
     Odoo Search                     model=res.users  domain=[]  count=False
@@ -53,6 +57,42 @@ Misc
     Log To Console                  This is my unique token ${TOKEN}
     Log To Console                  This is the directory of the test: ${TEST_DIR}
 
+Sample Trigger Cronjob
+    ${cron_ids}=    Odoo Search    ir.cron    [('name', '=', 'zbs_pipeline_pusher')]
+    Assert    len(${cron_ids}) == 1
+    # Task could be executed at the moment
+    Odoo Execute    ir.cron    ids=${cron_ids[0]}    method=method_direct_trigger
+
+Sample Loop
+    WHILE    ${TRUE}
+        TRY
+            IF    ${no_cron_start}
+                Odoo Execute    zbs.instance    ids=${instance_id}    method=heartbeat_ui
+            ELSE
+                Zync Run Cron Pipeline Pusher
+                Sleep    1s
+            END
+        EXCEPT
+            Log To Console    Exception in Zync Run Cron Pipeline Pusher: ${ERROR}
+            Log To Console    Ignoring and retrying
+            Sleep    0.2s
+        END
+        ${state}=    Odoo Read Field    zbs.instance    ${instance_id}    state
+        Log To Console    Instance ${instance_id} is in state ${state}
+        IF    '${state}' in ${{['success', 'failed']}}    BREAK
+    END
+
+Samples
+    # some samples:
+    Should Be Equal As Strings    ${RUN_ODOO_QUEUEJOBS}    1
+    Upload File    filecontent    ${pipeline_path}
+    WriteInField    newname    ${newname}
+    Odoo Command    kill odoo_cronjobs odoo_queuejobs    # cronjob cannot me modified right now came
+    Wait To Click    xpath=//button[@name='ok']
+    Wait Until Element Is Visible    xpath=//button[@name="add_worker"]
+    ${id}=    Get Instance ID From Url    zbs.pipeline
+    Screenshot
+    Assert    '${button_record}[1]' == 'Contact'    Model ID should be set by many2one field
 
 ```
 
@@ -69,6 +109,8 @@ Provide an xml file:
 </record>
 
 ```
+
+## Load pre-defined data from csv/xml
 
 ```robotframework
 
