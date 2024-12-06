@@ -65,8 +65,12 @@ MainMenu    [Arguments]    ${menu}
     # works V16
     ${enterprise}=    _has_module_installed    web_enterprise
     IF    ${enterprise}
-        Wait Until Element is visible    xpath=//div[contains(@class, "o_navbar_apps_menu")]
-        Wait To Click    xpath=//div[contains(@class, "o_navbar_apps_menu")]/button
+        IF    ${odoo_version} == 14.0
+            Wait Until Element is visible    xpath=//nav[contains(@class, "o_main_navbar")]
+        ELSE
+            Wait Until Element is visible    xpath=//div[contains(@class, "o_navbar_apps_menu")]
+            Wait To Click    xpath=//div[contains(@class, "o_navbar_apps_menu")]/button
+        END
         Wait Until Page Contains Element    xpath=//a[@data-menu-xmlid='${menu}']
         Wait To Click    xpath=//a[@data-menu-xmlid='${menu}']
         Wait Until Page Contains Element    xpath=//body[contains(@class, 'o_web_client')]
