@@ -215,9 +215,14 @@ Wait To Click    [Arguments]    ${xpath}  ${highlight}=${NONE}
     Log    Could not identify element ${xpath} - so trying by pure javascript to click it.
     Capture Page Screenshot
     ${hashighlight}=  Eval  bool(h)  h=${highlight}
+    ${ishighlightbool}=  Eval  isinstance(h, bool)  h=${highlight}
     IF  ${hashighlight}
         _highlight_element  xpath=${xpath}  toggle=${TRUE}
+        Sleep  200ms
         Capture Page Screenshot
+        IF  ${ishighlightbool}
+            _showTooltipByXPath  xpath=${xpath}  ${highlight}
+        END
     END
     JS On Element    ${xpath}    element.click()
     IF  ${hashighlight}
