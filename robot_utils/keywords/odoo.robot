@@ -26,7 +26,11 @@ Login    [Arguments]    ${user}=${ODOO_USER}    ${password}=${ODOO_PASSWORD}    
     Click Button    xpath=//div[contains(@class, 'oe_login_buttons')]//button[@type='submit']
     Log To Console    Clicked login button - waiting
     Capture Page Screenshot
-    Wait Until Page Contains Element    xpath=//nav[contains(@class, 'o_main_navbar')]
+    IF    ${odoo_version} < 14.0
+        Wait Until Page Contains Element    xpath=//nav[contains(@id, 'oe_main_menu_navbar')]
+    ELSE
+        Wait Until Page Contains Element    xpath=//nav[contains(@class, 'o_main_navbar')]
+    END
     ElementPostCheck
     Log To Console    Logged In - continuing
     RETURN    ${browser_id}
@@ -65,7 +69,9 @@ MainMenu    [Arguments]    ${menu}
     # works V16
     ${enterprise}=    _has_module_installed    web_enterprise
     IF    ${enterprise}
-        IF    ${odoo_version} == 14.0
+        IF    ${odoo_version} == 11.0
+            Log  not needed - top menue on top
+        ELSE IF    ${odoo_version} == 14.0
             Wait Until Element is visible    xpath=//nav[contains(@class, "o_main_navbar")]
         ELSE
             Wait Until Element is visible    xpath=//div[contains(@class, "o_navbar_apps_menu")]
@@ -78,9 +84,13 @@ MainMenu    [Arguments]    ${menu}
     ELSE
         # Works V16
         Log To Console    Enterprise is not installed - there is no main menu - just the burger menu
-        ${home_menu}=    Set Variable    //nav[@class='o_main_navbar']//button[@title='Home Menu']
-        Wait Until Page Contains Element    xpath=${home_menu}
-        Wait To Click    xpath=${home_menu}
+        IF  ${odoo_version} == 11.0
+            Log  not needed - top menue on top
+        ELSE
+            ${home_menu}=    Set Variable    //nav[@class='o_main_navbar']//button[@title='Home Menu']
+            Wait Until Page Contains Element    xpath=${home_menu}
+            Wait To Click    xpath=${home_menu}
+        END
         Wait To Click    xpath=//a[@data-menu-xmlid='${menu}']
     END
 
