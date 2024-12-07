@@ -2,35 +2,17 @@ Helps together with wodoo-framework and cicd to quickly spinup robo tests.
 
 # Setup
 
-## Add gimera.yml config
-
 ```
-- branch: main
-  path: addons_robot
-  type: integrated
-  url: git@github.com:marcwimmer/odoo-robot_utils.git
+odoo robot setup
 ```
 
-```bash
-gimera apply addons_robot
+## Create a first test and run
+
 ```
-
-## MANIFEST addons-paths
-
-Add the just created addons_robot to the addons paths in /MANIFEST
-
-```python
-...
-    "addons_paths": [
-        ...
-        "addons_robot",
-    ],
-...
+odoo robot new <name>
 ```
+## Run a test
 
-Create a test folder in /tests and put the robot-files there.
-
-# Run a test
 ```bash
 odoo robot run <filepath>
 
@@ -106,6 +88,8 @@ Samples
     ${id}=    Get Instance ID From Url    zbs.pipeline
     Screenshot
     Assert    '${button_record}[1]' == 'Contact'    Model ID should be set by many2one field
+    Odoo Button   name=button_confirm
+    Odoo Button   text=Add a product
 
 ```
 

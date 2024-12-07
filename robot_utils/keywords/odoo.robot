@@ -179,6 +179,20 @@ Upload File    [Arguments]    ${fieldname}    ${filepath}
     ElementPostCheck
     Log To Console    Done UploadFile ${fieldname}=${filepath}
 
+Odoo Button   [Arguments]  ${text}=${NONE}  ${name}=${NONE}
+
+    ${hasname}=  Eval  bool(n)  t=${text}  n=${name}
+    ${hastext}=  Eval  bool(t)  t=${text}  n=${name}
+
+    IF  ${hasname}
+        Wait To Click  //button[@name='${name}'] | //a[@name='${name}']
+    ELSE IF  ${hastext}
+        Wait To Click  //button[contains(text(), '${text}')] | //a[contains(text(), '${text}')]
+    ELSE
+        FAIL  provide either text or name
+    END
+
+
 Wait To Click    [Arguments]    ${xpath}
     # V17: they disable also menuitems and enable to avoid double clicks; not
     # so in <= V16
