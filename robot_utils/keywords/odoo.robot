@@ -189,21 +189,21 @@ Upload File    [Arguments]    ${fieldname}    ${filepath}
     ElementPostCheck
     Log To Console    Done UploadFile ${fieldname}=${filepath}
 
-Odoo Button   [Arguments]  ${text}=${NONE}  ${name}=${NONE}
+Odoo Button   [Arguments]  ${text}=${NONE}  ${name}=${NONE}  ${highlight}=${NONE}
 
     ${hasname}=  Eval  bool(n)  t=${text}  n=${name}
     ${hastext}=  Eval  bool(t)  t=${text}  n=${name}
 
     IF  ${hasname}
-        Wait To Click  //button[@name='${name}'] | //a[@name='${name}']
+        Wait To Click  //button[@name='${name}'] | //a[@name='${name}']  highlight=${highlight}
     ELSE IF  ${hastext}
-        Wait To Click  //button[contains(text(), '${text}')] | //a[contains(text(), '${text}')]
+        Wait To Click  //button[contains(text(), '${text}')] | //a[contains(text(), '${text}')]  highlight=${highlight}
     ELSE
         FAIL  provide either text or name
     END
 
 
-Wait To Click    [Arguments]    ${xpath}
+Wait To Click    [Arguments]    ${xpath}  ${highlight}=${NONE}
     # V17: they disable also menuitems and enable to avoid double clicks; not
     # so in <= V16
     Log To Console    Wait To Click ${xpath}
@@ -214,7 +214,15 @@ Wait To Click    [Arguments]    ${xpath}
     Capture Page Screenshot
     Log    Could not identify element ${xpath} - so trying by pure javascript to click it.
     Capture Page Screenshot
+    ${hashighlight}=  Eval  bool(h)  h=${highlight}
+    IF  ${hashighlight}
+        _highlight_element  xpath=${xpath}  toggle=${TRUE}
+        Capture Page Screenshot
+    END
     JS On Element    ${xpath}    element.click()
+    IF  ${hashighlight}
+        _highlight_element  xpath=${xpath}  toggle=${FALSE}
+    END
     Capture Page Screenshot
     Sleep    30ms    # Give chance to become disabled
     _Wait Until Element Is Not Disabled    xpath=${xpath}
