@@ -15,6 +15,19 @@ Helps together with wodoo-framework and cicd to quickly spinup robo tests.
 gimera apply addons_robot
 ```
 
+## MANIFEST addons-paths
+
+Add the just created addons_robot to the addons paths in /MANIFEST
+
+```python
+...
+    "addons_paths": [
+        ...
+        "addons_robot",
+    ],
+...
+```
+
 Create a test folder in /tests and put the robot-files there.
 
 # Run a test

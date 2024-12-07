@@ -83,6 +83,7 @@ _Write To Xpath    [Arguments]    ${xpath}    ${value}    ${ignore_auto_complete
     Run Keyword And Ignore Error    JS On Element    ${xpath}    element.scrollIntoView(true);
     IF    ${odoo_version} <= 15.0
         Set Focus To Element    xpath=${xpath}
+        Capture Page Screenshot
         IF    ${is_autocomplete} and not ${ignore_auto_complete}
             ${arrow_down_event}=    Get File    ${libdir}/../keywords/js/events.js
 
