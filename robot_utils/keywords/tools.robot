@@ -174,6 +174,7 @@ JS On Element    [Arguments]    ${xpath}    ${jscode}    ${maxcount}=0
     ...       let funcresult = true;
     ...       for (let i = 0; i < result.snapshotLength; i++) {
     ...       const element = result.snapshotItem(i);
+    ...       funcresult = 'ok';
     ...       ${jscode};
     ...       if (${maxcount} && ${maxcount} > 0 && i>=${maxcount}) {
     ...       funcresult = "maxcount";
@@ -182,9 +183,12 @@ JS On Element    [Arguments]    ${xpath}    ${jscode}    ${maxcount}=0
     ...       }
     ...       callback(funcresult);
 
-    ${res}=  Execute Async Javascript    ${js}
-    IF  "${res}" == "maxcount"
-        FAIL  Too many elements found for ${xpath}. Please make sure you identify it more closely.
+    ${res}=    Execute Async Javascript    ${js}
+    IF    "${res}" == "maxcount"
+        FAIL    Too many elements found for ${xpath}. Please make sure you identify it more closely.
+    END
+    IF    "${res}" != "ok"
+        FAIL    did not find the element ${xpath} to click
     END
 
 Get Selenium Timeout    [Arguments]
