@@ -61,11 +61,6 @@ Delete All Mails
     Capture Page Screenshot
     Log to Console             All emails deleted.
 
-Wait To Click
-    [Arguments]                      ${xpath}
-    Wait Until Element Is Visible    xpath=${xpath}
-    Click Element                    xpath=${xpath}
-
 Set Up Fetchserver     [Arguments]      ${subject}     ${record}
     Go to             ${ODOO_URL}/web?debug=1
     Log to Console    Set up fetchmail server with ${record}

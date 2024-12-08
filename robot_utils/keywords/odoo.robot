@@ -128,7 +128,9 @@ Close Error Dialog And Log
 WriteInField    [Arguments]    ${fieldname}    ${value}    ${ignore_auto_complete}=False    ${parent}=${NONE}
     # Check if it is ACE:
     # <div name="field1" class="o_field_widget o_field_ace"
-                Screenshot
+
+    Wait Blocking
+    Screenshot
     IF    '${parent}' != '${NONE}'
         ${parent}=    Catenate    SEPARATOR=|    //div[@name='${parent}' or @id='${parent}']
     END
@@ -136,7 +138,6 @@ WriteInField    [Arguments]    ${fieldname}    ${value}    ${ignore_auto_complet
     ${locator_ACE}=    _LocatorACE    ${fieldname}    ${parent}
 
     ${locator_select}=    _LocatorSelect    ${fieldname}    ${parent}
-    Screenshot
 
     ${status_is_ace}       ${testel}=        Run Keyword And Ignore Error
     ...                    Get WebElement    ${locator_ACE}
@@ -149,14 +150,15 @@ WriteInField    [Arguments]    ${fieldname}    ${value}    ${ignore_auto_complet
         ElementPreCheck    ${locator_ACE}
         _WriteSelect       ${fieldname}      ${value}    ${parent}
     ELSE
-        ${xpaths}=         Create List
-        ...                //div[@name='${fieldname}']//input
-        ...                //div[@name='${fieldname}']//textarea
-        ...                //input[@id='${fieldname}' or @id='${fieldname}_0' or @name='${fieldname}']
-        ...                //textarea[@id='${fieldname}' or @id='${fieldname}_0' or @name='${fieldname}']
-        ${xpaths}=         _prepend_parent                                                                   ${xpaths}      ${parent}
-        ${xpath}=          Catenate                                                                          SEPARATOR=|    @{xpaths}
-        _Write To Xpath    ${xpath}                                                                          ${value}       ignore_auto_complete=${ignore_auto_complete}
+        ${xpaths}=                 Create List
+        ...                        //div[@name='${fieldname}']//input
+        ...                        //div[@name='${fieldname}']//textarea
+        ...                        //input[@id='${fieldname}' or @id='${fieldname}_0' or @name='${fieldname}']
+        ...                        //textarea[@id='${fieldname}' or @id='${fieldname}_0' or @name='${fieldname}']
+        ${xpaths}=                 _prepend_parent                                                                   ${xpaths}      ${parent}
+        ${xpath}=                  Catenate                                                                          SEPARATOR=|    @{xpaths}
+        Capture Page Screenshot
+        _Write To Xpath            ${xpath}                                                                          ${value}       ignore_auto_complete=${ignore_auto_complete}
     END
     Log To Console    Done: WriteInField ${fieldname}=${value}
     Screenshot
@@ -233,6 +235,7 @@ Wait To Click    [Arguments]    ${xpath}    ${highlight}=${NONE}
     Element Post Check
     Capture Page Screenshot
     Log To Console                         Done Wait To Click ${xpath}
+    Wait Blocking
 
 Odoo Button    [Arguments]    ${text}=${NONE}    ${name}=${NONE}    ${highlight}=${NONE}
 

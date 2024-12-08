@@ -162,27 +162,32 @@ Wait Blocking
     Log To Console    Wait Blocking
     # TODO something not ok here - if --timeout is 30 then this function
     # executes 20 times slower then with robot --timeout 10
+
+    # o_loading in V14
+    # o_loading_indicator since ??
+
+    ${xpath}=    Set Variable    (//span[contains(@class, 'o_loading')] | //div[contains(@class, 'o_blockUI')])
     Repeat Keyword
     ...               10 times
     ...               Run Keyword And Ignore Error
     ...               Wait Until Element Is Not Visible
-    ...               xpath=//span[contains(@class, 'o_loading_indicator')]
+    ...               xpath=${xpath}
 
-    ${state}    ${result}=                                    Run Keyword And Ignore Error
+    ${state}    ${result}=                           Run Keyword And Ignore Error
     ...         Wait Until Element Is Not Visible
-    ...         xpath=//div[contains(@class, 'o_blockUI')]
-    IF    '${state}' == 'FAIL'    Log To Console    o_blockUI still visible
+    ...         xpath=${xpath}
 
-        ${state}    ${result}=                                     Run Keyword And Ignore Error
-        ...         Wait Until Element Is Not Visible
-        ...         xpath=//body[contains(@class, 'o_loading')]
-        IF    '${state}' == 'FAIL'    Log To Console    o_loading still visible
-
-            ${state}    ${result}=                                   Run Keyword And Ignore Error
-            ...         Wait Until Element Is Not Visible
-            ...         xpath=//body[contains(@class, 'o_ewait')]
-            IF    '${state}' == 'FAIL'    Log To Console    o_ewait still visible
-                Log To Console    Wait Blocking Done
+    IF    '${state}' == 'FAIL'
+        Log To Console    Blocker/loading still visible after 10 checks
+    END
+    ${state}    ${result}=                                   Run Keyword And Ignore Error
+    ...         Wait Until Element Is Not Visible
+    ...         xpath=//body[contains(@class, 'o_ewait')]
+    IF    '${state}' == 'FAIL'
+        Log To Console    o_ewait still visible
+    END
+    Log To Console    Wait Blocking Done
+    Capture Page Screenshot
 
 ElementPostCheck
     Wait Blocking
