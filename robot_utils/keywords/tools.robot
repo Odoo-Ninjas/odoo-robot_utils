@@ -177,6 +177,7 @@ JS On Element    [Arguments]    ${xpath}    ${jscode}    ${maxcount}=0
     ...       ${jscode};
     ...       if (${maxcount} && ${maxcount} > 0 && i>=${maxcount}) {
     ...       funcresult = "maxcount";
+    ...       break;
     ...       }
     ...       }
     ...       callback(funcresult);
