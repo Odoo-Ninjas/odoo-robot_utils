@@ -164,20 +164,27 @@ Set Element Attribute
     ...              element.setAttribute("${attribute}", "${value}");
     JS On Element    ${xpath}                                             ${js}
 
-JS On Element    [Arguments]    ${xpath}    ${jscode}
+JS On Element    [Arguments]    ${xpath}    ${jscode}    ${maxcount}=0
 
-    ${js}=    Catenate
+    ${js}=    Catenate                                                                 SEPARATOR=\n
     ...       const callback = arguments[arguments.length - 1];
     ...       const xpath = "${xpath}";
     ...       const result = document.evaluate(
     ...       xpath, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+    ...       let funcresult = true;
     ...       for (let i = 0; i < result.snapshotLength; i++) {
     ...       const element = result.snapshotItem(i);
     ...       ${jscode};
+    ...       if (${maxcount} && ${maxcount} > 0 && i>=${maxcount}) {
+    ...       funcresult = "maxcount";
     ...       }
-    ...       callback();
+    ...       }
+    ...       callback(funcresult);
 
-    Execute Async Javascript    ${js}
+    ${res}=  Execute Async Javascript    ${js}
+    IF  "${res}" == "maxcount"
+        FAIL  Too many elements found for ${xpath}. Please make sure you identify it more closely.
+    END
 
 Get Selenium Timeout    [Arguments]
 	# this gets the current timeout
@@ -190,5 +197,5 @@ Get Selenium Timeout    [Arguments]
 
 Is Visible    [Arguments]    ${xpath}
 
-    ${is_visible}=    Run Keyword And Return Status    Wait Until Element Is Visible    xpath=${xpath}  timeout=1ms
+    ${is_visible}=    Run Keyword And Return Status    Wait Until Element Is Visible    xpath=${xpath}    timeout=1ms
     RETURN            ${is_visible}

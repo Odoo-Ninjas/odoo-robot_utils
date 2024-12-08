@@ -220,7 +220,7 @@ Wait To Click    [Arguments]    ${xpath}    ${highlight}=${NONE}
             _showTooltipByXPath    xpath=${xpath}    ${highlight}
         END
     END
-    JS On Element    ${xpath}    element.click()
+    JS On Element    ${xpath}    element.click()  maxcount=1
     IF    ${hashighlight}
         _highlight_element    xpath=${xpath}    toggle=${FALSE}
     END
@@ -239,9 +239,9 @@ Odoo Button    [Arguments]    ${text}=${NONE}    ${name}=${NONE}    ${highlight}
     ${hastext}=    Eval    bool(t)    t=${text}    n=${name}
 
     IF    ${hasname}
-        Wait To Click    //button[@name='${name}'] | //a[@name='${name}']    highlight=${highlight}
+        Wait To Click    (//button[@name='${name}'] | //a[@name='${name}'])[1]    highlight=${highlight}
     ELSE IF    ${hastext}
-        Wait To Click    //button[contains(text(), '${text}')] | //a[contains(text(), '${text}')]    highlight=${highlight}
+        Wait To Click    (//button[contains(text(), '${text}')] | //a[contains(text(), '${text}')])[1]    highlight=${highlight}
     ELSE
         FAIL    provide either text or name
     END
