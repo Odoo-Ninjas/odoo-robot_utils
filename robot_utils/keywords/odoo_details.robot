@@ -86,7 +86,7 @@ _Write To Xpath    [Arguments]    ${xpath}    ${value}    ${ignore_auto_complete
     ${element}=                      Get WebElement           xpath=${xpath}
 
     Capture Page Screenshot
-    Run Keyword And Ignore Error    JS On Element    ${xpath}    element.scrollIntoView(true);
+    JS Scroll Into View  ${xpath}
     IF    ${odoo_version} <= 15.0
         Set Focus To Element       xpath=${xpath}
         Capture Page Screenshot
@@ -120,7 +120,7 @@ _Write To Xpath    [Arguments]    ${xpath}    ${value}    ${ignore_auto_complete
         ${status}    ${error}=    Run Keyword And Ignore Error    Input Text    ${xpath}    ${value}
         IF    '${status}' == 'FAIL'
             Log To Console    Could not regularly insert text to ${xpath} - trying to scroll into view first
-            JS On Element           ${xpath}          element.scrollIntoView(true);
+            JS Scroll Into View     ${xpath}
             Set Focus To Element    xpath=${xpath}
             Input Text              xpath=${xpath}    ${value}
         END
@@ -166,12 +166,12 @@ Wait Blocking
     # o_loading in V14
     # o_loading_indicator since ??
 
-    ${xpath}=    Catenate    
-    ...  (
-    ...  //div[contains(@class, 'o_loading')] | 
-    ...  //span[contains(@class, 'o_loading_indicator')] | 
-    ...  //div[contains(@class, 'o_blockUI')]
-    ...  )
+    ${xpath}=    Catenate
+    ...          (
+    ...          //div[contains(@class, 'o_loading')] |
+    ...          //span[contains(@class, 'o_loading_indicator')] |
+    ...          //div[contains(@class, 'o_blockUI')]
+    ...          )
 
     Repeat Keyword
     ...               10 times
@@ -192,7 +192,7 @@ Wait Blocking
     IF    '${state}' == 'FAIL'
         Log To Console    o_ewait still visible
     END
-    Log To Console    Wait Blocking Done
+    Log To Console             Wait Blocking Done
     Capture Page Screenshot
 
 ElementPostCheck
@@ -202,17 +202,17 @@ ElementPostCheck
     Eval Validation User Error Dialog
 
 Eval Validation User Error Dialog
-    ${locator}=    Set Variable                     //div[@role='dialog'][contains(@class, 'modal')]
-    ${visible}=    Is Visible  xpath=${locator}
+    ${locator}=    Set Variable    //div[@role='dialog'][contains(@class, 'modal')][//*[contains(text(), 'Validation Error') or contains(text(), 'User Error')]]
+    ${visible}=    Is Visible      xpath=${locator}
 
-    IF  ${visible}
-        ${content}=    Get Text                                  xpath=${locator}//*[contains(@class, 'modal-body')]
-        FAIL  Popup-Window: ${content}
+    IF    ${visible}
+        ${content}=    Get Text                    xpath=${locator}//*[contains(@class, 'modal-body')]
+        FAIL           Popup-Window: ${content}
     END
 
 Eval JS Error Dialog
     ${locator}=    Set Variable                     //div[@role='alert'][//button[text() = 'See details']]
-    ${status}=     Run Keyword And Return Status    Get WebElement                                           xpath=${locator}
+    ${status}=     Run Keyword And Return Status    Get WebElement                                            xpath=${locator}
     Log            ${status}
     IF    ${status}
         Click Element      xpath=//button[text() = 'See details']

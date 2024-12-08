@@ -191,7 +191,7 @@ Goto View    [Arguments]       ${model}                            ${id}    ${ty
     Screenshot
     Log To Console    Goto View ${model} ${id} ${type} Done
 
-Write One2many    [Arguments]    ${fieldname}    ${data}
+Odoo Write One2many    [Arguments]    ${fieldname}    ${data}
     FOR    ${key}    ${value}    IN    &{data}
         Write In Field    ${key}    ${value}    parent=${fieldname}
     END
@@ -220,7 +220,7 @@ Wait To Click    [Arguments]    ${xpath}    ${highlight}=${NONE}
             _showTooltipByXPath    xpath=${xpath}    ${highlight}
         END
     END
-    JS On Element    ${xpath}    element.click()  maxcount=1
+    JS On Element    ${xpath}    element.click()    maxcount=1
     IF    ${hashighlight}
         _highlight_element    xpath=${xpath}    toggle=${FALSE}
     END
@@ -246,7 +246,7 @@ Odoo Button    [Arguments]    ${text}=${NONE}    ${name}=${NONE}    ${highlight}
         FAIL    provide either text or name
     END
 
-Upload File    [Arguments]    ${fieldname}    ${filepath}
+Odoo Upload File    [Arguments]    ${fieldname}    ${filepath}
 
     Log To Console                      UploadFile ${fieldname}=${filepath}
     File Should Exist                   ${filepath}
@@ -275,3 +275,14 @@ Upload File    [Arguments]    ${fieldname}    ${filepath}
     ElementPostCheck
     Log To Console                   Done UploadFile ${fieldname}=${filepath}
 
+
+Odoo Setting Checkbox    [Arguments]    ${title}    ${toggle}=${TRUE}
+
+    Log    Setting Configuration ${title}
+
+    # Works for V14:
+    ${xpath}=              Set Variable    //*[@id='${title}']//input[@type='checkbox']
+    JS Scroll Into View    ${xpath}
+
+    ${jsvalue}=      Eval        'true' if v else 'false'       v=${toggle}
+    JS On Element    ${xpath}    element.checked=${jsvalue};    maxcount=1
