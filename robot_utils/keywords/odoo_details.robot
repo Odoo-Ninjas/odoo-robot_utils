@@ -96,7 +96,7 @@ _Write To Xpath    [Arguments]    ${xpath}    ${value}    ${ignore_auto_complete
             Capture Page Screenshot
             # Wait until options appear
             Wait Until Page Contains Element
-            ...    xpath=//ul[contains(@class, 'ui-autocomplete')][@style != 'display: none;'][not(//*[contains(@class, 'fa-spin')])]
+            ...    xpath=//ul[contains(@class, 'ui-autocomplete')][not(contains(@style, 'display: none;'))][not(//*[contains(@class, 'fa-spin')])]
             Capture Page Screenshot
 
             ${js}=    Catenate    SEPARATOR=;
