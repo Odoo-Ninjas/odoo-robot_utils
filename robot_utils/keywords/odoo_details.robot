@@ -166,7 +166,13 @@ Wait Blocking
     # o_loading in V14
     # o_loading_indicator since ??
 
-    ${xpath}=    Set Variable    (//span[contains(@class, 'o_loading')] | //div[contains(@class, 'o_blockUI')])
+    ${xpath}=    Catenate    
+    ...  (
+    ...  //div[contains(@class, 'o_loading')] | 
+    ...  //span[contains(@class, 'o_loading_indicator')] | 
+    ...  //div[contains(@class, 'o_blockUI')]
+    ...  )
+
     Repeat Keyword
     ...               10 times
     ...               Run Keyword And Ignore Error
@@ -193,9 +199,19 @@ ElementPostCheck
     Wait Blocking
     Screenshot
     Eval JS Error Dialog
+    Eval Validation User Error Dialog
+
+Eval Validation User Error Dialog
+    ${locator}=    Set Variable                     //div[@role='dialog'][contains(@class, 'modal')]
+    ${visible}=    Is Visible  xpath=${locator}
+
+    IF  ${visible}
+        ${content}=    Get Text                                  xpath=${locator}//*[contains(@class, 'modal-body')]
+        FAIL  Popup-Window: ${content}
+    END
 
 Eval JS Error Dialog
-    ${locator}=    Set Variable                     //div[@role='alert'][//buton[text() = 'See details']]
+    ${locator}=    Set Variable                     //div[@role='alert'][//button[text() = 'See details']]
     ${status}=     Run Keyword And Return Status    Get WebElement                                           xpath=${locator}
     Log            ${status}
     IF    ${status}
@@ -271,7 +287,7 @@ _While Element Attribute Value    [Arguments]    ${xpath}    ${attribute}    ${o
         ${end_time}=           Get Time    epoch
         ${elapsed_seconds}=    Evaluate    ${end_time} - ${started}
         IF    ${elapsed_seconds} > ${timeout}
-            FAIL    Timeout waiting for button to become clickable
+            FAIL    Timeout ${timeout} waiting for button to become clickable hit.
         END
         ${status}    ${value}=                Run Keyword And Ignore Error
         ...          Get Element Attribute
