@@ -109,10 +109,6 @@ ApplicationMainMenuOverview
     END
     ElementPostCheck
 
-Is Visible    [Arguments]       ${xpath}
-              ${is_visible}=    Run Keyword And Return Status    Wait Until Element Is Visible    xpath=${xpath}
-              RETURN            ${is_visible}
-
 Close Error Dialog And Log
     ${visible_js_error_dialog}=    Is Visible    xpath=//div[contains(@class, 'o_dialog_error')]
     IF    ${visible_js_error_dialog}
