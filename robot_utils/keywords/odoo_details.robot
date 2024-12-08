@@ -3,6 +3,7 @@ Documentation       Odoo backend keywords.
 
 Library             ../library/browser.py
 Library             SeleniumLibrary
+Library             DateTime
 Resource            odoo_client.robot
 Resource            tools.robot
 Library             ../library/tools.py
@@ -248,7 +249,16 @@ _While Element Attribute Value    [Arguments]    ${xpath}    ${attribute}    ${o
     IF    '${conversion}' == 'as_bool'
         ${param_value}=    Convert To Boolean    ${param_value}
     END
+    ${started}=    Get Time   epoch
+
+    ${timeout}=  Get Selenium Timeout
+
     WHILE    ${TRUE}
+        ${end_time}=    Get Time    epoch
+        ${elapsed_seconds}=    Evaluate    ${end_time} - ${started}
+        IF  ${elapsed_seconds} > ${timeout}
+            FAIL  Timeout waiting for button to become clickable
+        END
         ${status}    ${value}=    Run Keyword And Ignore Error
         ...    Get Element Attribute
         ...    xpath=${xpath}

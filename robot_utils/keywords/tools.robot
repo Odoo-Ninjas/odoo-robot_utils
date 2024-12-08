@@ -178,3 +178,11 @@ JS On Element    [Arguments]    ${xpath}    ${jscode}
     ...    callback();
 
     Execute Async Javascript    ${js}
+
+Get Selenium Timeout  [Arguments]
+	# this gets the current timeout
+    ${current_timeout}=    Set Selenium Timeout    0
+    Set Selenium Timeout    ${current_timeout}
+    # current_timeout = 3 seconds
+    ${current_timeout}=  Eval  int(t.split(" ")[0])  t=${current_timeout}
+    RETURN  ${current_timeout}
