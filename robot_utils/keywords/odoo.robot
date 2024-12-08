@@ -277,10 +277,12 @@ Odoo Upload File    [Arguments]    ${fieldname}    ${filepath}
 
 
 Odoo Setting Checkbox    [Arguments]    ${title}    ${toggle}=${TRUE}
+
+    Log    Setting Configuration ${title}
+
     # Works for V14:
-    ${locator}=    Set Variable    xpath=//label[@class='o_form_label'][contains(text(), '${title}')]/../preceding-sibling::div//input[@type='checkbox']
-    IF    ${toggle}
-        Select Checkbox    ${locator}
-    ELSE
-        Unselect Checkbox    ${locator}
-    END
+    ${xpath}=              Set Variable    //*[@id='${title}']//input[@type='checkbox']
+    JS Scroll Into View    ${xpath}
+
+    ${jsvalue}=      Eval        'true' if v else 'false'       v=${toggle}
+    JS On Element    ${xpath}    element.checked=${jsvalue};    maxcount=1

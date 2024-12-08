@@ -204,3 +204,12 @@ Is Visible    [Arguments]    ${xpath}
 
     ${is_visible}=    Run Keyword And Return Status    Wait Until Element Is Visible    xpath=${xpath}    timeout=1ms
     RETURN            ${is_visible}
+
+
+JS Scroll Into View    [Arguments]    ${xpath}
+
+    Run Keyword And Ignore Error    Wait Until Element Is Visible    xpath=${xpath}
+    Run Keyword And Ignore Error    JS On Element    xpath=${xpath}    element.scrollIntoView(true);
+    Run Keyword And Ignore Error    Scroll Element Into View  xpath=${xpath}
+    Sleep  1s
+    Capture Page Screenshot
