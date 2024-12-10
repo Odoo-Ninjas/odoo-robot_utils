@@ -202,7 +202,7 @@ ElementPostCheck
     Eval Validation User Error Dialog
 
 Eval Validation User Error Dialog
-    ${locator}=    Set Variable    //div[@role='dialog'][contains(@class, 'modal')]
+    ${locator}=    Set Variable    //div[@role='dialog'][contains(@class, 'modal')][//*[contains(text(), 'Validation Error') or contains(text(), 'User Error')]]
     ${visible}=    Is Visible      xpath=${locator}
 
     IF    ${visible}
