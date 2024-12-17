@@ -10,12 +10,14 @@ ${IS_COBOT_CONTAINER}    ${None}
 
 *** Keywords ***
 Wait For Remote Debugger
+
     # TODO for later; does not wait at wait
-    ${IS_COBOT_CONTAINER}=    Get Environment Variable    IS_COBOT_CONTAINER    default=0
     ${ROBOT_REMOTE_DEBUGGING}=    Get Environment Variable    ROBOT_REMOTE_DEBUGGING    default=0
-    ${remote_debug}=              tools.Eval  str(v)\=\="1" and str(v1)\=\="1"  v=${IS_COBOT_CONTAINER}  v1=${ROBOT_REMOTE_DEBUGGING}
+    ${remote_debug}=              tools.Eval                  str(v)\=\="1"             v=${ROBOT_REMOTE_DEBUGGING}
     IF    ${remote_debug}
-        Run Keyword  debug.Start
+        Log To Console  -
+        Log To Console  Please connect now to the remote debugger. Configuration in launch.json is provided.
+        Run Keyword    debug.Start
     END
     Log       Debugging Started!
     RETURN
