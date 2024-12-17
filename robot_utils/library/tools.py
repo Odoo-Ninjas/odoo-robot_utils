@@ -19,6 +19,17 @@ logger = logging.getLogger()
 current_dir = Path(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))))
 
 
+def load_default_environment():
+    path = Path(".robot-vars")
+    if not path.exists():
+        return
+    data = json.loads(path.read_text())
+    for k,v in data.items():
+        if k not in os.environ:
+            os.environ[k] = v
+
+    # TODO lost test filename
+
 class Encoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, DotDict):
@@ -197,3 +208,23 @@ class tools(object):
         ${item}=      Eval  m[0].state  m=${modules}
         """
         return eval(expr, vars)
+
+    def prepend_parent_in_tools(self, path, parent, xpath_parent):
+        # Check if path is a list
+        is_list = isinstance(path, (tuple, list))
+
+        if is_list:
+            new_path=[]
+            for item in path:
+                item = ''.join(filter(bool, [xpath_parent, parent, item]))
+                new_path.append(item)
+            path = new_path
+        else:
+            path = ''.join(filter(bool, [xpath_parent, parent, path]))
+        return path
+
+    def Get_File_Name(self, path):
+        return Path(path).name
+
+    # def Copy_File(self, src, dest):
+    #     Path(src).copy(dest)

@@ -1,5 +1,5 @@
 function highlightElementByXPath(xpath, toggle=true) {
-	const color = 'red';
+	const color = '#FFF9C4';
     const elements = document.evaluate(
         xpath,
         document,
@@ -12,11 +12,21 @@ function highlightElementByXPath(xpath, toggle=true) {
         const element = elements.snapshotItem(i);
 		if (toggle) {
 			element.style.backgroundColor = color;
+            element.dataset.original_background_color = element.style.backgroundColor;
+            element.dataset.original_border = element.style.border;
+            element.style.border = '1px solid red';
 		}
 		else {
-			element.style.backgroundColor = null;
+            element.style.backgroundColor = null;
+            element.style.border = null;
+            delete element.dataset.original_background_color;
+            delete element.dataset.original_border;
 		}
     }
+}
+
+function removeTooltips() {
+    document.getElementById('robot-tooltip')?.remove();
 }
 
 function showTooltipByXPath(xpath, tooltipText) {
@@ -39,15 +49,20 @@ function showTooltipByXPath(xpath, tooltipText) {
     // Create the tooltip element
     const tooltip = document.createElement('div');
     tooltip.textContent = tooltipText;
+    tooltip.id = 'robot-tooltip';
     tooltip.style.position = 'absolute';
-    tooltip.style.backgroundColor = '#333';
-    tooltip.style.color = '#fff';
+    tooltip.style.backgroundColor = '#FFF9C4';
+    tooltip.style.color = 'black';
     tooltip.style.padding = '5px 10px';
     tooltip.style.borderRadius = '5px';
-    tooltip.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.2)';
+    tooltip.style.boxShadow = '4px 4px 8px rgba(0, 0, 0, 0.3)';
     tooltip.style.zIndex = '1000';
     tooltip.style.fontSize = '12px';
-    tooltip.style.whiteSpace = 'nowrap';
+    // tooltip.style.whiteSpace = 'nowrap';
+    tooltip.style.maxWidth = '300px';
+    tooltip.style.overflow = "hidden";
+    tooltip.style.wordBreak = "break-word";
+
 
     // Append the tooltip to the document
     document.body.appendChild(tooltip);

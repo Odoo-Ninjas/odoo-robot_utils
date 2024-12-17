@@ -69,17 +69,6 @@ Set Wait Marker
     ...                               ${pwd}=${ODOO_PASSWORD}
     tools.Internal Set Wait Marker    ${host}                    ${dbname}    ${user}    ${pwd}    ${TEST_NAME}${appendix}
 
-Open New Browser    [Arguments]                ${url}
-                    Set Selenium Speed         1.0
-                    Set Selenium Timeout       ${SELENIUM_TIMEOUT}
-                    Log To Console             ${url}
-                    Log To Console             odoo-version: ${odoo_version}
-                    Log To Console             Using this browser engine: ${browser}
-                    ${browser_id}=             Get Driver For Browser                   ${browser}    ${CURDIR}${/}..${/}tests/download
-                    Set Window Size            1920                                     1080
-                    Go To                      ${url}
-                    Capture Page Screenshot
-                    RETURN                     ${browser_id}
 
 Eval Regex
     [Arguments]    ${regex}    ${text}
@@ -170,16 +159,16 @@ JS On Element    [Arguments]    ${xpath}    ${jscode}    ${maxcount}=0
     ...       const callback = arguments[arguments.length - 1];
     ...       const xpath = "${xpath}";
     ...       const result = document.evaluate(
-    ...       xpath, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+    ...         xpath, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
     ...       let funcresult = true;
-    ...       for (let i = 0; i < result.snapshotLength; i++) {
-    ...       const element = result.snapshotItem(i);
-    ...       funcresult = 'ok';
-    ...       ${jscode};
-    ...       if (${maxcount} && ${maxcount} > 0 && i>=${maxcount}) {
-    ...       funcresult = "maxcount";
-    ...       break;
+    ...       if (${maxcount} && ${maxcount} > result.snapshotLength) {
+    ...         callback("maxcount");
+    ...         return;
     ...       }
+    ...       for (let i = 0; i < result.snapshotLength; i++) {
+    ...         const element = result.snapshotItem(i);
+    ...         funcresult = 'ok';
+    ...         ${jscode};
     ...       }
     ...       callback(funcresult);
 
@@ -209,7 +198,7 @@ Is Visible    [Arguments]    ${xpath}
 JS Scroll Into View    [Arguments]    ${xpath}
 
     Run Keyword And Ignore Error    Wait Until Element Is Visible    xpath=${xpath}
-    Run Keyword And Ignore Error    JS On Element    xpath=${xpath}    element.scrollIntoView(true);
-    Run Keyword And Ignore Error    Scroll Element Into View  xpath=${xpath}
-    Sleep  1s
+    Run Keyword And Ignore Error    JS On Element                    xpath=${xpath}    element.scrollIntoView(true);
+    Run Keyword And Ignore Error    Scroll Element Into View         xpath=${xpath}
+    Sleep                           1s
     Capture Page Screenshot

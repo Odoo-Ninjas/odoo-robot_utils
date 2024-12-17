@@ -5,8 +5,8 @@ Library    ../library/wodoo.py
 *** Keywords ***
 
 Odoo Command
-    [Arguments]      ${shellcmd}
-    wodoo.command    ${shellcmd}
+    [Arguments]      ${shellcmd}  ${output}=${FALSE}
+    wodoo.command    ${shellcmd}  ${output}
 
 Odoo Start Queuejobs
     Odoo Command    up -d odoo_queuejobs

@@ -83,7 +83,7 @@ class odoo(object):
             dbname=dbname or "odoo",
             user=user,
             pwd=pwd,
-            port=80,
+            port=port,
         )
         return db
 

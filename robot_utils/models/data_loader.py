@@ -57,7 +57,11 @@ class DataLoader(models.AbstractModel):
         if os.getenv("DEVMODE") != "1":
             raise Exception("Requires devmode")
         self.env.cr.execute(sql)
-        return True
+        try:
+            res = self.env.cr.fetchall()
+            return res
+        except:
+            return True
 
     @api.model
     def load_data(self, content, file_type, module_name, filename):

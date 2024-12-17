@@ -8,60 +8,54 @@ Resource    odoo_client.robot
 Resource    tools.robot
 Library     ../library/tools.py
 Resource    styling.robot
+Resource    highlighting.robot
 Library     String                   # example Random String
 
 
 *** Keywords ***
-_prepend_parent    [Arguments]          ${path}                ${parent}
-    # Check if path is a list
-                   ${is_list}=          Is List                ${path}
-                   ${is_parent_set}=    Is Not Empty String    ${parent}
+_prepend_parent    [Arguments]    ${path}    ${parent}    ${xpath_parent}=""
 
-    IF    ${is_list}
-        ${new_path}=    Create List
-        FOR    ${item}    IN    @{path}
-            IF    ${is_parent_set}
-                ${item}=    Set Variable    ${parent}${item}
-            END
-            Append To List    ${new_path}    ${item}
-        END
-        ${path}=    Set Variable    ${new_path}
-    ELSE
-        IF    ${is_parent_set}
-            ${path}=    Set Variable    ${parent}${path}
-        END
-    END
-    RETURN    ${path}
+    ${res}=  _prepend_parent_in_tools  path=${path}  parent=${parent}  xpath_parent=${xpath_parent}
+    RETURN    ${res}
 
-_LocatorACE    [Arguments]    ${fieldname}    ${parent}
+_LocatorACE    [Arguments]    ${fieldname}    ${parent}  ${xpath_parent}=""
 
     ${result}=    Set Variable
-    ...           xpath=//div[@name='${fieldname}' and contains(@class, 'o_field_ace')]//div[contains(@class, 'ace_editor')]
-    ${result}=    _prepend_parent                                                                                               ${result}    ${parent}
+    ...           //div[@name='${fieldname}' and contains(@class, 'o_field_ace')]//div[contains(@class, 'ace_editor')]
+    ${result}=    _prepend_parent                                                                                               ${result}    ${parent}  xpath_parent=${xpath_parent}
     RETURN        ${result}
 
-_LocatorSelect    [Arguments]    ${fieldname}    ${parent}
+_LocatorSelect    [Arguments]    ${fieldname}    ${parent}  ${xpath_parent}=""
 
     ${result}=    Set Variable
-    ...           xpath=//div[@name='${fieldname}' and contains(@class, 'o_field_selection')]//select
-    ${result}=    _prepend_parent                                                                        ${result}    ${parent}
+    ...           //div[@name='${fieldname}' and contains(@class, 'o_field_selection')]//select
+    ${result}=    _prepend_parent                                                                        ${result}    ${parent}  xpath_parent=${xpath_parent}
     RETURN        ${result}
 
-_WriteSelect    [Arguments]    ${fieldname}    ${value}    ${parent}
+_WriteSelect    [Arguments]    ${fieldname}    ${value}    ${parent}  ${xpath_parent}=${NONE}  ${tooltip}=${NONE}
 
     Screenshot
-    ${locator}=                  _LocatorSelect                      ${fieldname}    ${parent}
+    ${locator}=                  _LocatorSelect                      ${fieldname}    ${parent}  xpath_parent=${xpath_parent}
+    IF  ${tooltip}
+        _showTooltipByXPath    xpath=${locator}    tooltip=${tooltip}
+    END
     Log                          The select locator is ${locator}
     Select From List By Label    ${locator}                          ${value}
     Screenshot
+    Remove Tooltips
 
-_WriteACEEditor    [Arguments]    ${fieldname}    ${value}    ${parent}
+_WriteACEEditor    [Arguments]    ${fieldname}    ${value}    ${parent}  ${xpath_parent}  ${tooltip}
 
     # V17
     # <div name="field1" class="o_field_widget o_field_ace"
-    ${locator}=                 _LocatorACE                                                     ${fieldname}    ${parent}
+    ${locator}=                 _LocatorACE                                                     ${fieldname}    ${parent}  ${xpath_parent}
     ${origId}=                  Get Element Attribute                                           ${locator}      id
     ${tempId}=                  Generate Random String                                          8
+
+    IF  ${tooltip}
+        _showTooltipByXPath    xpath=${locator}    tooltip=${tooltip}
+    END
+
     Assign Id To Element        locator=${locator}                                              id=${tempId}
     ${js}=                      Catenate
     ...                         const callback = arguments[arguments.length - 1];
@@ -73,6 +67,7 @@ _WriteACEEditor    [Arguments]    ${fieldname}    ${value}    ${parent}
     Screenshot
     Execute Async Javascript    ${js}
     Assign Id To Element        locator=${locator}                                              id=${origId}
+    Remove Tooltips
     Screenshot
 
 _Write To Xpath    [Arguments]    ${xpath}    ${value}    ${ignore_auto_complete}=False
@@ -86,7 +81,7 @@ _Write To Xpath    [Arguments]    ${xpath}    ${value}    ${ignore_auto_complete
     ${element}=                      Get WebElement           xpath=${xpath}
 
     Capture Page Screenshot
-    JS Scroll Into View  ${xpath}
+    JS Scroll Into View        ${xpath}
     IF    ${odoo_version} <= 15.0
         Set Focus To Element       xpath=${xpath}
         Capture Page Screenshot
@@ -176,8 +171,7 @@ Wait Blocking
     Repeat Keyword
     ...               10 times
     ...               Run Keyword And Ignore Error
-    ...               Wait Until Element Is Not Visible
-    ...               xpath=${xpath}
+    ...               Wait Until Element Is Not Visible  xpath=${xpath}  timeout=100ms
 
     ${state}    ${result}=                           Run Keyword And Ignore Error
     ...         Wait Until Element Is Not Visible
@@ -203,7 +197,7 @@ ElementPostCheck
 
 Eval Validation User Error Dialog
     ${locator}=    Set Variable    //div[@role='dialog'][contains(@class, 'modal')][//*[contains(text(), 'Validation Error') or contains(text(), 'User Error')]]
-    ${visible}=    Is Visible      xpath=${locator}
+    ${visible}=    Is Visible    xpath=${locator}
 
     IF    ${visible}
         ${content}=    Get Text                    xpath=${locator}//*[contains(@class, 'modal-body')]
@@ -324,34 +318,3 @@ _Wait Until Element Is Not Disabled    [Arguments]    ${xpath}
 
     _While Element Attribute Value    ${xpath}    disabled    ==    true    as_bool
 
-
-_highlight_element    [Arguments]    ${xpath}    ${toggle}=${TRUE}
-
-    ${content}=    Get File    /opt/src/addons_robot/robot_utils/keywords/js/highlight_element.js
-    ${strtoggle}=    Eval                                                 '1' if v else '0'    v=${toggle}
-    ${js}=           Catenate                                             SEPARATOR=\n
-    ...              const xpath = "${xpath}";
-    ...              const toggle = "${strtoggle}";
-    ...              const callback = arguments[arguments.length - 1];
-    ...              ${content};
-    ...              highlightElementByXPath(xpath, toggle);
-    ...              callback(xpath);
-    Log              xpath is ${xpath}
-    Log              ${js}
-    ${res}=          Execute Async Javascript                             ${js}
-    Log              ${res}
-
-
-_showTooltipByXPath    [Arguments]    ${xpath}    ${tooltip}
-
-    ${content}=
-    ...                         Get File
-    ...                         /opt/src/addons_robot/robot_utils/keywords/js/highlight_element.js
-    ${js}=                      Catenate                                                              SEPARATOR=\n
-    ...                         const xpath = "${xpath}";
-    ...                         const toggle = "${strtoggle}";
-    ...                         const callback = arguments[arguments.length - 1];
-    ...                         ${content}
-    ...                         showTooltipByXPath(xpath, tooltip);
-    ...                         callback();
-    Execute Async Javascript    ${js}

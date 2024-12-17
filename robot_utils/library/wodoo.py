@@ -14,17 +14,24 @@ from robot.libraries.BuiltIn import BuiltIn
 
 
 class wodoo(object):
-    def command(self, shellcmd):
-        cwd = Path(os.getenv("ODOO_HOME"))
-        assert cwd.exists()
-        cmd = 'odoo -p "$project_name" ' + shellcmd
+    def command(self, shellcmd, output=True):
+        path = os.getenv("ODOO_HOME", os.getenv("CUSTOMS_DIR"))
+        if not path:
+            raise Exception(
+                "ODOO_HOME or CUSTOMS_DIR environment variable is not set")
+        
+        cwd = Path(path)
+        assert cwd.exists(), "Path {cwd} should exist."
+        project_name = os.environ['project_name']
+        cmd = f'odoo -p "{project_name}" ' + shellcmd
         return self._cmd(cmd, cwd=cwd, output=True)
 
     def _cmd(self, cmd, output=False, cwd=None):
-        if cwd:
-            cmd = f"cd '{cwd}' || exit -1;" f"{cmd}"
+        env = {}
+        for key in ['PATH', 'HOME']:
+            env[key] = os.environ[key]
         if not output:
-            res = check_call(cmd, shell=True)
+            res = check_call(cmd, shell=True, cwd=cwd, env=env)
         else:
-            res = check_output(cmd, encoding="utf8", shell=True)
+            res = check_output(cmd, encoding="utf8", shell=True, cwd=cwd, env=env)
             return res

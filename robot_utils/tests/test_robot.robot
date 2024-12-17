@@ -6,7 +6,6 @@
 Documentation       Testing Basic Functions of the Robot Keywords
 
 Library             OperatingSystem
-Library             SeleniumLibrary
 Library             ../library/tools.py
 Resource            ../keywords/odoo.robot
 # Test Setup    Login

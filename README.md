@@ -18,6 +18,50 @@ odoo robot run <filepath>
 
 ```
 
+## Run / Debug test with VSCode
+
+### Create a virtual env:
+
+```bash
+python3 -m venv ~/robotenv
+. ~/robotenv/bin/actiate
+pip install -r ~/.odoo/images/robot/requirements.txt
+```
+### Settings in JSON:
+
+```
+...
+      "robot.python.executable": "~/robotenv/bin/python",
+      "robot.language-server.python": "~/robotenv/bin/python"
+...
+```
+
+### Launch.json
+
+Place in .vscode/launch.json
+
+```
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "robotframework-lsp",
+            "name": "Robot Framework: Current File",
+            "request": "launch",
+            "target": "${file}",
+            
+        }
+    ]
+}
+```
+
+### Start geckodriver
+
+```bash
+geckodriver --host 0.0.0.0 
+```
+
+
 
 # Simple Smoketest
 

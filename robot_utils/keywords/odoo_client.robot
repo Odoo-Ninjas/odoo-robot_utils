@@ -74,7 +74,7 @@ Odoo Search Records
     RETURN            ${result}
 
 Odoo Search Read Records
-    [Arguments]
+    [arguments]
     ...               ${model}
     ...               ${domain}
     ...               ${fields}

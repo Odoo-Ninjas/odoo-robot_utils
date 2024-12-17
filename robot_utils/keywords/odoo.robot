@@ -4,28 +4,39 @@ Documentation    Odoo backend keywords.
 Library     ../library/browser.py
 Library     SeleniumLibrary
 Library     OperatingSystem
+Resource    debug.robot
 Resource    odoo_client.robot
 Resource    tools.robot
 Library     ../library/tools.py
 Resource    styling.robot
 Resource    odoo_details.robot
+Resource    highlighting.robot
+Resource    browser.robot
 Library     String                   # example Random String
+Library     ../library/default_vars.py
 
 
 *** Keywords ***
-Login    [Arguments]                      ${user}=${ODOO_USER}                  ${password}=${ODOO_PASSWORD}    ${url}=${ODOO_URL}/web/login
-         ${browser_id}=                   Open New Browser                      ${url}
+Login    [Arguments]    ${user}=${ODOO_USER}    ${password}=${ODOO_PASSWORD}    ${url}=${ODOO_URL}/web/login
+    Load Default Vars
+    ${randomstring}           Evaluate    str(uuid.uuid4())    modules=uuid
+    ${url}=         Set Variable    ${url}#${randomstring}
+    ${browser_id}=                   Open New Browser                      ${url}
+    ${snippetmode}=                  Get Variable Value                     ${SNIPPET_MODE}    ${FALSE}
+    IF  ${snippetmode}
+        RETURN  ${browser_id}
+    END
     # Run Keyword and Ignore error    Click element    //a[@href="/web/login"]
-         Capture Page Screenshot
-         Wait Until Element is Visible    name=login
+    Capture Page Screenshot
+    Wait Until Element is Visible    name=login
     Log To Console    Input is visible, now entering credentials for user ${user} with password ${password}
-         Input Text                       xpath=//input[@name='login'][1]       ${user}
-         Input Text                       xpath=//input[@name='password'][1]    ${password}
-         Log To Console                   Clicking Login
-         Capture Page Screenshot
+    Input Text                       xpath=//input[@name='login'][1]       ${user}
+    Input Text                       xpath=//input[@name='password'][1]    ${password}
+    Log To Console                   Clicking Login
+    Capture Page Screenshot
     Click Button    xpath=//div[contains(@class, 'oe_login_buttons')]//button[@type='submit']
-         Log To Console                   Clicked login button - waiting
-         Capture Page Screenshot
+    Log To Console                   Clicked login button - waiting
+    Capture Page Screenshot
     IF    ${odoo_version} < 14.0
         Wait Until Page Contains Element    xpath=//nav[contains(@id, 'oe_main_menu_navbar')]
     ELSE
@@ -77,8 +88,9 @@ MainMenu    [Arguments]       ${menu}
             Wait Until Element is visible    xpath=//div[contains(@class, "o_navbar_apps_menu")]
             Wait To Click                    xpath=//div[contains(@class, "o_navbar_apps_menu")]/button
         END
-        Wait Until Page Contains Element    xpath=//a[@data-menu-xmlid='${menu}']
-        Wait To Click                       xpath=//a[@data-menu-xmlid='${menu}']
+        ${xpath}=  Set Variable  //a[@data-menu-xmlid='${menu}'][1]
+        Wait Until Page Contains Element    xpath=${xpath}
+        Wait To Click                       xpath=${xpath}
         Wait Until Page Contains Element    xpath=//body[contains(@class, 'o_web_client')]
         ElementPostCheck
     ELSE
@@ -91,7 +103,7 @@ MainMenu    [Arguments]       ${menu}
             Wait Until Page Contains Element    xpath=${home_menu}
             Wait To Click                       xpath=${home_menu}
         END
-        Wait To Click    xpath=//a[@data-menu-xmlid='${menu}']
+        Wait To Click    xpath=//a[@data-menu-xmlid='${menu}'][position() = 1]
     END
 
 ApplicationMainMenuOverview
@@ -112,49 +124,63 @@ ApplicationMainMenuOverview
 Close Error Dialog And Log
     ${visible_js_error_dialog}=    Is Visible    xpath=//div[contains(@class, 'o_dialog_error')]
     IF    ${visible_js_error_dialog}
-        ${errordetails}=    Get Element Attribute    xpath=//div[contains(@class, 'o_error_detail')]@innerHTML
+    	# before it was @innerHTML
+        ${errordetails}=    Get Element Attribute    xpath=//div[contains(@class, 'o_error_detail')]  innerHTML
     END
-    IF    ${visible_js_error_dialog}    Log To Console    ${errordetails}
+    IF    ${visible_js_error_dialog}    
+        Log To Console    ${errordetails}
         IF    ${visible_js_error_dialog}
             Click Element
             ...              xpath=//div[contains(@class, 'o_dialog_error')]//footer/button[contains(@class, 'btn-primary')]
         END
     END
 
-WriteInField    [Arguments]    ${fieldname}    ${value}    ${ignore_auto_complete}=False    ${parent}=${NONE}
+WriteInField    [Arguments]    ${fieldname}    ${value}    ${ignore_auto_complete}=False    ${parent}=${NONE}    ${tooltip}=${NONE}  ${xpath_parent}=${NONE}
+
     # Check if it is ACE:
     # <div name="field1" class="o_field_widget o_field_ace"
 
     Wait Blocking
     Screenshot
-    IF    '${parent}' != '${NONE}'
+    ${parent_set}=  Eval  bool(v)  v=${parent}
+    IF    ${parent_set}
         ${parent}=    Catenate    SEPARATOR=|    //div[@name='${parent}' or @id='${parent}']
     END
-    Log2    WriteInField ${fieldname}=${value} ignore_auto_complete=${ignore_auto_complete} with parent=${parent}
-    ${locator_ACE}=    _LocatorACE    ${fieldname}    ${parent}
+    Log2    WriteInField ${fieldname}=${value} ignore_auto_complete=${ignore_auto_complete} with parent=${parent} and xpath_parent=${xpath_parent}
+    ${locator_ACE}=    _LocatorACE    ${fieldname}    ${parent}  xpath_parent=${xpath_parent}
 
-    ${locator_select}=    _LocatorSelect    ${fieldname}    ${parent}
+    ${locator_select}=    _LocatorSelect    ${fieldname}    ${parent}  xpath_parent=${xpath_parent}
 
     ${status_is_ace}       ${testel}=        Run Keyword And Ignore Error
     ...                    Get WebElement    ${locator_ACE}
     ${status_is_select}    ${testel}=        Run Keyword And Ignore Error
     ...                    Get WebElement    ${locator_select}
+
+    ${hastooltip}=    Eval    bool(h)    h=${tooltip}
+
     IF    '${status_is_ace}' != 'FAIL'
         ElementPreCheck    ${locator_ACE}
-        _WriteACEEditor    ${fieldname}      ${value}    ${parent}
+        _WriteACEEditor  ${fieldname}      ${value}    ${parent}  xpath_parent=${xpath_parent}  tooltip=${tooltip}
     ELSE IF    '${status_is_select}' != 'FAIL'
-        ElementPreCheck    ${locator_ACE}
-        _WriteSelect       ${fieldname}      ${value}    ${parent}
+        ElementPreCheck    ${locator_select}
+        _WriteSelect       ${fieldname}      ${value}    ${parent}  xpath_parent=${xpath_parent}  tooltip=${tooltip}
     ELSE
-        ${xpaths}=                 Create List
-        ...                        //div[@name='${fieldname}']//input
-        ...                        //div[@name='${fieldname}']//textarea
-        ...                        //input[@id='${fieldname}' or @id='${fieldname}_0' or @name='${fieldname}']
-        ...                        //textarea[@id='${fieldname}' or @id='${fieldname}_0' or @name='${fieldname}']
-        ${xpaths}=                 _prepend_parent                                                                   ${xpaths}      ${parent}
-        ${xpath}=                  Catenate                                                                          SEPARATOR=|    @{xpaths}
+        ${xpaths}=    Create List
+        ...           //div[@name='${fieldname}']//input
+        ...           //div[@name='${fieldname}']//textarea
+        ...           //input[@id='${fieldname}' or @id='${fieldname}_0' or @name='${fieldname}']
+        ...           //textarea[@id='${fieldname}' or @id='${fieldname}_0' or @name='${fieldname}']
+
+        ${xpaths}=                 _prepend_parent    ${xpaths}      ${parent}  xpath_parent=${xpath_parent}
+        ${xpath}=                  Catenate           SEPARATOR=|    @{xpaths}
+        Highlight Element          ${xpath}           ${TRUE}
         Capture Page Screenshot
-        _Write To Xpath            ${xpath}                                                                          ${value}       ignore_auto_complete=${ignore_auto_complete}
+        Mouse Over                 xpath=${xpath}
+        _Write To Xpath            ${xpath}           ${value}       ignore_auto_complete=${ignore_auto_complete}
+        Highlight Element          ${xpath}           ${FALSE}
+    END
+    IF    ${hastooltip}
+        _removeTooltips
     END
     Log To Console    Done: WriteInField ${fieldname}=${value}
     Screenshot
@@ -180,7 +206,10 @@ Goto View    [Arguments]       ${model}                            ${id}    ${ty
              Go To             ${ODOO_URL}/web
              Screenshot
 
-    Go To    ${ODOO_URL}/web#id=${id}&cids=1&model=${model}&view_type=${type}
+	${random}=    Generate Random String    10    [LETTERS]
+    ${url}=  Set Variable   ${ODOO_URL}/web#id=${id}&cids=1&model=${model}&view_type=${type}&randomid=${random}
+    Log To Console  url: ${url}
+    Go To    ${url}
     IF    '${type}' == 'form'
         Wait Until Element Is Visible    xpath=//div[@class='o_form_view_container']
     ELSE IF    '${type}' == 'form' OR '${type}' == 'list'
@@ -196,12 +225,13 @@ Odoo Write One2many    [Arguments]    ${fieldname}    ${data}
         Write In Field    ${key}    ${value}    parent=${fieldname}
     END
 
-Odoo Click    [Arguments]      ${xpath}          ${highlight}=${NONE}
-              Wait To Click    xpath=${xpath}    highlight=${highlight}
+Odoo Click    [Arguments]      ${xpath}          ${tooltip}=${NONE}
+              Wait To Click    xpath=${xpath}    tooltip=${tooltip}
 
-Wait To Click    [Arguments]    ${xpath}    ${highlight}=${NONE}
+Wait To Click    [Arguments]    ${xpath}    ${tooltip}=${NONE}
 # V17: they disable also menuitems and enable to avoid double clicks; not
 # so in <= V16
+    Add Cursor
     Log To Console    Wait To Click ${xpath}
 
     Capture Page Screenshot
@@ -210,47 +240,49 @@ Wait To Click    [Arguments]    ${xpath}    ${highlight}=${NONE}
     Capture Page Screenshot
     Log    Could not identify element ${xpath} - so trying by pure javascript to click it.
     Capture Page Screenshot
-    ${hashighlight}=                    Eval              bool(h)                h=${highlight}
-    ${ishighlightbool}=                 Eval              isinstance(h, bool)    h=${highlight}
-    IF    ${hashighlight}
-        _highlight_element         xpath=${xpath}    toggle=${TRUE}
-        Sleep                      200ms
-        Capture Page Screenshot
-        IF    ${ishighlightbool}
-            _showTooltipByXPath    xpath=${xpath}    ${highlight}
-        END
+    ${hastooltip}=                      Eval              bool(h)    h=${tooltip}
+
+    Mouse Over    xpath=${xpath}
+    IF    ${hastooltip}
+        _showTooltipByXPath    xpath=${xpath}    tooltip=${tooltip}
     END
-    JS On Element    ${xpath}    element.click()    maxcount=1
-    IF    ${hashighlight}
-        _highlight_element    xpath=${xpath}    toggle=${FALSE}
-    END
+    JS On Element              ${xpath}    element.click()    maxcount=1
     Capture Page Screenshot
+    IF    ${hastooltip}
+        _removeTooltips
+    END
+
     Sleep                                  30ms                           # Give chance to become disabled
     _Wait Until Element Is Not Disabled    xpath=${xpath}
     Capture Page Screenshot
     Element Post Check
     Capture Page Screenshot
+    Remove Cursor
     Log To Console                         Done Wait To Click ${xpath}
     Wait Blocking
 
-Odoo Button    [Arguments]    ${text}=${NONE}    ${name}=${NONE}    ${highlight}=${NONE}
+Odoo Button    [Arguments]    ${text}=${NONE}    ${name}=${NONE}    ${tooltip}=${NONE}
 
     ${hasname}=    Eval    bool(n)    t=${text}    n=${name}
     ${hastext}=    Eval    bool(t)    t=${text}    n=${name}
 
     IF    ${hasname}
-        Wait To Click    (//button[@name='${name}'] | //a[@name='${name}'])[1]    highlight=${highlight}
+        Wait To Click    (//button[@name='${name}'] | //a[@name='${name}'])[1]    tooltip=${tooltip}
     ELSE IF    ${hastext}
-        Wait To Click    (//button[contains(text(), '${text}')] | //a[contains(text(), '${text}')])[1]    highlight=${highlight}
+        Wait To Click    (//button[contains(text(), '${text}')] | //a[contains(text(), '${text}')])[1]    tooltip=${tooltip}
     ELSE
         FAIL    provide either text or name
     END
 
-Odoo Upload File    [Arguments]    ${fieldname}    ${filepath}
+Odoo Upload File    [Arguments]    ${fieldname}    ${filepath}  ${parent}=${NONE}  ${xpath_parent}=${NONE}
 
     Log To Console                      UploadFile ${fieldname}=${filepath}
     File Should Exist                   ${filepath}
-    ${xpath}=                           Set Variable                                                                                                                                                                                                                            //div[@name='${fieldname}']//input[@type='file']
+
+    ${xpath}=                           Set Variable                                                                                                                                                                                                                            
+    ...                                 //div[@name='${fieldname}']//input[@type='file']
+    ${xpath}=                           _prepend_parent    ${xpath}      ${parent}  xpath_parent=${xpath_parent}
+
     Log To Console                      Uploading file to ${fieldname}
     ${js_show_fileupload}=              Catenate                                                                                                                                                                                                                                SEPARATOR=\n
     ...                                 const callback = arguments[arguments.length - 1];
@@ -271,7 +303,11 @@ Odoo Upload File    [Arguments]    ${fieldname}    ${filepath}
 
     Wait Until Element Is Visible    xpath=${xpath}/..
     Screenshot
-    Choose File                      xpath=${xpath}                              ${filepath}
+
+	${file_name}=                    tools.Get File Name    ${file_path}
+    Copy File                        ${filepath}   ${DIRECTORY UPLOAD FILES LOCAL}/${file_name}
+
+    Choose File                      xpath=${xpath}                              ${DIRECTORY UPLOAD FILES BROWSER DRIVER}/${file_name}
     ElementPostCheck
     Log To Console                   Done UploadFile ${fieldname}=${filepath}
 

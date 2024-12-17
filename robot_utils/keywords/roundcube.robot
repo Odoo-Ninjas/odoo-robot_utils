@@ -2,7 +2,7 @@
 *** Settings ***
 
 Documentation    Roundcube Mail Client
-Library          SeleniumLibrary
+# Library          SeleniumLibrary
 Library          ../library/tools.py
 Resource          ../../addons_robot/robot_utils/keywords/odoo_ee.robot
 
