@@ -69,17 +69,21 @@ Set Wait Marker
     ...                               ${pwd}=${ODOO_PASSWORD}
     tools.Internal Set Wait Marker    ${host}                    ${dbname}    ${user}    ${pwd}    ${TEST_NAME}${appendix}
 
-Open New Browser    [Arguments]                ${url}
-                    Set Selenium Speed         1.0
-                    Set Selenium Timeout       ${SELENIUM_TIMEOUT}
-                    Log To Console             ${url}
-                    Log To Console             odoo-version: ${odoo_version}
-                    Log To Console             Using this browser engine: ${browser}
-                    ${browser_id}=             Get Driver For Browser                   ${browser}    ${CURDIR}${/}..${/}tests/download
-                    Set Window Size            1920                                     1080
-                    Go To                      ${url}
-                    Capture Page Screenshot
-                    RETURN                     ${browser_id}
+Open New Browser    [Arguments]    ${url}
+
+    Set Selenium Speed         1.0
+    Set Selenium Timeout       ${SELENIUM_TIMEOUT}
+    Log To Console             ${url}
+    Log To Console             odoo-version: ${odoo_version}
+    Log To Console             Using this browser engine: ${browser}
+    ${browser_id}=             Get Driver For Browser                                       ${browser}           ${CURDIR}${/}..${/}tests/download
+    ${browser_width}=          Get Environment Variable                                     BROWSER_WIDTH
+    ${browser_height}=         Get Environment Variable                                     BROWSER_HEIGHT
+    Log To Console             Browser width: ${browser_width} height: ${browser_height}
+    Set Window Size            ${browser_width}                                             ${browser_height}
+    Go To                      ${url}
+    Capture Page Screenshot
+    RETURN                     ${browser_id}
 
 Eval Regex
     [Arguments]    ${regex}    ${text}
@@ -209,7 +213,7 @@ Is Visible    [Arguments]    ${xpath}
 JS Scroll Into View    [Arguments]    ${xpath}
 
     Run Keyword And Ignore Error    Wait Until Element Is Visible    xpath=${xpath}
-    Run Keyword And Ignore Error    JS On Element    xpath=${xpath}    element.scrollIntoView(true);
-    Run Keyword And Ignore Error    Scroll Element Into View  xpath=${xpath}
-    Sleep  1s
+    Run Keyword And Ignore Error    JS On Element                    xpath=${xpath}    element.scrollIntoView(true);
+    Run Keyword And Ignore Error    Scroll Element Into View         xpath=${xpath}
+    Sleep                           1s
     Capture Page Screenshot
