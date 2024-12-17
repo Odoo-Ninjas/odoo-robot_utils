@@ -76,7 +76,7 @@ Open New Browser    [Arguments]    ${url}
     Log To Console             ${url}
     Log To Console             odoo-version: ${odoo_version}
     Log To Console             Using this browser engine: ${browser}
-    ${browser_id}=             Get Driver For Browser                                       ${browser}           ${CURDIR}${/}..${/}tests/download
+    ${browser_id}=             Get Driver For Browser                                       ${browser}           ${CURDIR}${/}..${/}tests/download  ${BROWSER_HEADLESS}
     ${browser_width}=          Get Environment Variable                                     BROWSER_WIDTH
     ${browser_height}=         Get Environment Variable                                     BROWSER_HEIGHT
     Log To Console             Browser width: ${browser_width} height: ${browser_height}

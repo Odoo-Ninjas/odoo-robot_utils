@@ -17,18 +17,17 @@ BROWSER_NAMES = {
 
 
 class BrowserDriver(object):
-    def __init__(self, browser, path):
-        if browser in BROWSER_NAMES:
-            driver = BROWSER_NAMES[browser]
-            self.browser = browser
-            self.path = path
-            self.headless = "headless" in browser
+    def __init__(self, browser, path, headless):
+        if browser not in BROWSER_NAMES:
+            raise ValueError(f"{browser} is not a supported browser.")
+        driver = BROWSER_NAMES[browser]
+        self.browser = browser
+        self.path = path
+        self.headless = headless
 
-            self.driverClass = driver.capitalize()
-            self.optionsClass = f"{driver.capitalize()}Options"
-            self.optionsMethod = f"_add_options_for_{driver}"
-        else:
-            raise ValueError("{} is not a supported browser.".format(browser))
+        self.driverClass = driver.capitalize()
+        self.optionsClass = f"{driver.capitalize()}Options"
+        self.optionsMethod = f"_add_options_for_{driver}"
 
     def create_webdriver(self):
         options = self.create_options()
@@ -93,8 +92,8 @@ class BrowserDriver(object):
         return options
 
 
-def get_driver_for_browser(browser, path):
-    bd = BrowserDriver(browser, get_absolute_path(path))
+def get_driver_for_browser(browser, path, headless):
+    bd = BrowserDriver(browser, get_absolute_path(path), headless)
     return bd.create_webdriver()
 
 
