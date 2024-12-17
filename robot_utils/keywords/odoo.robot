@@ -4,6 +4,7 @@ Documentation    Odoo backend keywords.
 Library     ../library/browser.py
 Library     SeleniumLibrary
 Library     OperatingSystem
+Resource    debug.robot
 Resource    odoo_client.robot
 Resource    tools.robot
 Library     ../library/tools.py
@@ -13,19 +14,21 @@ Library     String                   # example Random String
 
 
 *** Keywords ***
-Login    [Arguments]                      ${user}=${ODOO_USER}                  ${password}=${ODOO_PASSWORD}    ${url}=${ODOO_URL}/web/login
-         ${browser_id}=                   Open New Browser                      ${url}
+Login    [Arguments]    ${user}=${ODOO_USER}    ${password}=${ODOO_PASSWORD}    ${url}=${ODOO_URL}/web/login
+
+    Wait For Remote Debugger
+    ${browser_id}=                   Open New Browser                      ${url}
     # Run Keyword and Ignore error    Click element    //a[@href="/web/login"]
-         Capture Page Screenshot
-         Wait Until Element is Visible    name=login
+    Capture Page Screenshot
+    Wait Until Element is Visible    name=login
     Log To Console    Input is visible, now entering credentials for user ${user} with password ${password}
-         Input Text                       xpath=//input[@name='login'][1]       ${user}
-         Input Text                       xpath=//input[@name='password'][1]    ${password}
-         Log To Console                   Clicking Login
-         Capture Page Screenshot
+    Input Text                       xpath=//input[@name='login'][1]       ${user}
+    Input Text                       xpath=//input[@name='password'][1]    ${password}
+    Log To Console                   Clicking Login
+    Capture Page Screenshot
     Click Button    xpath=//div[contains(@class, 'oe_login_buttons')]//button[@type='submit']
-         Log To Console                   Clicked login button - waiting
-         Capture Page Screenshot
+    Log To Console                   Clicked login button - waiting
+    Capture Page Screenshot
     IF    ${odoo_version} < 14.0
         Wait Until Page Contains Element    xpath=//nav[contains(@id, 'oe_main_menu_navbar')]
     ELSE

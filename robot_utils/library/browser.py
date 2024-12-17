@@ -1,3 +1,4 @@
+import os
 from selenium import webdriver
 from pathlib import Path
 from robot.libraries.BuiltIn import BuiltIn
@@ -24,8 +25,8 @@ class BrowserDriver(object):
             self.headless = "headless" in browser
 
             self.driverClass = driver.capitalize()
-            self.optionsClass = "{}Options".format(driver.capitalize())
-            self.optionsMethod = "_add_options_for_{}".format(driver)
+            self.optionsClass = f"{driver.capitalize()}Options"
+            self.optionsMethod = f"_add_options_for_{driver}"
         else:
             raise ValueError("{} is not a supported browser.".format(browser))
 
@@ -60,10 +61,12 @@ class BrowserDriver(object):
         options = getattr(webdriver, self.optionsClass)()
         if self.headless:
             options.add_argument("--headless")
-            options.add_argument("--window-size=1920,3840")
-            options.add_argument("--no-sandbox")
-            options.add_argument("--disable-dev-shm-usage")
-            options.add_argument("--disable-popup-blocking")
+        options.add_argument(
+            f"--window-size={os.environ['BROWSER_WIDTH']},{os.environ['BROWSER_HEIGHT']}"
+        )
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--disable-popup-blocking")
         return getattr(self, self.optionsMethod)(options)
 
     def _add_options_for_chrome(self, options):
@@ -77,8 +80,6 @@ class BrowserDriver(object):
                 "plugins.always_open_pdf_externally": True,
             },
         )
-        if self.headless:
-            pass
         return options
 
     def _add_options_for_firefox(self, options):
