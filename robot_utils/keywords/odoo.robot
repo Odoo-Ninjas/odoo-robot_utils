@@ -7,7 +7,6 @@ Library     OperatingSystem
 Resource    debug.robot
 Resource    odoo_client.robot
 Resource    tools.robot
-Resource    highlighting.robot
 Library     ../library/tools.py
 Resource    styling.robot
 Resource    odoo_details.robot
@@ -126,7 +125,7 @@ Close Error Dialog And Log
         END
     END
 
-WriteInField    [Arguments]    ${fieldname}    ${value}    ${ignore_auto_complete}=False    ${parent}=${NONE}
+WriteInField    [Arguments]    ${fieldname}    ${value}    ${ignore_auto_complete}=False    ${parent}=${NONE}    ${tooltip}=${NONE}
     # Check if it is ACE:
     # <div name="field1" class="o_field_widget o_field_ace"
 
@@ -144,6 +143,13 @@ WriteInField    [Arguments]    ${fieldname}    ${value}    ${ignore_auto_complet
     ...                    Get WebElement    ${locator_ACE}
     ${status_is_select}    ${testel}=        Run Keyword And Ignore Error
     ...                    Get WebElement    ${locator_select}
+
+    ${hastooltip}=    Eval    bool(h)    h=${tooltip}
+
+    IF    ${hastooltip}
+        _showTooltipByXPath    xpath=${xpath}    tooltip=${tooltip}
+    END
+
     IF    '${status_is_ace}' != 'FAIL'
         ElementPreCheck    ${locator_ACE}
         _WriteACEEditor    ${fieldname}      ${value}    ${parent}
@@ -158,8 +164,14 @@ WriteInField    [Arguments]    ${fieldname}    ${value}    ${ignore_auto_complet
         ...                        //textarea[@id='${fieldname}' or @id='${fieldname}_0' or @name='${fieldname}']
         ${xpaths}=                 _prepend_parent                                                                   ${xpaths}      ${parent}
         ${xpath}=                  Catenate                                                                          SEPARATOR=|    @{xpaths}
+        Highlight Element          ${xpath}                                                                          ${TRUE}
         Capture Page Screenshot
+        Mouse Over                 xpath=${xpath}
         _Write To Xpath            ${xpath}                                                                          ${value}       ignore_auto_complete=${ignore_auto_complete}
+        Highlight Element          ${xpath}                                                                          ${FALSE}
+    END
+    IF    ${hastooltip}
+        _removeTooltips
     END
     Log To Console    Done: WriteInField ${fieldname}=${value}
     Screenshot
@@ -201,10 +213,10 @@ Odoo Write One2many    [Arguments]    ${fieldname}    ${data}
         Write In Field    ${key}    ${value}    parent=${fieldname}
     END
 
-Odoo Click    [Arguments]      ${xpath}          ${highlight}=${NONE}
-              Wait To Click    xpath=${xpath}    highlight=${highlight}
+Odoo Click    [Arguments]      ${xpath}          ${tooltip}=${NONE}
+              Wait To Click    xpath=${xpath}    tooltip=${tooltip}
 
-Wait To Click    [Arguments]    ${xpath}    ${highlight}=${NONE}
+Wait To Click    [Arguments]    ${xpath}    ${tooltip}=${NONE}
 # V17: they disable also menuitems and enable to avoid double clicks; not
 # so in <= V16
     Add Cursor
@@ -216,23 +228,18 @@ Wait To Click    [Arguments]    ${xpath}    ${highlight}=${NONE}
     Capture Page Screenshot
     Log    Could not identify element ${xpath} - so trying by pure javascript to click it.
     Capture Page Screenshot
-    ${hashighlight}=                    Eval              bool(h)                h=${highlight}
-    ${ishighlightbool}=                 Eval              isinstance(h, bool)    h=${highlight}
+    ${hastooltip}=                      Eval              bool(h)    h=${tooltip}
 
-    Mouse Over  xpath=${xpath}
-    IF    ${hashighlight}
-        _highlight_element         xpath=${xpath}    toggle=${TRUE}
-        Sleep                      200ms
-        Capture Page Screenshot
-        IF    ${ishighlightbool}
-            _showTooltipByXPath    xpath=${xpath}    ${highlight}
-        END
+    Mouse Over    xpath=${xpath}
+    IF    ${hastooltip}
+        _showTooltipByXPath    xpath=${xpath}    tooltip=${tooltip}
     END
-    JS On Element    ${xpath}    element.click()    maxcount=1
-    IF    ${hashighlight}
-        _highlight_element    xpath=${xpath}    toggle=${FALSE}
-    END
+    JS On Element              ${xpath}    element.click()    maxcount=1
     Capture Page Screenshot
+    IF    ${hastooltip}
+        _removeTooltips
+    END
+
     Sleep                                  30ms                           # Give chance to become disabled
     _Wait Until Element Is Not Disabled    xpath=${xpath}
     Capture Page Screenshot
@@ -242,15 +249,15 @@ Wait To Click    [Arguments]    ${xpath}    ${highlight}=${NONE}
     Log To Console                         Done Wait To Click ${xpath}
     Wait Blocking
 
-Odoo Button    [Arguments]    ${text}=${NONE}    ${name}=${NONE}    ${highlight}=${NONE}
+Odoo Button    [Arguments]    ${text}=${NONE}    ${name}=${NONE}    ${tooltip}=${NONE}
 
     ${hasname}=    Eval    bool(n)    t=${text}    n=${name}
     ${hastext}=    Eval    bool(t)    t=${text}    n=${name}
 
     IF    ${hasname}
-        Wait To Click    (//button[@name='${name}'] | //a[@name='${name}'])[1]    highlight=${highlight}
+        Wait To Click    (//button[@name='${name}'] | //a[@name='${name}'])[1]    tooltip=${tooltip}
     ELSE IF    ${hastext}
-        Wait To Click    (//button[contains(text(), '${text}')] | //a[contains(text(), '${text}')])[1]    highlight=${highlight}
+        Wait To Click    (//button[contains(text(), '${text}')] | //a[contains(text(), '${text}')])[1]    tooltip=${tooltip}
     ELSE
         FAIL    provide either text or name
     END

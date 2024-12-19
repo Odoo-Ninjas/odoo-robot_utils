@@ -324,30 +324,3 @@ _Wait Until Element Is Not Disabled    [Arguments]    ${xpath}
 
     _While Element Attribute Value    ${xpath}    disabled    ==    true    as_bool
 
-
-_highlight_element    [Arguments]    ${xpath}    ${toggle}=${TRUE}
-    ${content}=    Get File    /opt/src/addons_robot/robot_utils/keywords/js/highlight_element.js
-    ${strtoggle}=    Eval                                                 '1' if v else '0'    v=${toggle}
-    ${js}=           Catenate                                             SEPARATOR=\n
-    ...              const xpath = "${xpath}";
-    ...              const toggle = "${strtoggle}";
-    ...              const callback = arguments[arguments.length - 1];
-    ...              ${content};
-    ...              highlightElementByXPath(xpath, toggle);
-    ...              callback(xpath);
-    ${res}=          Execute Async Javascript                             ${js}
-
-
-_showTooltipByXPath    [Arguments]    ${xpath}    ${tooltip}
-
-    ${content}=
-    ...                         Get File
-    ...                         /opt/src/addons_robot/robot_utils/keywords/js/highlight_element.js
-    ${js}=                      Catenate                                                              SEPARATOR=\n
-    ...                         const xpath = "${xpath}";
-    ...                         const toggle = "${strtoggle}";
-    ...                         const callback = arguments[arguments.length - 1];
-    ...                         ${content}
-    ...                         showTooltipByXPath(xpath, tooltip);
-    ...                         callback();
-    Execute Async Javascript    ${js}
