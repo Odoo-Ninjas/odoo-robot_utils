@@ -7,9 +7,11 @@ Library     OperatingSystem
 Resource    debug.robot
 Resource    odoo_client.robot
 Resource    tools.robot
+Resource    highlighting.robot
 Library     ../library/tools.py
 Resource    styling.robot
 Resource    odoo_details.robot
+Resource    highlighting.robot
 Library     String                   # example Random String
 
 
@@ -205,6 +207,7 @@ Odoo Click    [Arguments]      ${xpath}          ${highlight}=${NONE}
 Wait To Click    [Arguments]    ${xpath}    ${highlight}=${NONE}
 # V17: they disable also menuitems and enable to avoid double clicks; not
 # so in <= V16
+    Add Cursor
     Log To Console    Wait To Click ${xpath}
 
     Capture Page Screenshot
@@ -215,6 +218,8 @@ Wait To Click    [Arguments]    ${xpath}    ${highlight}=${NONE}
     Capture Page Screenshot
     ${hashighlight}=                    Eval              bool(h)                h=${highlight}
     ${ishighlightbool}=                 Eval              isinstance(h, bool)    h=${highlight}
+
+    Mouse Over  xpath=${xpath}
     IF    ${hashighlight}
         _highlight_element         xpath=${xpath}    toggle=${TRUE}
         Sleep                      200ms
@@ -233,6 +238,7 @@ Wait To Click    [Arguments]    ${xpath}    ${highlight}=${NONE}
     Capture Page Screenshot
     Element Post Check
     Capture Page Screenshot
+    Remove Cursor
     Log To Console                         Done Wait To Click ${xpath}
     Wait Blocking
 

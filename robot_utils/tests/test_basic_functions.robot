@@ -7,7 +7,6 @@
 Documentation       Testing Basic Functions of the Robot Keywords
 
 Library             OperatingSystem
-Library             SeleniumLibrary
 Resource            ../keywords/odoo.robot
 
 Test Setup          Setup Test

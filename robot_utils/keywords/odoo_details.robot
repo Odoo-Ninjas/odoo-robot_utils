@@ -326,7 +326,6 @@ _Wait Until Element Is Not Disabled    [Arguments]    ${xpath}
 
 
 _highlight_element    [Arguments]    ${xpath}    ${toggle}=${TRUE}
-
     ${content}=    Get File    /opt/src/addons_robot/robot_utils/keywords/js/highlight_element.js
     ${strtoggle}=    Eval                                                 '1' if v else '0'    v=${toggle}
     ${js}=           Catenate                                             SEPARATOR=\n
@@ -336,10 +335,7 @@ _highlight_element    [Arguments]    ${xpath}    ${toggle}=${TRUE}
     ...              ${content};
     ...              highlightElementByXPath(xpath, toggle);
     ...              callback(xpath);
-    Log              xpath is ${xpath}
-    Log              ${js}
     ${res}=          Execute Async Javascript                             ${js}
-    Log              ${res}
 
 
 _showTooltipByXPath    [Arguments]    ${xpath}    ${tooltip}
