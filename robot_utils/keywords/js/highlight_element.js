@@ -12,9 +12,15 @@ function highlightElementByXPath(xpath, toggle=true) {
         const element = elements.snapshotItem(i);
 		if (toggle) {
 			element.style.backgroundColor = color;
+            element.dataset.original_background_color = element.style.backgroundColor;
+            element.dataset.original_border = element.style.border;
+            element.style.border = '1px solid red';
 		}
 		else {
-			element.style.backgroundColor = null;
+            element.style.backgroundColor = null;
+            element.style.border = null;
+            delete element.dataset.original_background_color;
+            delete element.dataset.original_border;
 		}
     }
 }
