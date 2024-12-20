@@ -11,6 +11,7 @@ Library     ../library/tools.py
 Resource    styling.robot
 Resource    odoo_details.robot
 Resource    highlighting.robot
+Resource    browser.robot
 Library     String                   # example Random String
 
 
@@ -125,7 +126,7 @@ Close Error Dialog And Log
         END
     END
 
-WriteInField    [Arguments]    ${fieldname}    ${value}    ${ignore_auto_complete}=False    ${parent}=${NONE}    ${tooltip}=${NONE}
+WriteInField    [Arguments]    ${fieldname}    ${value}    ${ignore_auto_complete}=False    ${parent}=${NONE}    ${tooltip}=${NONE}  ${xpath_parent}=${NONE}
     # Check if it is ACE:
     # <div name="field1" class="o_field_widget o_field_ace"
 
@@ -135,9 +136,9 @@ WriteInField    [Arguments]    ${fieldname}    ${value}    ${ignore_auto_complet
         ${parent}=    Catenate    SEPARATOR=|    //div[@name='${parent}' or @id='${parent}']
     END
     Log2    WriteInField ${fieldname}=${value} ignore_auto_complete=${ignore_auto_complete} with parent=${parent}
-    ${locator_ACE}=    _LocatorACE    ${fieldname}    ${parent}
+    ${locator_ACE}=    _LocatorACE    ${fieldname}    ${parent}  xpath_parent=${xpath_parent}
 
-    ${locator_select}=    _LocatorSelect    ${fieldname}    ${parent}
+    ${locator_select}=    _LocatorSelect    ${fieldname}    ${parent}  xpath_parent=${xpath_parent}
 
     ${status_is_ace}       ${testel}=        Run Keyword And Ignore Error
     ...                    Get WebElement    ${locator_ACE}
@@ -152,23 +153,24 @@ WriteInField    [Arguments]    ${fieldname}    ${value}    ${ignore_auto_complet
 
     IF    '${status_is_ace}' != 'FAIL'
         ElementPreCheck    ${locator_ACE}
-        _WriteACEEditor    ${fieldname}      ${value}    ${parent}
+        _WriteSelect       ${fieldname}      ${value}    ${parent}  xpath_parent=${xpath_parent}
     ELSE IF    '${status_is_select}' != 'FAIL'
         ElementPreCheck    ${locator_ACE}
-        _WriteSelect       ${fieldname}      ${value}    ${parent}
+        _WriteSelect       ${fieldname}      ${value}    ${parent}  xpath_parent=${xpath_parent}
     ELSE
-        ${xpaths}=                 Create List
-        ...                        //div[@name='${fieldname}']//input
-        ...                        //div[@name='${fieldname}']//textarea
-        ...                        //input[@id='${fieldname}' or @id='${fieldname}_0' or @name='${fieldname}']
-        ...                        //textarea[@id='${fieldname}' or @id='${fieldname}_0' or @name='${fieldname}']
-        ${xpaths}=                 _prepend_parent                                                                   ${xpaths}      ${parent}
-        ${xpath}=                  Catenate                                                                          SEPARATOR=|    @{xpaths}
-        Highlight Element          ${xpath}                                                                          ${TRUE}
+        ${xpaths}=    Create List
+        ...           //div[@name='${fieldname}']//input
+        ...           //div[@name='${fieldname}']//textarea
+        ...           //input[@id='${fieldname}' or @id='${fieldname}_0' or @name='${fieldname}']
+        ...           //textarea[@id='${fieldname}' or @id='${fieldname}_0' or @name='${fieldname}']
+
+        ${xpaths}=                 _prepend_parent    ${xpaths}      ${parent}  xpath_parent=${xpath_parent}
+        ${xpath}=                  Catenate           SEPARATOR=|    @{xpaths}
+        Highlight Element          ${xpath}           ${TRUE}
         Capture Page Screenshot
         Mouse Over                 xpath=${xpath}
-        _Write To Xpath            ${xpath}                                                                          ${value}       ignore_auto_complete=${ignore_auto_complete}
-        Highlight Element          ${xpath}                                                                          ${FALSE}
+        _Write To Xpath            ${xpath}           ${value}       ignore_auto_complete=${ignore_auto_complete}
+        Highlight Element          ${xpath}           ${FALSE}
     END
     IF    ${hastooltip}
         _removeTooltips

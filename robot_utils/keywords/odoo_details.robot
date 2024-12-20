@@ -12,45 +12,46 @@ Library     String                   # example Random String
 
 
 *** Keywords ***
-_prepend_parent    [Arguments]          ${path}                ${parent}
+_prepend_parent    [Arguments]    ${path}    ${parent}    ${xpath_parent}=""
+
     # Check if path is a list
-                   ${is_list}=          Is List                ${path}
-                   ${is_parent_set}=    Is Not Empty String    ${parent}
+    ${is_list}=          Is List                ${path}
+    ${is_parent_set}=    Is Not Empty String    ${parent}
 
     IF    ${is_list}
         ${new_path}=    Create List
         FOR    ${item}    IN    @{path}
             IF    ${is_parent_set}
-                ${item}=    Set Variable    ${parent}${item}
+                ${item}=    Set Variable    ${xpath_parent}${parent}${item}
             END
             Append To List    ${new_path}    ${item}
         END
         ${path}=    Set Variable    ${new_path}
     ELSE
         IF    ${is_parent_set}
-            ${path}=    Set Variable    ${parent}${path}
+            ${path}=    Set Variable    ${xpath_parent}${parent}${path}
         END
     END
     RETURN    ${path}
 
-_LocatorACE    [Arguments]    ${fieldname}    ${parent}
+_LocatorACE    [Arguments]    ${fieldname}    ${parent}  ${xpath_parent}=""
 
     ${result}=    Set Variable
     ...           xpath=//div[@name='${fieldname}' and contains(@class, 'o_field_ace')]//div[contains(@class, 'ace_editor')]
-    ${result}=    _prepend_parent                                                                                               ${result}    ${parent}
+    ${result}=    _prepend_parent                                                                                               ${result}    ${parent}  xpath_parent=${xpath_parent}
     RETURN        ${result}
 
-_LocatorSelect    [Arguments]    ${fieldname}    ${parent}
+_LocatorSelect    [Arguments]    ${fieldname}    ${parent}  ${xpath_parent}=""
 
     ${result}=    Set Variable
     ...           xpath=//div[@name='${fieldname}' and contains(@class, 'o_field_selection')]//select
-    ${result}=    _prepend_parent                                                                        ${result}    ${parent}
+    ${result}=    _prepend_parent                                                                        ${result}    ${parent}  xpath_parent=${xpath_parent}
     RETURN        ${result}
 
-_WriteSelect    [Arguments]    ${fieldname}    ${value}    ${parent}
+_WriteSelect    [Arguments]    ${fieldname}    ${value}    ${parent}  ${xpath_parent}=""
 
     Screenshot
-    ${locator}=                  _LocatorSelect                      ${fieldname}    ${parent}
+    ${locator}=                  _LocatorSelect                      ${fieldname}    ${parent}  xpath_parent=${xpath_parent}
     Log                          The select locator is ${locator}
     Select From List By Label    ${locator}                          ${value}
     Screenshot
@@ -86,7 +87,7 @@ _Write To Xpath    [Arguments]    ${xpath}    ${value}    ${ignore_auto_complete
     ${element}=                      Get WebElement           xpath=${xpath}
 
     Capture Page Screenshot
-    JS Scroll Into View  ${xpath}
+    JS Scroll Into View        ${xpath}
     IF    ${odoo_version} <= 15.0
         Set Focus To Element       xpath=${xpath}
         Capture Page Screenshot
@@ -203,7 +204,7 @@ ElementPostCheck
 
 Eval Validation User Error Dialog
     ${locator}=    Set Variable    //div[@role='dialog'][contains(@class, 'modal')][//*[contains(text(), 'Validation Error') or contains(text(), 'User Error')]]
-    ${visible}=    Is Visible      xpath=${locator}
+    ${visible}=    Is Visible    xpath=${locator}
 
     IF    ${visible}
         ${content}=    Get Text                    xpath=${locator}//*[contains(@class, 'modal-body')]
