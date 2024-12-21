@@ -19,6 +19,17 @@ logger = logging.getLogger()
 current_dir = Path(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))))
 
 
+def load_default_environment():
+    path = Path(".robot-vars")
+    if not path.exists():
+        return
+    data = json.loads(path.read_text())
+    for k,v in data.items():
+        if k not in os.environ:
+            os.environ[k] = v
+
+    # TODO lost test filename
+
 class Encoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, DotDict):

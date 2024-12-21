@@ -47,8 +47,10 @@ class BrowserDriver(object):
         options = getattr(selenium.webdriver, self.optionsClass)()
         if self.headless:
             options.add_argument("--headless")
+        BROWSER_WIDTH = BuiltIn().get_variable_value("${BROWSER_WIDTH}")
+        BROWSER_HEIGHT = BuiltIn().get_variable_value("${BROWSER_HEIGHT}")
         options.add_argument(
-            f"--window-size={os.environ['BROWSER_WIDTH']},{os.environ['BROWSER_HEIGHT']}"
+            f"--window-size={BROWSER_WIDTH},{BROWSER_HEIGHT}"
         )
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")

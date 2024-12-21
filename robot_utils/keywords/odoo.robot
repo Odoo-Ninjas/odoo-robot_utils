@@ -13,12 +13,14 @@ Resource    odoo_details.robot
 Resource    highlighting.robot
 Resource    browser.robot
 Library     String                   # example Random String
+Library     ../library/default_vars.py
 
 
 *** Keywords ***
 Login    [Arguments]    ${user}=${ODOO_USER}    ${password}=${ODOO_PASSWORD}    ${url}=${ODOO_URL}/web/login
-
-    Wait For Remote Debugger
+    Load Default Vars
+    ${randomstring}           Evaluate    str(uuid.uuid4())    modules=uuid
+    ${url}=         Set Variable    ${url}#${randomstring}
     ${browser_id}=                   Open New Browser                      ${url}
     # Run Keyword and Ignore error    Click element    //a[@href="/web/login"]
     Capture Page Screenshot
