@@ -2,9 +2,24 @@ import os
 import selenium
 from selenium.webdriver.remote.webdriver import WebDriver as RemoteDriver
 from selenium.webdriver import FirefoxOptions, ChromeOptions
+from selenium.webdriver.remote import webdriver
 import json
 from pathlib import Path
 from robot.libraries.BuiltIn import BuiltIn
+
+
+class RemoteDriver2(RemoteDriver):
+    def __init__(self, *args, do_start_session=False, desired_session_id=None, **kwargs):
+        self.do_start_session = do_start_session
+        self.desired_session_id = desired_session_id
+        super().__init__(*args, **kwargs)
+
+    def start_session(self, capabilities: dict) -> None:
+        if not self.do_start_session:
+            self.session_id = self.desired_session_id
+            return
+        super().start_session(capabilities)
+        
 
 
 def get_driver_for_browser(browser, download_path, headless):
@@ -14,9 +29,13 @@ def get_driver_for_browser(browser, download_path, headless):
     instance.register_driver(driver, alias="firefox")
     return driver
 
+
 class BrowserDriver(object):
     def __init__(self, browser, download_path, headless):
-        assert browser in ['chrome', 'firefox'], f"{browser} is not a supported browser."
+        assert browser in [
+            "chrome",
+            "firefox",
+        ], f"{browser} is not a supported browser."
         self.browser = browser
         self.download_path = str(Path(download_path).absolute())
         self.headless = headless
@@ -28,18 +47,29 @@ class BrowserDriver(object):
 
         options = self.create_options()
         sessionId = None
-        WEBDRIVER_HOST = os.environ["ROBO_WEBDRIVER_HOST"]  # path to geckodriver --host <ip> --port <port> example: 192.168.64.2:4444
+        WEBDRIVER_HOST = os.environ[
+            "ROBO_WEBDRIVER_HOST"
+        ]  # path to geckodriver --host <ip> --port <port> example: 192.168.64.2:4444
         session_file = Path("/tmp/geckosession")
         if session_file.exists():
             sessionId = session_file.read_text().strip()
 
         try:
-            options.sessionId = sessionId
-            driver = RemoteDriver(command_executor=f"http://{WEBDRIVER_HOST}", options=options, session = sessionId)
+            driver = RemoteDriver2(
+                command_executor=f"http://{WEBDRIVER_HOST}",
+                options=options,
+                desired_session_id=sessionId,
+                do_start_session=not sessionId
+            )
             if not driver.session_id:
                 raise selenium.common.exceptions.InvalidSessionIdException()
+            Path("/tmp/geckosession").write_text(driver.session_id)
         except selenium.common.exceptions.InvalidSessionIdException:
-            driver = RemoteDriver(command_executor=f"http://{WEBDRIVER_HOST}", options=options, start_session=True)
+            driver = RemoteDriver2(
+                command_executor=f"http://{WEBDRIVER_HOST}",
+                options=options,
+                do_start_session=True,
+            )
             Path("/tmp/geckosession").write_text(driver.session_id)
         return driver
 
@@ -49,9 +79,7 @@ class BrowserDriver(object):
             options.add_argument("--headless")
         BROWSER_WIDTH = BuiltIn().get_variable_value("${BROWSER_WIDTH}")
         BROWSER_HEIGHT = BuiltIn().get_variable_value("${BROWSER_HEIGHT}")
-        options.add_argument(
-            f"--window-size={BROWSER_WIDTH},{BROWSER_HEIGHT}"
-        )
+        options.add_argument(f"--window-size={BROWSER_WIDTH},{BROWSER_HEIGHT}")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--disable-popup-blocking")
@@ -79,23 +107,23 @@ class BrowserDriver(object):
         )
         options.set_preference("pdfjs.disabled", True)
         return options
+
+
 # def get_selenium_browser_log():
 #     instance = BuiltIn().get_library_instance("SeleniumLibrary")
 #     return instance.driver.get_log("browser")
 
 
-
-
-    # opts = FirefoxOptions()
-    # opts.add_argument("--headless")
-    # try:
-    #     browser = webdriver.Firefox(options=opts)
-    # except:
-    #     log = Path("geckodriver.log")
-    #     if log.exists():
-    #         raise Exception(log.read_text())
-    # else:
-    #     browser.close()
+# opts = FirefoxOptions()
+# opts.add_argument("--headless")
+# try:
+#     browser = webdriver.Firefox(options=opts)
+# except:
+#     log = Path("geckodriver.log")
+#     if log.exists():
+#         raise Exception(log.read_text())
+# else:
+#     browser.close()
 
 """
 
