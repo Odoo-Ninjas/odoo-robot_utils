@@ -177,7 +177,7 @@ Wait Blocking
     Repeat Keyword
     ...               10 times
     ...               Run Keyword And Ignore Error
-    ...               Wait Until Element Is Not Visible
+    ...               Wait Until Element Is Not Visible  timeout=100ms
     ...               xpath=${xpath}
 
     ${state}    ${result}=                           Run Keyword And Ignore Error

@@ -14,6 +14,8 @@ Last Browser
     RETURN        ${driver}
 
 Open New Browser    [Arguments]    ${url}
+    ${python_path}    Evaluate    sys.executable    modules=sys
+    Log    Python Executable: ${python_path}
 
     Set Selenium Speed         1.0
     Set Selenium Timeout       ${SELENIUM_TIMEOUT}

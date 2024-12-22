@@ -10,7 +10,7 @@ Highlight Element    [Arguments]    ${xpath}    ${toggle}
 
     ${toggle}=                  Eval                                                                  str(bool(t.lower()) if isinstance(t, str) else bool(t)).lower()    t=${toggle}
     ${content}=                 Get File
-    ...                         /opt/src/addons_robot/robot_utils/keywords/js/highlight_element.js
+    ...                         ${CUSTOMS_DIR}/addons_robot/robot_utils/keywords/js/highlight_element.js
     ${js}=                      Catenate                                                              SEPARATOR=\n
     ...                         const xpath = "${xpath}";
     ...                         const callback = arguments[arguments.length - 1];
@@ -22,7 +22,7 @@ Highlight Element    [Arguments]    ${xpath}    ${toggle}
 
 Add Cursor
 
-    ${content}=                 Get File                                             /opt/src/addons_robot/robot_utils/keywords/js/cursor.js
+    ${content}=                 Get File                                             ${CUSTOMS_DIR}/addons_robot/robot_utils/keywords/js/cursor.js
     ${js}=                      Catenate                                             SEPARATOR=\n
     ...                         const callback = arguments[arguments.length - 1];
     ...                         ${content};
@@ -31,7 +31,7 @@ Add Cursor
     Execute Async Javascript    ${js}
 
 Remove Cursor
-    ${content}=                 Get File                                             /opt/src/addons_robot/robot_utils/keywords/js/cursor.js
+    ${content}=                 Get File                                             ${CUSTOMS_DIR}/addons_robot/robot_utils/keywords/js/cursor.js
     ${js}=                      Catenate                                             SEPARATOR=\n
     ...                         const callback = arguments[arguments.length - 1];
     ...                         ${content};
@@ -44,7 +44,7 @@ ShowTooltipByXPath    [Arguments]    ${xpath}    ${tooltip}
 
     ${content}=
     ...                         Get File
-    ...                         /opt/src/addons_robot/robot_utils/keywords/js/highlight_element.js
+    ...                         ${CUSTOMS_DIR}/addons_robot/robot_utils/keywords/js/highlight_element.js
     ${js}=                      Catenate                                                              SEPARATOR=\n
     ...                         const xpath = "${xpath}";
     ...                         const tooltip = "${tooltip}";
@@ -58,7 +58,7 @@ RemoveTooltips    [Arguments]
 
     ${content}=
     ...                         Get File
-    ...                         /opt/src/addons_robot/robot_utils/keywords/js/highlight_element.js
+    ...                         ${CUSTOMS_DIR}/addons_robot/robot_utils/keywords/js/highlight_element.js
     ${js}=                      Catenate                                                              SEPARATOR=\n
     ...                         const callback = arguments[arguments.length - 1];
     ...                         ${content}
