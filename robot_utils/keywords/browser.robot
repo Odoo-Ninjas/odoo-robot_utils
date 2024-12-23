@@ -23,7 +23,8 @@ Open New Browser    [Arguments]    ${url}
     Log To Console             odoo-version: ${odoo_version}
     Log To Console             Using this browser engine: ${browser}
     ${BROWSER_HEADLESS}=       Eval                                                         True if str(b) in ["1", "True"] else False    b=${BROWSER_HEADLESS}
-    ${driver}=                 Get Driver For Browser                                       ${browser}                     ${CURDIR}${/}..${/}tests/download    ${BROWSER_HEADLESS}
+    ${driver}=                 Get Driver For Browser                                       ${CURDIR}${/}..${/}tests/download    ${BROWSER_HEADLESS}
+    ${x}  ${y}=  Get Window Position      
     Set Window Position        0                                                            0
     Set Window Size            ${BROWSER_WIDTH}                                             ${BROWSER_HEIGHT}
     Go To                      ${url}

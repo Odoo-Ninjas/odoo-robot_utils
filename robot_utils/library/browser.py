@@ -22,16 +22,17 @@ class RemoteDriver2(RemoteDriver):
         
 
 
-def get_driver_for_browser(browser, download_path, headless):
-    bd = BrowserDriver(browser, download_path, headless)
+def get_driver_for_browser(download_path, headless):
+    bd = BrowserDriver(download_path, headless)
     instance = BuiltIn().get_library_instance("SeleniumLibrary")
     driver = bd.get_webdriver()
-    instance.register_driver(driver, alias="firefox")
+    instance.register_driver(driver, alias="robodriver")
     return driver
 
 
 class BrowserDriver(object):
-    def __init__(self, browser, download_path, headless):
+    def __init__(self, download_path, headless):
+        browser = os.environ['ROBO_WEBDRIVER_BROWSER']
         assert browser in [
             "chrome",
             "firefox",
@@ -64,6 +65,8 @@ class BrowserDriver(object):
             if not driver.session_id:
                 raise selenium.common.exceptions.InvalidSessionIdException()
             Path("/tmp/geckosession").write_text(driver.session_id)
+            # make simple to call to challence invalid sessionid exception
+            driver.get_cookie("testcookie")
         except selenium.common.exceptions.InvalidSessionIdException:
             driver = RemoteDriver2(
                 command_executor=f"http://{WEBDRIVER_HOST}",
@@ -107,55 +110,3 @@ class BrowserDriver(object):
         )
         options.set_preference("pdfjs.disabled", True)
         return options
-
-
-# def get_selenium_browser_log():
-#     instance = BuiltIn().get_library_instance("SeleniumLibrary")
-#     return instance.driver.get_log("browser")
-
-
-# opts = FirefoxOptions()
-# opts.add_argument("--headless")
-# try:
-#     browser = webdriver.Firefox(options=opts)
-# except:
-#     log = Path("geckodriver.log")
-#     if log.exists():
-#         raise Exception(log.read_text())
-# else:
-#     browser.close()
-
-"""
-
-
-    def create_options(self):
-        options = getattr(webdriver, self.optionsClass)()
-        if self.headless:
-            options.add_argument("--headless")
-        options.add_argument(
-            f"--window-size={os.environ['BROWSER_WIDTH']},{os.environ['BROWSER_HEIGHT']}"
-        )
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("--disable-popup-blocking")
-        return getattr(self, self.optionsMethod)(options)
-
-    def _enable_download_in_headless_chrome(self, driver):
-        There is currently a "feature" in chrome where
-        headless does not allow file download:
-        https://bugs.chromium.org/p/chromium/issues/detail?id=696481
-        This method is a hacky work-around until the official chromedriver
-        support for this.
-        Requires chrome version 62.0.3196.0 or above.
-
-        driver.command_executor._commands["send_command"] = (
-            "POST",
-            "/session/$sessionId/chromium/send_command",
-        )
-        params = {
-            "cmd": "Page.setDownloadBehavior",
-            "params": {"behavior": "allow", "downloadPath": self.path},
-        }
-        driver.execute("send_command", params)
-
-"""
