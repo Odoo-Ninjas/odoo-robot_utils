@@ -22,9 +22,9 @@ _prepend_parent    [Arguments]    ${path}    ${parent}    ${xpath_parent}=""
         ${new_path}=    Create List
         FOR    ${item}    IN    @{path}
             IF    ${is_parent_set}
-                ${item}=    Set Variable    ${xpath_parent}${parent}${item}
+                ${item}=    Set Variable    ${parent}${item}
             END
-            Append To List    ${new_path}    ${item}
+            Append To List    ${new_path}    ${xpath_parent}${item}
         END
         ${path}=    Set Variable    ${new_path}
     ELSE
@@ -37,14 +37,14 @@ _prepend_parent    [Arguments]    ${path}    ${parent}    ${xpath_parent}=""
 _LocatorACE    [Arguments]    ${fieldname}    ${parent}  ${xpath_parent}=""
 
     ${result}=    Set Variable
-    ...           xpath=//div[@name='${fieldname}' and contains(@class, 'o_field_ace')]//div[contains(@class, 'ace_editor')]
+    ...           //div[@name='${fieldname}' and contains(@class, 'o_field_ace')]//div[contains(@class, 'ace_editor')]
     ${result}=    _prepend_parent                                                                                               ${result}    ${parent}  xpath_parent=${xpath_parent}
     RETURN        ${result}
 
 _LocatorSelect    [Arguments]    ${fieldname}    ${parent}  ${xpath_parent}=""
 
     ${result}=    Set Variable
-    ...           xpath=//div[@name='${fieldname}' and contains(@class, 'o_field_selection')]//select
+    ...           //div[@name='${fieldname}' and contains(@class, 'o_field_selection')]//select
     ${result}=    _prepend_parent                                                                        ${result}    ${parent}  xpath_parent=${xpath_parent}
     RETURN        ${result}
 

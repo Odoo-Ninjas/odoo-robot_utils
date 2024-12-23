@@ -119,9 +119,11 @@ ApplicationMainMenuOverview
 Close Error Dialog And Log
     ${visible_js_error_dialog}=    Is Visible    xpath=//div[contains(@class, 'o_dialog_error')]
     IF    ${visible_js_error_dialog}
-        ${errordetails}=    Get Element Attribute    xpath=//div[contains(@class, 'o_error_detail')]@innerHTML
+    	# before it was @innerHTML
+        ${errordetails}=    Get Element Attribute    xpath=//div[contains(@class, 'o_error_detail')]  innerHTML
     END
-    IF    ${visible_js_error_dialog}    Log To Console    ${errordetails}
+    IF    ${visible_js_error_dialog}    
+        Log To Console    ${errordetails}
         IF    ${visible_js_error_dialog}
             Click Element
             ...              xpath=//div[contains(@class, 'o_dialog_error')]//footer/button[contains(@class, 'btn-primary')]
@@ -137,7 +139,7 @@ WriteInField    [Arguments]    ${fieldname}    ${value}    ${ignore_auto_complet
     IF    '${parent}' != '${NONE}'
         ${parent}=    Catenate    SEPARATOR=|    //div[@name='${parent}' or @id='${parent}']
     END
-    Log2    WriteInField ${fieldname}=${value} ignore_auto_complete=${ignore_auto_complete} with parent=${parent}
+    Log2    WriteInField ${fieldname}=${value} ignore_auto_complete=${ignore_auto_complete} with parent=${parent} and xpath_parent=${xpath_parent}
     ${locator_ACE}=    _LocatorACE    ${fieldname}    ${parent}  xpath_parent=${xpath_parent}
 
     ${locator_select}=    _LocatorSelect    ${fieldname}    ${parent}  xpath_parent=${xpath_parent}

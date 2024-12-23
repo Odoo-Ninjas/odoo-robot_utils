@@ -21,7 +21,6 @@ Open New Browser    [Arguments]    ${url}
     Set Selenium Timeout       ${SELENIUM_TIMEOUT}
     Log To Console             ${url}
     Log To Console             odoo-version: ${odoo_version}
-    Log To Console             Using this browser engine: ${browser}
     ${BROWSER_HEADLESS}=       Eval                                                         True if str(b) in ["1", "True"] else False    b=${BROWSER_HEADLESS}
     ${driver}=                 Get Driver For Browser                                       ${CURDIR}${/}..${/}tests/download    ${BROWSER_HEADLESS}
     ${x}  ${y}=  Get Window Position      
