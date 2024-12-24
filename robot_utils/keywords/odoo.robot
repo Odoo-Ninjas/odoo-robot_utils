@@ -22,6 +22,10 @@ Login    [Arguments]    ${user}=${ODOO_USER}    ${password}=${ODOO_PASSWORD}    
     ${randomstring}           Evaluate    str(uuid.uuid4())    modules=uuid
     ${url}=         Set Variable    ${url}#${randomstring}
     ${browser_id}=                   Open New Browser                      ${url}
+    ${snippetmode}=                  Get Variable Value                     ${SNIPPET_MODE}    ${FALSE}
+    IF  ${snippetmode}
+        RETURN  ${browser_id}
+    END
     # Run Keyword and Ignore error    Click element    //a[@href="/web/login"]
     Capture Page Screenshot
     Wait Until Element is Visible    name=login

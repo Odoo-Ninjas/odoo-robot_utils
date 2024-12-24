@@ -26,6 +26,9 @@ Open New Browser    [Arguments]    ${url}
     ${x}  ${y}=  Get Window Position      
     Set Window Position        0                                                            0
     Set Window Size            ${BROWSER_WIDTH}                                             ${BROWSER_HEIGHT}
-    Go To                      ${url}
+    ${snippet}=  Get Variable Value         ${SNIPPET_MODE}  ${FALSE}
+    IF  not ${snippet}
+        Go To                      ${url}
+    END
     Capture Page Screenshot
     RETURN                     ${driver}
