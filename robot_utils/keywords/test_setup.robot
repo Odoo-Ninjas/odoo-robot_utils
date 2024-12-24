@@ -20,7 +20,7 @@ Setup Test Basic
     END
 
 Toggle Module Installation  [Arguments]  ${modules}  ${install_state}
-    ${method}=  Eval  'install' if v else 'uninstall'  v= ${install_state}
+    ${method}=  Eval  'update' if v else 'uninstall'  v=${install_state}
 
     FOR  ${module}  IN  @{modules}
         ${state}=  Odoo Search Read Records    ir.module.module  [['name', '=', '${module}']]  state
@@ -28,12 +28,13 @@ Toggle Module Installation  [Arguments]  ${modules}  ${install_state}
         IF  ${state}
             ${state}=  Set Variable  ${state}[0]
         ELSE
-            ${state}=  Set Variable  {'state': 'uninstalled'}
+            ${state}=  Create Dictionary  state=uninstalled
         END
         ${state}=  Get From Dictionary  ${state}  state
         ${installed}=  Eval  '${state}' \=\= 'installed'  state=${state}
 
         IF  ${installed} and not ${install_state} or not ${installed} and ${install_state}
+            Log To Console  ${method}ing ${module}
             Odoo Command  ${method} ${module}
         END
         
