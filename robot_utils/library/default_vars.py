@@ -30,6 +30,14 @@ def load_default_vars():
             "Or run at least one time 'odoo set-password'."
         )
 
+def _prepare_test_token(varsfile):
+    content = json.loads(varsfile.read_text())
+    content.setdefault("TOKEN", 1)
+    content['TOKEN'] = int(content['TOKEN']) + 1
+    varsfile.write_text(json.dumps(content, indent=2))
+    TOKEN = "#" + str(content['TOKEN']).zfill(3)
+    BuiltIn().set_global_variable(_make_robot_key("TOKEN"), TOKEN)
+
 def _make_robot_key(k):
     return f"${{{k}}}"
 
@@ -71,6 +79,7 @@ def _load_robot_vars():
         if not path.exists():
             continue
         vars = json.loads(path.read_text())
+        _prepare_test_token(path)
         for k, v in vars.items():
             robotkey = _make_robot_key(k)
             BuiltIn().set_global_variable(robotkey, v)

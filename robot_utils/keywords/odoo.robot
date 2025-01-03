@@ -37,7 +37,9 @@ Login    [Arguments]    ${user}=${ODOO_USER}    ${password}=${ODOO_PASSWORD}    
     Click Button    xpath=//div[contains(@class, 'oe_login_buttons')]//button[@type='submit']
     Log To Console                   Clicked login button - waiting
     Capture Page Screenshot
-    IF    ${odoo_version} < 14.0
+    IF    ${odoo_version} <= 11.0
+        Wait Until Page Contains Element    xpath=//body[contains(@class, 'o_web_client')]
+    ELSE IF    ${odoo_version} < 14.0
         Wait Until Page Contains Element    xpath=//nav[contains(@id, 'oe_main_menu_navbar')]
     ELSE
         Wait Until Page Contains Element    xpath=//nav[contains(@class, 'o_main_navbar')]
