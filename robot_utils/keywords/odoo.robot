@@ -244,7 +244,11 @@ Wait To Click    [Arguments]    ${xpath}    ${tooltip}=${NONE}
     Capture Page Screenshot
     ${hastooltip}=                      Eval              bool(h)    h=${tooltip}
 
-    Mouse Over    xpath=${xpath}
+    ${status_mouse_over}=  Run Keyword And Return Status  Mouse Over    xpath=${xpath}
+    IF  '${status_mouse_over}' == 'FAIL'
+        JS Scroll Into View    ${xpath}
+        ${status_mouse_over}=  Run Keyword And Return Status  Mouse Over    xpath=${xpath}
+    END
     IF    ${hastooltip}
         _showTooltipByXPath    xpath=${xpath}    tooltip=${tooltip}
     END
