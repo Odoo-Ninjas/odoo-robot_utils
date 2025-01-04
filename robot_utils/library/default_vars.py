@@ -36,7 +36,10 @@ def _prepare_test_token(varsfile):
     content['TOKEN'] = int(content['TOKEN']) + 1
     varsfile.write_text(json.dumps(content, indent=2))
     TOKEN = "#" + str(content['TOKEN']).zfill(3)
-    BuiltIn().set_global_variable(_make_robot_key("TOKEN"), TOKEN)
+    b = BuiltIn()
+    b.set_global_variable(_make_robot_key("TOKEN"), TOKEN)
+    test = b.get_variable_value(_make_robot_key("TOKEN"))
+    assert TOKEN == test
 
 def _make_robot_key(k):
     return f"${{{k}}}"
@@ -81,6 +84,8 @@ def _load_robot_vars():
         vars = json.loads(path.read_text())
         _prepare_test_token(path)
         for k, v in vars.items():
+            if k == "TOKEN":
+                continue
             robotkey = _make_robot_key(k)
             BuiltIn().set_global_variable(robotkey, v)
         break
