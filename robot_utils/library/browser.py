@@ -22,10 +22,10 @@ class RemoteDriver2(RemoteDriver):
         
 
 
-def get_driver_for_browser(download_path, headless):
+def get_driver_for_browser(download_path, headless, try_reuse_session=True):
     bd = BrowserDriver(download_path, headless)
     instance = BuiltIn().get_library_instance("SeleniumLibrary")
-    driver = bd.get_webdriver()
+    driver = bd.get_webdriver(try_reuse_session=try_reuse_session)
     instance.register_driver(driver, alias="robodriver")
     return driver
 
@@ -44,7 +44,7 @@ class BrowserDriver(object):
         self.optionsClass = f"{browser.capitalize()}Options"
         self.optionsMethod = f"_add_options_for_{browser}"
 
-    def get_webdriver(self):
+    def get_webdriver(self, try_reuse_session=True):
 
         options = self.create_options()
         sessionId = None
@@ -52,7 +52,7 @@ class BrowserDriver(object):
             "ROBO_WEBDRIVER_HOST"
         ]  # path to geckodriver --host <ip> --port <port> example: 192.168.64.2:4444
         session_file = Path("/tmp/seleniumsession")
-        if session_file.exists():
+        if session_file.exists() and try_reuse_session:
             sessionId = session_file.read_text().strip()
 
         try:

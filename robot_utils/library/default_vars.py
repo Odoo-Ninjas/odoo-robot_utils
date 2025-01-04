@@ -8,6 +8,7 @@ defaults = {
     "BROWSER_WIDTH": "1024",
     "BROWSER_HEIGHT": "768",
     "SELENIUM_TIMEOUT": 10,
+    "SELENIUM_SPEED": 1.0,
     "browser": "firefox",
     "BROWSER_HEADLESS": "0",
 }

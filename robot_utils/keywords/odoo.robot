@@ -86,6 +86,11 @@ MainMenu    [Arguments]       ${menu}
             Log    not needed - top menue on top
         ELSE IF    ${odoo_version} == 14.0
             Wait Until Element is visible    xpath=//nav[contains(@class, "o_main_navbar")]
+        ELSE IF    ${odoo_version} == 17.0
+            ${homemenu}=  Run Keyword And Return Status  Get WebElement  css=div.o_home_menu
+            IF  not ${homemenu}
+                Wait To Click  xpath=//nav/a[contains(@class, 'o_menu_toggle')]
+            END
         ELSE
             Wait Until Element is visible    xpath=//div[contains(@class, "o_navbar_apps_menu")]
             Wait To Click                    xpath=//div[contains(@class, "o_navbar_apps_menu")]/button

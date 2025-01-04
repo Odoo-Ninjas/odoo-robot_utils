@@ -1,5 +1,5 @@
 *** Settings ***
-Documentation    {name}
+Documentation    Todo.........
 Resource         ../addons_robot/robot_utils/keywords/odoo.robot
 Resource         ../addons_robot/robot_utils/keywords/tools.robot
 Resource         ../addons_robot/robot_utils/keywords/wodoo.robot
@@ -7,7 +7,7 @@ Test Setup       Setup Test
 
 
 *** Variables ***
-${SNIPPET_MODE}    ${{FALSE}}  # if true, then login does not happen and your test continues in opened browser
+${SNIPPET_MODE}    ${FALSE}  # if true, then login does not happen and your test continues in opened browser
                                  # useful to fine tune some keyword
 @{INSTALL_MODULES}  robot_utils  zbsync
 @{UNINSTALL_MODULES}  partner_autocomplete
@@ -27,3 +27,7 @@ Buy Something and change amount
     Screenshot
     Odoo Button       name=button_confirm
 
+*** Keywords ***
+Setup Test
+    Setup Test Basic
+    Login
