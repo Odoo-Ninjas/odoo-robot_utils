@@ -169,7 +169,7 @@ Wait Blocking
     ...          )
 
     Repeat Keyword
-    ...               10 times
+    ...               2 times
     ...               Run Keyword And Ignore Error
     ...               Wait Until Element Is Not Visible  xpath=${xpath}  timeout=100ms
 
