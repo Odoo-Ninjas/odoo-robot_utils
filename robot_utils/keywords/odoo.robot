@@ -245,12 +245,9 @@ Wait To Click    [Arguments]    ${xpath}    ${tooltip}=${NONE}
     Add Cursor
     Log To Console    Wait To Click ${xpath}
 
-    Capture Page Screenshot
     Wait Until Page Contains Element    xpath=${xpath}
     Wait Blocking
-    Capture Page Screenshot
     Log    Could not identify element ${xpath} - so trying by pure javascript to click it.
-    Capture Page Screenshot
     ${hastooltip}=    Eval    bool(h)    h=${tooltip}
 
     ${status_mouse_over}=    Run Keyword And Return Status    Mouse Over    xpath=${xpath}
@@ -262,12 +259,10 @@ Wait To Click    [Arguments]    ${xpath}    ${tooltip}=${NONE}
         _showTooltipByXPath    xpath=${xpath}    tooltip=${tooltip}
     END
     JS On Element    ${xpath}    element.click()    maxcount=1
-    Capture Page Screenshot
     IF    ${hastooltip}    _removeTooltips
 
-    Sleep    30ms    # Give chance to become disabled
+    Sleep    10ms    # Give chance to become disabled
     _Wait Until Element Is Not Disabled    xpath=${xpath}
-    Capture Page Screenshot
     Element Post Check
     Capture Page Screenshot
     Remove Cursor

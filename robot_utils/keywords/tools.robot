@@ -146,7 +146,8 @@ Assert    [Arguments]    ${expr}    ${msg}=Assertion failed
     tools.My_Assert    ${expr}    ${msg}
 
 Screenshot
-    Capture Page Screenshot
+    Log To Console  no screenshots
+    # Capture Page Screenshot
 
 Set Element Attribute
     # UNTESTED
