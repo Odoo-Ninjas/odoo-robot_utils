@@ -7,7 +7,7 @@ Test Setup       Setup Test
 
 
 *** Variables ***
-${SNIPPET_MODE}    ${FALSE}  # if true, then login does not happen and your test continues in opened browser
+${SNIPPET_MODE}    ${{ 0 }}  # if true, then login does not happen and your test continues in opened browser
                                  # useful to fine tune some keyword
 @{INSTALL_MODULES}  robot_utils  zbsync
 @{UNINSTALL_MODULES}  partner_autocomplete

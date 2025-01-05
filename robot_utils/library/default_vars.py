@@ -32,12 +32,15 @@ def load_default_vars():
         )
 
 def _prepare_test_token(varsfile):
+    b = BuiltIn()
+    is_snippet_mode = b.get_variable_value("${SNIPPET_MODE}")
     content = json.loads(varsfile.read_text())
     content.setdefault("TOKEN", 1)
-    content['TOKEN'] = int(content['TOKEN']) + 1
+    content['TOKEN'] = int(content['TOKEN'])
+    if not is_snippet_mode:
+        content['TOKEN'] += 1
     varsfile.write_text(json.dumps(content, indent=2))
     TOKEN = "#" + str(content['TOKEN']).zfill(3)
-    b = BuiltIn()
     b.set_global_variable(_make_robot_key("TOKEN"), TOKEN)
     test = b.get_variable_value(_make_robot_key("TOKEN"))
     assert TOKEN == test
