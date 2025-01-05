@@ -5,10 +5,10 @@ from pathlib import Path
 from robot.libraries.BuiltIn import BuiltIn
 
 defaults = {
-    "BROWSER_WIDTH": "1024",
-    "BROWSER_HEIGHT": "768",
+    "BROWSER_WIDTH": "1600",
+    "BROWSER_HEIGHT": "900",
     "SELENIUM_TIMEOUT": 10,
-    "SELENIUM_SPEED": 1.0,
+    "SELENIUM_SPEED": 0.0,
     "browser": "firefox",
     "BROWSER_HEADLESS": "0",
 }
