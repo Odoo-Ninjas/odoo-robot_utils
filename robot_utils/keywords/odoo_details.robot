@@ -175,9 +175,6 @@ Wait Blocking
     ...    Wait Until Element Is Not Visible
     ...    xpath=${xpath}
 
-    IF    '${state}' == 'FAIL'
-        Log To Console    Blocker/loading still visible after 10 checks
-    END
     ${state}    ${result}=    Run Keyword And Ignore Error
     ...    Wait Until Element Is Not Visible
     ...    xpath=//body[contains(@class, 'o_ewait')]
