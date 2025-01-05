@@ -151,13 +151,16 @@ WriteInField    [Arguments]
 
     # Check if it is ACE:
     # <div name="field1" class="o_field_widget o_field_ace"
+    ${start}=    Get Current Time MS
 
-    Wait Blocking
-    Screenshot
     ${parent_set}=    Eval    bool(v)    v=${parent}
     IF    ${parent_set}
         ${parent}=    Catenate    SEPARATOR=|    //div[@name='${parent}' or @id='${parent}']
     END
+
+    ${elapsed}=  Get Elapsed Time Ms  ${start}
+    Log To Console    Elapsed time WriteInField at Pos A: ${elapsed}ms
+
     Log2
     ...    WriteInField ${fieldname}=${value} ignore_auto_complete=${ignore_auto_complete} with parent=${parent} and xpath_parent=${xpath_parent}
     ${locator_ACE}=    _LocatorACE    ${fieldname}    ${parent}    xpath_parent=${xpath_parent}
@@ -166,10 +169,18 @@ WriteInField    [Arguments]
 
     ${status_is_ace}    ${testel}=    Run Keyword And Ignore Error
     ...    Get WebElement    ${locator_ACE}
+    ${elapsed}=  Get Elapsed Time Ms  ${start}
+    Log To Console    Elapsed time WriteInField at Pos A1: ${elapsed}ms
+
     ${status_is_select}    ${testel}=    Run Keyword And Ignore Error
     ...    Get WebElement    ${locator_select}
+    ${elapsed}=  Get Elapsed Time Ms  ${start}
+    Log To Console    Elapsed time WriteInField at Pos A2: ${elapsed}ms
+
 
     ${hastooltip}=    Eval    bool(h)    h=${tooltip}
+    ${elapsed}=  Get Elapsed Time Ms  ${start}
+    Log To Console    Elapsed time WriteInField at Pos B: ${elapsed}ms
 
     IF    '${status_is_ace}' != 'FAIL'
         ElementPreCheck    ${locator_ACE}
@@ -178,6 +189,9 @@ WriteInField    [Arguments]
         ElementPreCheck    ${locator_select}
         _WriteSelect    ${fieldname}    ${value}    ${parent}    xpath_parent=${xpath_parent}    tooltip=${tooltip}
     ELSE
+        ${elapsed}=  Get Elapsed Time Ms  ${start}
+        Log To Console    Elapsed time WriteInField at Pos B1: ${elapsed}ms
+
         ${xpaths}=    Create List
         ...    //div[@name='${fieldname}']//input
         ...    //div[@name='${fieldname}']//textarea
@@ -186,15 +200,21 @@ WriteInField    [Arguments]
 
         ${xpaths}=    _prepend_parent    ${xpaths}    ${parent}    xpath_parent=${xpath_parent}
         ${xpath}=    Catenate    SEPARATOR=|    @{xpaths}
+
+        ${elapsed}=  Get Elapsed Time Ms  ${start}
+        Log To Console    Elapsed time WriteInField at Pos B3: ${elapsed}ms
+
         Highlight Element    ${xpath}    ${TRUE}
-        Capture Page Screenshot
         Mouse Over    xpath=${xpath}
+        Capture Page Screenshot
         _Write To Xpath    ${xpath}    ${value}    ignore_auto_complete=${ignore_auto_complete}
         Highlight Element    ${xpath}    ${FALSE}
     END
     IF    ${hastooltip}    _removeTooltips
     Log To Console    Done: WriteInField ${fieldname}=${value}
     Screenshot
+    ${elapsed}=    Get Elapsed Time MS  ${start}
+    Log To Console    Elapsed time WriteInField: ${elapsed}ms
 
 Breadcrumb Back
     Log To Console    Click breadcrumb - last item
