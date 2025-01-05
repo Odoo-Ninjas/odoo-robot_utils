@@ -226,5 +226,8 @@ class tools(object):
     def Get_File_Name(self, path):
         return Path(path).name
 
-    # def Copy_File(self, src, dest):
-    #     Path(src).copy(dest)
+    def get_current_time_ms(self):
+        return time.time() * 1000
+
+    def get_elapsed_time_ms(self, start_time):
+        return (time.time() * 1000) - start_time
