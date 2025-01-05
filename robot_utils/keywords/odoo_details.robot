@@ -150,7 +150,7 @@ _Write To XPath AutoComplete
     Wait Blocking
 
 Wait Blocking
-    Log To Console    Wait Blocking
+    ${start}=  tools.Get Current Time Ms
     # TODO something not ok here - if --timeout is 30 then this function
     # executes 20 times slower then with robot --timeout 10
 
@@ -164,20 +164,29 @@ Wait Blocking
     ...    //div[contains(@class, 'o_blockUI')]
     ...    )
 
-    Repeat Keyword
-    ...    2 times
-    ...    Run Keyword And Ignore Error
-    ...    Wait Until Element Is Not Visible    xpath=${xpath}    timeout=10ms
+    # Repeat Keyword
+    # ...    2 times
+    # ...    Run Keyword And Ignore Error
+    # ...    Wait Until Element Is Not Visible    xpath=${xpath}    timeout=10ms
+
+    # ${state}    ${result}=    Run Keyword And Ignore Error
+    # ...    Wait Until Element Is Visible
+    # ...    xpath=${xpath}  timeout=10ms
 
     ${state}    ${result}=    Run Keyword And Ignore Error
     ...    Wait Until Element Is Not Visible
-    ...    xpath=${xpath}
+    ...    xpath=${xpath}  timeout=10ms
 
-    ${state}    ${result}=    Run Keyword And Ignore Error
-    ...    Wait Until Element Is Not Visible
-    ...    xpath=//body[contains(@class, 'o_ewait')]
-    IF    '${state}' == 'FAIL'    Log To Console    o_ewait still visible
-    Log To Console    Wait Blocking Done
+    # TODO dont know when introduced
+    IF    ${odoo_version} < 17.0
+        ${state}    ${result}=    Run Keyword And Ignore Error
+        ...    Wait Until Element Is Not Visible
+        ...    xpath=//body[contains(@class, 'o_ewait')]  timeout=10ms
+        IF    '${state}' == 'FAIL'    Log To Console    o_ewait still visible
+    END
+    ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
+    Log To Console    Wait Blocking Done in ${elapsed}ms
+
 
 ElementPostCheck
     Wait Blocking
