@@ -258,7 +258,7 @@ Wait To Click    [Arguments]    ${xpath}    ${tooltip}=${NONE}
     IF    ${hastooltip}
         _showTooltipByXPath    xpath=${xpath}    tooltip=${tooltip}
     END
-    JS On Element    ${xpath}    element.click()    maxcount=1
+    JS On Element    ${xpath}    jscode=element.click()    maxcount=1
     IF    ${hastooltip}    _removeTooltips
 
     Sleep    10ms    # Give chance to become disabled

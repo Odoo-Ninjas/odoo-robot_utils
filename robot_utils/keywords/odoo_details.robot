@@ -126,11 +126,9 @@ _Write To Xpath    [Arguments]    ${xpath}    ${value}    ${ignore_auto_complete
         _blur_active_element
     END
 
-    Capture Page Screenshot
-
     ElementPostCheck
 
-_blur_active_element    ${js}=    Catenate    SEPARATOR=;
+_blur_active_element    ${js}=    Catenate    SEPARATOR=\n
     ...    const callback = arguments[arguments.length-1]
     ...    document.activeElement ? document.activeElement.blur() : null
     ...    callback()
@@ -183,7 +181,6 @@ Wait Blocking
 
 ElementPostCheck
     Wait Blocking
-    Screenshot
     Eval JS Error Dialog
     Eval Validation User Error Dialog
 

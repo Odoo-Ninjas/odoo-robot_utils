@@ -195,8 +195,6 @@ Is Visible    [Arguments]    ${xpath}
 
 JS Scroll Into View    [Arguments]    ${xpath}
 
-    Run Keyword And Ignore Error    Wait Until Element Is Visible    xpath=${xpath}
-    Run Keyword And Ignore Error    JS On Element    xpath=${xpath}    element.scrollIntoView(true);
+    Run Keyword And Ignore Error    Wait Until Element Is Visible    xpath=${xpath}  timeout=200ms
+    Run Keyword And Ignore Error    JS On Element    ${xpath}    jscode=element.scrollIntoView(true);
     Run Keyword And Ignore Error    Scroll Element Into View    xpath=${xpath}
-    Sleep    1s
-    Capture Page Screenshot
