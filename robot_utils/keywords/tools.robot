@@ -103,7 +103,7 @@ Get Instance ID From Url    [Arguments]    ${expected_model}
         ${is_model}=    Extract Param From Url    model
         IF    '${is_model}' == '${expected_model}'    BREAK
         Sleep    1s
-        ${counter}=  Evaluate  ${counter} + 1
+        ${counter}=    Evaluate    ${counter} + 1
     END
     IF    '${is_model}' != '${expected_model}'
         FAIL    Expected model ${expected_model} but got ${is_model}
@@ -120,7 +120,7 @@ Get Instance ID From Url    [Arguments]    ${expected_model}
             ...    Sometimes the id is not in the url, seems so some reloading happens. So wait a little bit and give a chance
             Sleep    1s
         END
-        ${counter}=  Evaluate  ${counter} + 1
+        ${counter}=    Evaluate    ${counter} + 1
     END
     RETURN    ${id}
 
@@ -146,7 +146,7 @@ Assert    [Arguments]    ${expr}    ${msg}=Assertion failed
     tools.My_Assert    ${expr}    ${msg}
 
 Screenshot
-    Log To Console  no screenshots
+    Log To Console    no screenshots
     # Capture Page Screenshot
 
 Set Element Attribute
@@ -164,14 +164,14 @@ JS On Element    [Arguments]    ${css}    ${jscode}    ${maxcount}=0
     ...    const result = document.querySelectorAll(css);
     ...    let funcresult = true;
     ...    if (${maxcount} && ${maxcount} > result.length) {
-    ...      callback("maxcount");
+    ...    callback("maxcount");
     ...    }
     ...    else {
-    ...      for (const element of result) {
-    ...        funcresult = 'ok';
-    ...        ${jscode};
-    ...      }
-    ...      callback(funcresult);
+    ...    for (const element of result) {
+    ...    funcresult = 'ok';
+    ...    ${jscode};
+    ...    }
+    ...    callback(funcresult);
     ...    }
 
     ${res}=    Execute Async Javascript    ${js}
@@ -194,6 +194,19 @@ Is Visible    [Arguments]    ${css}
 
 JS Scroll Into View    [Arguments]    ${css}
 
-    #Run Keyword And Ignore Error    Wait Until Element Is Visible    css=${css}  timeout=20ms
+    # Run Keyword And Ignore Error    Wait Until Element Is Visible    css=${css}    timeout=20ms
     Run Keyword And Ignore Error    JS On Element    ${css}    element.scrollIntoView(true);
-    #Run Keyword And Ignore Error    Scroll Element Into View    css=${css}
+    # Run Keyword And Ignore Error    Scroll Element Into View    css=${css}
+
+Get JS    [Arguments]    ${name}    ${prepend_js}=${NONE}
+    [Documentation] 
+    ...  ${js}=  Get JS  element_precheck.js
+    ...  mode="${mode}"
+
+    ${libdir}=    library Directory
+    ${result}=    Get File    ${libdir}/../keywords/js/${name}
+
+    ${result}=    Catenate    SEPARATOR=\n
+    ...    ${prepend_js}
+    ...    ${result}
+    RETURN    ${result}
