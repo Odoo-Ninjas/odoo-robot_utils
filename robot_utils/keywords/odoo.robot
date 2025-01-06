@@ -234,7 +234,6 @@ Write    [Arguments]
 
         _Write To Element    ${element}    ${value}    ignore_auto_complete=${ignore_auto_complete}
 
-        ElementPostCheck
 
         ${elapsed}=  Get Elapsed Time Ms  ${start}
         Log To Console    Elapsed time WriteInField at Pos B3.4: ${elapsed}ms
@@ -244,6 +243,7 @@ Write    [Arguments]
 
         Set Element Attribute  ${css}  id  ${oldid}
         ${css}=  Set Variable  ${oldcss}
+        ElementPostCheck
     END
     IF    ${hastooltip}    
         _removeTooltips
