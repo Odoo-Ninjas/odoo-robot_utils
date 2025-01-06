@@ -217,13 +217,16 @@ Write    [Arguments]
         Highlight Element    ${css}    ${TRUE}
         ${elapsed}=  Get Elapsed Time Ms  ${start}
         Log To Console    Elapsed time WriteInField at Pos B3.1: ${elapsed}ms
-        JS Scroll Into View    ${css}
+        IF  not ${ROBO_NO_UI_HIGHLIGHTING}
+            JS Scroll Into View    ${css}
+        END
         ${elapsed}=  Get Elapsed Time Ms  ${start}
         Log To Console    Elapsed time WriteInField at Pos B3.1.1: ${elapsed}ms
-        Mouse Over  ${testwebel}
+        IF  not ${ROBO_NO_UI_HIGHLIGHTING}
+            Mouse Over  ${testwebel}
+        END
         ${elapsed}=  Get Elapsed Time Ms  ${start}
         Log To Console    Elapsed time WriteInField at Pos B3.2: ${elapsed}ms
-        Capture Page Screenshot
         ${elapsed}=  Get Elapsed Time Ms  ${start}
         Log To Console    Elapsed time WriteInField at Pos B3.3: ${elapsed}ms
         _Write To Element    ${element}    ${value}    ignore_auto_complete=${ignore_auto_complete}
@@ -236,7 +239,9 @@ Write    [Arguments]
         Set Element Attribute  ${css}  id  ${oldid}
         ${css}=  Set Variable  ${oldcss}
     END
-    IF    ${hastooltip}    _removeTooltips
+    IF    ${hastooltip}    
+        _removeTooltips
+    END
     Log To Console    Done: WriteInField ${fieldname}=${value}
     Screenshot
     ${elapsed}=    Get Elapsed Time MS  ${start}

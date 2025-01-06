@@ -84,10 +84,6 @@ _Write To Element    [Arguments]    ${element}    ${value}    ${ignore_auto_comp
     ElementPreCheck    css=${css}
 
     ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
-    Log To Console    _Write To Element B ${elapsed}ms
-
-    Wait Until Element Is Visible    css=${css}    timeout=20ms
-    ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
     Log To Console    _Write To Element C ${elapsed}ms
 
     ${klass}=    Get Element Attribute    ${element}    class
@@ -95,34 +91,45 @@ _Write To Element    [Arguments]    ${element}    ${value}    ${ignore_auto_comp
     ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
     Log To Console    _Write To Element C.1 ${elapsed}ms
 
-    IF    ${ODOO_VERSION} <= 15.0
-        Set Focus To Element    ${element}
-        _Write To Element 15smaller
-        ...    element=${element}
-        ...    is_autocomplete=${is_autocomplete}
-        ...    ignore_auto_complete=${ignore_auto_complete}
-        ...    arrow_down_event=${arrow_down_event}
-        ...    js=${js}
-        ...    css=${css}
-        ...    value=${value}
-    ELSE
-        ${status}    ${error}=    Run Keyword And Ignore Error    Input Text    css=${css}    ${value}
-        ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
-        Log To Console    _Write To Element D ${elapsed}ms
-        IF    '${status}' == 'FAIL'
-            Log To Console    Could not regularly insert text to ${css} - trying to scroll into view first
-            JS Scroll Into View    ${css}
-            Set Focus To Element    css=${css}
-            Input Text    css=${css}    ${value}
-        END
-        IF    ${is_autocomplete} and not ${ignore_auto_complete}
+    # ${status}    ${error}=    Run Keyword And Ignore Error    Input Text    css=${css}    ${value}
+    ${libdir}=    library Directory
+    ${inputelement_js}=    Get File    ${libdir}/../keywords/js/inputelement.js
+    ${inputelement_js}=    Catenate  SEPARATOR=\n
+    ...   const css =`${css}`;
+    ...   const value =`${value}`;
+    ...   ${inputelement_js}
+    ${status}=    Execute Async Javascript    ${inputelement_js}
+    ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
+    Log To Console    _Write To Element D ${elapsed}ms
+    IF    not '${status}'
+        Log To Console    Could not regularly insert text to ${css} - trying to scroll into view first
+        FAIL    Could not write value to ${css} ${value}
+        JS Scroll Into View    ${css}
+    END
+    IF    ${is_autocomplete} and not ${ignore_auto_complete}
+        IF  ${ODOO_VERSION} <= 15.0
+            ${arrow_down_event}=    Get File    ${libdir}/../keywords/js/events.js
+
+            # Set value in combobox and press down cursor to select
+            ${js}=    Catenate    SEPARATOR=;
+            ...    ${arrow_down_event};
+            ...    element.value = "${value}";
+            ...    element.dispatchEvent(downArrowEvent);
+            JS On Element    ${css}    ${js}
+            # Wait until options appear
+            Wait Until Page Contains Element
+            ...    xpath=//ul[contains(@class, 'ui-autocomplete')][not(contains(@style, 'display: none;'))][not(//*[contains(@class, 'fa-spin')])]
+            ${js}=    Catenate    SEPARATOR=;
+            ...    ${arrow_down_event};
+            ...    element.dispatchEvent(enterEvent);
+            JS On Element    ${css}    ${js}
+            Sleep    500ms    # required; needed to set element value
+        ELSE
             _Write To CSS AutoComplete
         END
-        # Try to blur to show save button
-        _blur_active_element
-        ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
-        Log To Console    _Write To Element E ${elapsed}ms
     END
+    ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
+    Log To Console    _Write To Element E ${elapsed}ms
 
     ElementPostCheck
     ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
@@ -138,22 +145,6 @@ _Write To Element 15smaller    [Arguments]
     ...    ${value}
     ${libdir}=    library Directory
     IF    ${is_autocomplete} and not ${ignore_auto_complete}
-        ${arrow_down_event}=    Get File    ${libdir}/../keywords/js/events.js
-
-        # Set value in combobox and press down cursor to select
-        ${js}=    Catenate    SEPARATOR=;
-        ...    ${arrow_down_event};
-        ...    element.value = "${value}";
-        ...    element.dispatchEvent(downArrowEvent);
-        JS On Element    ${css}    ${js}
-        # Wait until options appear
-        Wait Until Page Contains Element
-        ...    xpath=//ul[contains(@class, 'ui-autocomplete')][not(contains(@style, 'display: none;'))][not(//*[contains(@class, 'fa-spin')])]
-        ${js}=    Catenate    SEPARATOR=;
-        ...    ${arrow_down_event};
-        ...    element.dispatchEvent(enterEvent);
-        JS On Element    ${css}    ${js}
-        Sleep    500ms    # required; needed to set element value
     ELSE
         Set Focus To Element    ${element}
         Input Text    ${css}    ${value}
@@ -231,9 +222,7 @@ Eval Validation User Error Dialog
 
     ${error_dialog}=    Execute Async Javascript    ${js}
 
-    IF    ${error_dialog}
-        FAIL    Popup-Window: ${error_dialog}
-    END
+    IF    ${error_dialog}    FAIL    Popup-Window: ${error_dialog}
 
 Eval JS Error Dialog
     ${js}=    Catenate    SEPARATOR=\n
