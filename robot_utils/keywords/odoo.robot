@@ -17,11 +17,8 @@ Library             ../library/default_vars.py
 
 
 *** Keywords ***
-Login    [Arguments]    ${user}=${ROBO_ODOO_USER}    ${password}=${ODOO_PASSWORD}    ${url}=${ODOO_URL}/web/login
+Login    [Arguments]    ${user}=${ROBO_ODOO_USER}    ${password}=${ROBO_ODOO_PASSWORD}    ${url}=${ODOO_URL}/web/login
     #{user} is overwritten by context usually
-    ${param_user}=   Get Variable Value    ${user}
-    Load Default Vars
-    ${user}=    Get Variable Value    ${param_user}
     ${randomstring}=    Evaluate    str(uuid.uuid4())    modules=uuid
     ${url}=    Set Variable    ${url}#${randomstring}
     ${browser_id}=    Open New Browser    ${url}
