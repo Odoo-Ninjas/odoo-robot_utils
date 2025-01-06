@@ -15,8 +15,11 @@ import inspect
 import os
 from pathlib import Path
 import logging
+
 logger = logging.getLogger()
-current_dir = Path(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))))
+current_dir = Path(
+    os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+)
 
 
 def load_default_environment():
@@ -24,11 +27,12 @@ def load_default_environment():
     if not path.exists():
         return
     data = json.loads(path.read_text())
-    for k,v in data.items():
+    for k, v in data.items():
         if k not in os.environ:
             os.environ[k] = v
 
     # TODO lost test filename
+
 
 class Encoder(json.JSONEncoder):
     def default(self, obj):
@@ -81,7 +85,7 @@ class tools(object):
         odoo.execute_kw(db, uid, password, "robot.data.loader", "execute_sql", [sql])
 
     def do_get_guid(self):
-        return str(uuid.uuid4())
+        return str(uuid.uuid4()).replace("-", "")
 
     def get_current_date(self):
         return date.today()
@@ -174,7 +178,9 @@ class tools(object):
             return bool(expr)
 
         if not isinstance(expr, str):
-            raise Exception(f"Expression must be string at assert not: {type(expr)} {expr}")
+            raise Exception(
+                f"Expression must be string at assert not: {type(expr)} {expr}"
+            )
 
         res = bool(eval(expr))
         if not res:
@@ -186,8 +192,9 @@ class tools(object):
 
     def Base64_Encode_File_Content(self, filepath):
         import base64
+
         bytes = Path(filepath).read_bytes()
-        return base64.b64encode(bytes).decode('utf8')
+        return base64.b64encode(bytes).decode("utf8")
 
     def Get_Var_Type(self, var):
         return str(type(var))
@@ -209,18 +216,23 @@ class tools(object):
         """
         return eval(expr, vars)
 
-    def prepend_parent_in_tools(self, path, parent, xpath_parent):
+    def prepend_parent_in_tools(self, path, parent, css_parent):
         # Check if path is a list
         is_list = isinstance(path, (tuple, list))
 
+        new_path = []
         if is_list:
-            new_path=[]
             for item in path:
-                item = ''.join(filter(bool, [xpath_parent, parent, item]))
-                new_path.append(item)
+                for subitem in item.split(","):
+                    subitem = " ".join(filter(bool, [css_parent, parent, subitem]))
+                    new_path.append(subitem)
             path = new_path
         else:
-            path = ''.join(filter(bool, [xpath_parent, parent, path]))
+            for item in path.split(","):
+                item = " ".join(filter(bool, [css_parent, parent, item]))
+                new_path.append(item)
+            path = ','.join(new_path)
+
         return path
 
     def Get_File_Name(self, path):

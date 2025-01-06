@@ -151,35 +151,36 @@ Screenshot
 
 Set Element Attribute
     # UNTESTED
-    [Arguments]    ${xpath}    ${attribute}    ${value}
+    [Arguments]    ${css}    ${attribute}    ${value}
     ${js}=    Catenate    SEPARATOR=;
     ...    element.setAttribute("${attribute}", "${value}");
-    JS On Element    ${xpath}    ${js}
+    JS On Element    ${css}    ${js}
 
-JS On Element    [Arguments]    ${xpath}    ${jscode}    ${maxcount}=0
+JS On Element    [Arguments]    ${css}    ${jscode}    ${maxcount}=0
+
+    # TODO HERE
 
     ${js}=    Catenate    SEPARATOR=\n
     ...    const callback = arguments[arguments.length - 1];
-    ...    const xpath = "${xpath}";
-    ...    const result = document.evaluate(
-    ...    xpath, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+    ...    const css = `${css}`;
+    ...    const result = document.querySelectorAll(css);
     ...    let funcresult = true;
-    ...    if (${maxcount} && ${maxcount} > result.snapshotLength) {
-    ...    callback("maxcount");
+    ...    if (${maxcount} && ${maxcount} > result.length) {
+    ...      callback("maxcount");
     ...    return;
     ...    }
-    ...    for (let i = 0; i < result.snapshotLength; i++) {
-    ...    const element = result.snapshotItem(i);
-    ...    funcresult = 'ok';
-    ...    ${jscode};
+    ...    for (let i = 0; i < result.length; i++) {
+    ...        const element = result[i];
+    ...        funcresult = 'ok';
+    ...        ${jscode};
     ...    }
     ...    callback(funcresult);
 
     ${res}=    Execute Async Javascript    ${js}
     IF    "${res}" == "maxcount"
-        FAIL    Too many elements found for ${xpath}. Please make sure you identify it more closely.
+        FAIL    Too many elements found for ${css}. Please make sure you identify it more closely.
     END
-    IF    "${res}" != "ok"    FAIL    did not find the element ${xpath} to click
+    IF    "${res}" != "ok"    FAIL    did not find the element ${css} to click
 
 Get Selenium Timeout    # this gets the current timeout
     ${current_timeout}=    Set Selenium Timeout    0
@@ -188,13 +189,13 @@ Get Selenium Timeout    # this gets the current timeout
     ${current_timeout}=    Eval    int(t.split(" ")[0])    t=${current_timeout}
     RETURN    ${current_timeout}
 
-Is Visible    [Arguments]    ${xpath}
+Is Visible    [Arguments]    ${css}
 
-    ${is_visible}=    Run Keyword And Return Status    Wait Until Element Is Visible    xpath=${xpath}    timeout=1ms
+    ${is_visible}=    Run Keyword And Return Status    Wait Until Element Is Visible    css=${css}    timeout=1ms
     RETURN    ${is_visible}
 
-JS Scroll Into View    [Arguments]    ${xpath}
+JS Scroll Into View    [Arguments]    ${css}
 
-    Run Keyword And Ignore Error    Wait Until Element Is Visible    xpath=${xpath}  timeout=200ms
-    Run Keyword And Ignore Error    JS On Element    ${xpath}    jscode=element.scrollIntoView(true);
-    Run Keyword And Ignore Error    Scroll Element Into View    xpath=${xpath}
+    #Run Keyword And Ignore Error    Wait Until Element Is Visible    css=${css}  timeout=20ms
+    Run Keyword And Ignore Error    JS On Element    ${css}    element.scrollIntoView(true);
+    #Run Keyword And Ignore Error    Scroll Element Into View    css=${css}

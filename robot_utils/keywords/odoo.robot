@@ -141,13 +141,13 @@ Close Error Dialog And Log
         END
     END
 
-WriteInField    [Arguments]
+Write    [Arguments]
     ...    ${fieldname}
     ...    ${value}
     ...    ${ignore_auto_complete}=False
     ...    ${parent}=${NONE}
     ...    ${tooltip}=${NONE}
-    ...    ${xpath_parent}=${NONE}
+    ...    ${css_parent}=${NONE}
 
     # Check if it is ACE:
     # <div name="field1" class="o_field_widget o_field_ace"
@@ -155,60 +155,86 @@ WriteInField    [Arguments]
 
     ${parent_set}=    Eval    bool(v)    v=${parent}
     IF    ${parent_set}
-        ${parent}=    Catenate    SEPARATOR=|    //div[@name='${parent}' or @id='${parent}']
+        ${parent}=    Catenate    SEPARATOR=|    div[name='${parent}'], div[id='${parent}']
     END
 
     ${elapsed}=  Get Elapsed Time Ms  ${start}
     Log To Console    Elapsed time WriteInField at Pos A: ${elapsed}ms
 
     Log2
-    ...    WriteInField ${fieldname}=${value} ignore_auto_complete=${ignore_auto_complete} with parent=${parent} and xpath_parent=${xpath_parent}
-    ${locator_ACE}=    _LocatorACE    ${fieldname}    ${parent}    xpath_parent=${xpath_parent}
+    ...    WriteInField ${fieldname}=${value} ignore_auto_complete=${ignore_auto_complete} with parent=${parent} and xpath_parent=${css_parent}
+    ${locator_ACE}=    _LocatorACE    ${fieldname}    ${parent}    css_parent=${css_parent}
 
-    ${locator_select}=    _LocatorSelect    ${fieldname}    ${parent}    xpath_parent=${xpath_parent}
-
-    ${status_is_ace}    ${testel}=    Run Keyword And Ignore Error
-    ...    Get WebElement    ${locator_ACE}
+    ${locator_select}=    _LocatorSelect    ${fieldname}    ${parent}    css_parent=${css_parent}
     ${elapsed}=  Get Elapsed Time Ms  ${start}
-    Log To Console    Elapsed time WriteInField at Pos A1: ${elapsed}ms
+    Log To Console    Elapsed time WriteInField at Pos A0: ${elapsed}ms
 
-    ${status_is_select}    ${testel}=    Run Keyword And Ignore Error
-    ...    Get WebElement    ${locator_select}
+    ${js}=    Catenate
+    ...    SEPARATOR=\n
+    ...    const callback = arguments[arguments.length - 1];
+    ...    const el_ace = document.querySelector(`${locator_ACE}`);
+    ...    const el_select = document.querySelector(`${locator_select}`);
+    ...    if (el_ace) { callback("ace") }
+    ...    else if (el_select) { callback("select") }
+    ...    else callback("none");
+    ${eltype}=  Execute Async Javascript    ${js}
     ${elapsed}=  Get Elapsed Time Ms  ${start}
-    Log To Console    Elapsed time WriteInField at Pos A2: ${elapsed}ms
-
+    Log To Console    Elapsed time WriteInField at Pos A0.1: ${elapsed}ms
 
     ${hastooltip}=    Eval    bool(h)    h=${tooltip}
-    ${elapsed}=  Get Elapsed Time Ms  ${start}
-    Log To Console    Elapsed time WriteInField at Pos B: ${elapsed}ms
 
-    IF    '${status_is_ace}' != 'FAIL'
+    IF    '${eltype}' == 'ace'
         ElementPreCheck    ${locator_ACE}
-        _WriteACEEditor    ${fieldname}    ${value}    ${parent}    xpath_parent=${xpath_parent}    tooltip=${tooltip}
-    ELSE IF    '${status_is_select}' != 'FAIL'
+        _WriteACEEditor    ${fieldname}    ${value}    ${parent}    css_parent=${css_parent}    tooltip=${tooltip}
+    ELSE IF    '${eltype}' == 'select'
         ElementPreCheck    ${locator_select}
-        _WriteSelect    ${fieldname}    ${value}    ${parent}    xpath_parent=${xpath_parent}    tooltip=${tooltip}
+        _WriteSelect    ${fieldname}    ${value}    ${parent}    css_parent=${css_parent}    tooltip=${tooltip}
     ELSE
         ${elapsed}=  Get Elapsed Time Ms  ${start}
         Log To Console    Elapsed time WriteInField at Pos B1: ${elapsed}ms
 
-        ${xpaths}=    Create List
-        ...    //div[@name='${fieldname}']//input
-        ...    //div[@name='${fieldname}']//textarea
-        ...    //input[@id='${fieldname}' or @id='${fieldname}_0' or @name='${fieldname}']
-        ...    //textarea[@id='${fieldname}' or @id='${fieldname}_0' or @name='${fieldname}']
+        ${csss}=    Create List
+        ...    div[name='${fieldname}'] input
+        ...    div[name='${fieldname}'] textarea
+        ...    input[id='${fieldname}'],input[id='${fieldname}_0'],input[name='${fieldname}']
+        ...    textarea[id='${fieldname}'],textarea[id='${fieldname}_0'],textarea[name='${fieldname}']
 
-        ${xpaths}=    _prepend_parent    ${xpaths}    ${parent}    xpath_parent=${xpath_parent}
-        ${xpath}=    Catenate    SEPARATOR=|    @{xpaths}
+        ${csss}=    _prepend_parent    ${csss}    ${parent}    css_parent=${css_parent}
+        ${css}=    Catenate    SEPARATOR=,      @{csss}
 
         ${elapsed}=  Get Elapsed Time Ms  ${start}
         Log To Console    Elapsed time WriteInField at Pos B3: ${elapsed}ms
 
-        Highlight Element    ${xpath}    ${TRUE}
-        Mouse Over    xpath=${xpath}
+        ${element}=  Get WebElement  css=${css}
+        ${tempid}=  Do Get Guid
+        ${tempid}=  Set Variable  id${tempid}
+        ${oldid}=  Get Element Attribute  ${element}  id 
+        Execute Javascript  document.querySelector('#' + CSS.escape('${oldid}')).setAttribute('id', '${tempid}');
+        ${oldcss}=  Set Variable  ${css}
+        ${css}=  Set Variable  \#${tempid}
+        ${testwebel}=  Get WebElement  css=${css}
+
+        Highlight Element    ${css}    ${TRUE}
+        ${elapsed}=  Get Elapsed Time Ms  ${start}
+        Log To Console    Elapsed time WriteInField at Pos B3.1: ${elapsed}ms
+        JS Scroll Into View    ${css}
+        ${elapsed}=  Get Elapsed Time Ms  ${start}
+        Log To Console    Elapsed time WriteInField at Pos B3.1.1: ${elapsed}ms
+        Mouse Over  ${testwebel}
+        ${elapsed}=  Get Elapsed Time Ms  ${start}
+        Log To Console    Elapsed time WriteInField at Pos B3.2: ${elapsed}ms
         Capture Page Screenshot
-        _Write To Xpath    ${xpath}    ${value}    ignore_auto_complete=${ignore_auto_complete}
-        Highlight Element    ${xpath}    ${FALSE}
+        ${elapsed}=  Get Elapsed Time Ms  ${start}
+        Log To Console    Elapsed time WriteInField at Pos B3.3: ${elapsed}ms
+        _Write To Element    ${element}    ${value}    ignore_auto_complete=${ignore_auto_complete}
+        ${elapsed}=  Get Elapsed Time Ms  ${start}
+        Log To Console    Elapsed time WriteInField at Pos B3.4: ${elapsed}ms
+        Highlight Element    ${css}    ${FALSE}
+        ${elapsed}=  Get Elapsed Time Ms  ${start}
+        Log To Console    Elapsed time WriteInField at Pos B3.5: ${elapsed}ms
+
+        Set Element Attribute  ${css}  id  ${oldid}
+        ${css}=  Set Variable  ${oldcss}
     END
     IF    ${hastooltip}    _removeTooltips
     Log To Console    Done: WriteInField ${fieldname}=${value}
@@ -259,34 +285,34 @@ Odoo Write One2many    [Arguments]    ${fieldname}    ${data}
 Odoo Click    [Arguments]    ${xpath}    ${tooltip}=${NONE}
     Wait To Click    xpath=${xpath}    tooltip=${tooltip}
 
-Wait To Click    [Arguments]    ${xpath}    ${tooltip}=${NONE}
+Wait To Click    [Arguments]    ${css}    ${tooltip}=${NONE}
 # V17: they disable also menuitems and enable to avoid double clicks; not
 # so in <= V16
     Add Cursor
-    Log To Console    Wait To Click ${xpath}
+    Log To Console    Wait To Click ${css}
 
-    Wait Until Page Contains Element    xpath=${xpath}
+    Wait Until Page Contains Element    xpath=${css}
     Wait Blocking
-    Log    Could not identify element ${xpath} - so trying by pure javascript to click it.
+    Log    Could not identify element ${css} - so trying by pure javascript to click it.
     ${hastooltip}=    Eval    bool(h)    h=${tooltip}
 
-    ${status_mouse_over}=    Run Keyword And Return Status    Mouse Over    xpath=${xpath}
+    ${status_mouse_over}=    Run Keyword And Return Status    Mouse Over    ${css}
     IF    '${status_mouse_over}' == 'FAIL'
-        JS Scroll Into View    ${xpath}
-        ${status_mouse_over}=    Run Keyword And Return Status    Mouse Over    xpath=${xpath}
+        JS Scroll Into View    ${css}
+        ${status_mouse_over}=    Run Keyword And Return Status    Mouse Over    ${css}
     END
     IF    ${hastooltip}
-        _showTooltipByXPath    xpath=${xpath}    tooltip=${tooltip}
+        _showTooltipByLocator    ${css}    tooltip=${tooltip}
     END
-    JS On Element    ${xpath}    jscode=element.click()    maxcount=1
+    JS On Element    ${css}    jscode=element.click()    maxcount=1
     IF    ${hastooltip}    _removeTooltips
 
     Sleep    10ms    # Give chance to become disabled
-    _Wait Until Element Is Not Disabled    xpath=${xpath}
+    _Wait Until Element Is Not Disabled    ${css}
     Element Post Check
     Capture Page Screenshot
     Remove Cursor
-    Log To Console    Done Wait To Click ${xpath}
+    Log To Console    Done Wait To Click ${css}
     Wait Blocking
 
 Odoo Button    [Arguments]    ${text}=${NONE}    ${name}=${NONE}    ${tooltip}=${NONE}
@@ -328,7 +354,7 @@ Odoo Upload File    [Arguments]    ${fieldname}    ${filepath}    ${parent}=${NO
     Wait Until Page Contains Element    xpath=${xpath}/..
 
     Screenshot
-    Log TO Console    ${js_show_fileupload}
+    Log To Console    ${js_show_fileupload}
     Execute Async Javascript    ${js_show_fileupload}
     Screenshot
 

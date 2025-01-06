@@ -13,6 +13,7 @@ defaults = {
     "BROWSER_HEADLESS": "0",
 }
 
+
 # if tests are run manually
 def load_default_vars():
     _load_from_settings()
@@ -31,27 +32,31 @@ def load_default_vars():
             "Or run at least one time 'odoo set-password'."
         )
 
+
 def _prepare_test_token(varsfile):
     b = BuiltIn()
     is_snippet_mode = b.get_variable_value("${SNIPPET_MODE}")
     content = json.loads(varsfile.read_text())
     content.setdefault("TOKEN", 1)
-    content['TOKEN'] = int(content['TOKEN'])
+    content["TOKEN"] = int(content["TOKEN"])
     if not is_snippet_mode:
-        content['TOKEN'] += 1
+        content["TOKEN"] += 1
     varsfile.write_text(json.dumps(content, indent=2))
-    TOKEN = "#" + str(content['TOKEN']).zfill(3)
+    TOKEN = "#" + str(content["TOKEN"]).zfill(3)
     b.set_global_variable(_make_robot_key("TOKEN"), TOKEN)
     test = b.get_variable_value(_make_robot_key("TOKEN"))
     assert TOKEN == test
 
+
 def _make_robot_key(k):
     return f"${{{k}}}"
+
 
 def os_get_env(key):
     if key not in os.environ:
         raise Exception(f"Please define {key} in environment variables.")
     return os.environ[key]
+
 
 def _load_test_defaults():
     """
@@ -72,14 +77,31 @@ def _load_test_defaults():
     if PORT and ":" not in ODOO_URL.split("://")[-1]:
         ODOO_URL += ":" + str(PORT)
     b.set_global_variable(_make_robot_key("ODOO_URL"), ODOO_URL)
-    b.set_global_variable(_make_robot_key("DIRECTORY UPLOAD FILES LOCAL"), os_get_env("ROBO_UPLOAD_FILES_DIR_LOCAL"))
-    b.set_global_variable(_make_robot_key("DIRECTORY UPLOAD FILES BROWSER DRIVER"), os_get_env("ROBO_UPLOAD_FILES_DIR_BROWSER_DRIVER"))
+    b.set_global_variable(
+        _make_robot_key("DIRECTORY UPLOAD FILES LOCAL"),
+        os_get_env("ROBO_UPLOAD_FILES_DIR_LOCAL"),
+    )
+    b.set_global_variable(
+        _make_robot_key("DIRECTORY UPLOAD FILES BROWSER DRIVER"),
+        os_get_env("ROBO_UPLOAD_FILES_DIR_BROWSER_DRIVER"),
+    )
+    # Convert odoo_version to float for comparison in ifs
+    b.set_global_variable(
+        _make_robot_key("ODOO_VERSION"),
+        "${{ " + b.get_variable_value(_make_robot_key("ODOO_VERSION")) + "}}",
+    )
+
+    # transform to real booleans for ifs
+    for k in ["ROBO_NO_UI_HIGHLIGHTING"]:
+        v = b.get_variable_value(_make_robot_key(k))
+        v = True if v in [True, "1", "true", "True", "TRUE"] else False
+        b.set_global_variable(_make_robot_key(k), v)
 
 
 def _load_robot_vars():
     candidates = [
-        '.robot-vars',
-        '/opt/src/.robot-vars',
+        ".robot-vars",
+        "/opt/src/.robot-vars",
     ]
     for candidate in candidates:
         path = Path(candidate)
@@ -95,19 +117,21 @@ def _load_robot_vars():
         break
     else:
         raise Exception("Please define .robot-vars file.")
-    
 
 
 def _load_default_values_from_env():
-    for k,v in os.environ.items():
+    b = BuiltIn()
+    for k, v in os.environ.items():
         robotkey = _make_robot_key(k)
+        b.set_global_variable(robotkey, v)
         try:
-            BuiltIn().get_variable_value(robotkey)
+            b.get_variable_value(robotkey)
         except:
-            BuiltIn().set_global_variable(robotkey, v)
+            b.set_global_variable(robotkey, v)
 
     if "ODOO_HOME" in os.environ.keys():
-        BuiltIn().set_global_variable(_make_robot_key("CUSTOMS_DIR"), os.environ["ODOO_HOME"])
+        b.set_global_variable(_make_robot_key("CUSTOMS_DIR"), os.environ["ODOO_HOME"])
+
 
 def _load_default_values():
     for k, v in defaults.items():

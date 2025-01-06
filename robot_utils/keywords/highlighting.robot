@@ -8,16 +8,20 @@ Resource   ./tools.robot
 
 *** Keywords ***
 
-Highlight Element    [Arguments]    ${xpath}    ${toggle}
+Highlight Element    [Arguments]    ${css}    ${toggle}
+
+    IF  ${ROBO_NO_UI_HIGHLIGHTING}
+        RETURN
+    END
 
     ${toggle}=                  Eval                                                                  str(bool(t.lower()) if isinstance(t, str) else bool(t)).lower()    t=${toggle}
     ${content}=                 Get File
     ...                         ${CUSTOMS_DIR}/addons_robot/robot_utils/keywords/js/highlight_element.js
     ${js}=                      Catenate                                                              SEPARATOR=\n
-    ...                         const xpath = "${xpath}";
+    ...                         const css = `${css}`;
     ...                         const callback = arguments[arguments.length - 1];
     ...                         ${content}
-    ...                         highlightElementByXPath(xpath, ${toggle});
+    ...                         highlightElementByCss(css, ${toggle});
     ...                         callback();
     Execute Async Javascript    ${js}
 
@@ -42,17 +46,17 @@ Remove Cursor
     Execute Async Javascript    ${js}
 
 
-ShowTooltipByXPath    [Arguments]    ${xpath}    ${tooltip}
+ShowTooltipByXPath    [Arguments]    ${css}    ${tooltip}
 
     ${content}=
     ...                         Get File
     ...                         ${CUSTOMS_DIR}/addons_robot/robot_utils/keywords/js/highlight_element.js
     ${js}=                      Catenate                                                              SEPARATOR=\n
-    ...                         const xpath = "${xpath}";
+    ...                         const xpath = `${css}`;
     ...                         const tooltip = "${tooltip}";
     ...                         const callback = arguments[arguments.length - 1];
     ...                         ${content}
-    ...                         showTooltipByXPath(xpath, tooltip);
+    ...                         showTooltipByCss(css, tooltip);
     ...                         callback();
     Execute Async Javascript    ${js}
 

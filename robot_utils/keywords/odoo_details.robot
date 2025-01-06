@@ -13,47 +13,47 @@ Library             String    # example Random String
 
 
 *** Keywords ***
-_prepend_parent    [Arguments]    ${path}    ${parent}    ${xpath_parent}=""
+_prepend_parent    [Arguments]    ${path}    ${parent}    ${css_parent}=${NONE}
 
-    ${res}=    _prepend_parent_in_tools    path=${path}    parent=${parent}    xpath_parent=${xpath_parent}
+    ${res}=    _prepend_parent_in_tools    path=${path}    parent=${parent}    css_parent=${css_parent}
     RETURN    ${res}
 
-_LocatorACE    [Arguments]    ${fieldname}    ${parent}    ${xpath_parent}=""
+_LocatorACE    [Arguments]    ${fieldname}    ${parent}    ${css_parent}=${NONE}
 
     ${result}=    Set Variable
-    ...    //div[@name='${fieldname}' and contains(@class, 'o_field_ace')]//div[contains(@class, 'ace_editor')]
-    ${result}=    _prepend_parent    ${result}    ${parent}    xpath_parent=${xpath_parent}
+    ...    div.o_field_ace[name='${fieldname}'] div.ace_editor
+    ${result}=    _prepend_parent    ${result}    ${parent}    css_parent=${css_parent}
     RETURN    ${result}
 
-_LocatorSelect    [Arguments]    ${fieldname}    ${parent}    ${xpath_parent}=""
+_LocatorSelect    [Arguments]    ${fieldname}    ${parent}    ${css_parent}=""
 
     ${result}=    Set Variable
-    ...    //div[@name='${fieldname}' and contains(@class, 'o_field_selection')]//select
-    ${result}=    _prepend_parent    ${result}    ${parent}    xpath_parent=${xpath_parent}
+    ...    div.o_field_selection[name='${fieldname}'] select
+    ${result}=    _prepend_parent    ${result}    ${parent}    css_parent=${css_parent}
     RETURN    ${result}
 
-_WriteSelect    [Arguments]    ${fieldname}    ${value}    ${parent}    ${xpath_parent}=${NONE}    ${tooltip}=${NONE}
+_WriteSelect    [Arguments]    ${fieldname}    ${value}    ${parent}    ${css_parent}=${NONE}    ${tooltip}=${NONE}
 
     Screenshot
-    ${locator}=    _LocatorSelect    ${fieldname}    ${parent}    xpath_parent=${xpath_parent}
+    ${locator}=    _LocatorSelect    ${fieldname}    ${parent}    css_parent=${css_parent}
     IF    ${tooltip}
-        _showTooltipByXPath    xpath=${locator}    tooltip=${tooltip}
+        _showTooltipByLocator    ${locator}    tooltip=${tooltip}
     END
     Log    The select locator is ${locator}
     Select From List By Label    ${locator}    ${value}
     Screenshot
     Remove Tooltips
 
-_WriteACEEditor    [Arguments]    ${fieldname}    ${value}    ${parent}    ${xpath_parent}    ${tooltip}
+_WriteACEEditor    [Arguments]    ${fieldname}    ${value}    ${parent}    ${css_parent}    ${tooltip}
 
     # V17
     # <div name="field1" class="o_field_widget o_field_ace"
-    ${locator}=    _LocatorACE    ${fieldname}    ${parent}    ${xpath_parent}
+    ${locator}=    _LocatorACE    ${fieldname}    ${parent}    ${css_parent}
     ${origId}=    Get Element Attribute    ${locator}    id
     ${tempId}=    Generate Random String    8
 
     IF    ${tooltip}
-        _showTooltipByXPath    xpath=${locator}    tooltip=${tooltip}
+        _showTooltipByLocator    ${locator}    tooltip=${tooltip}
     END
 
     Assign Id To Element    locator=${locator}    id=${tempId}
@@ -70,63 +70,95 @@ _WriteACEEditor    [Arguments]    ${fieldname}    ${value}    ${parent}    ${xpa
     Remove Tooltips
     Screenshot
 
-_Write To Xpath    [Arguments]    ${xpath}    ${value}    ${ignore_auto_complete}=False
+_Write To Element    [Arguments]    ${element}    ${value}    ${ignore_auto_complete}=False
+    ${start}=    tools.Get Current Time Ms
+
+    ${elementid}=    Get Element Attribute    ${element}    id
+    ${css}=    Set Variable    \#${elementid}
 
     ${libdir}=    library Directory
-    Log2    _Write To XPath called with ${xpath} ${value} ${ignore_auto_complete}
-    ElementPreCheck    xpath=${xpath}
-    Wait Until Element Is Visible    xpath=${xpath}
-    ${klass}=    Get Element Attribute    xpath=${xpath}    class
+
+    ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
+    Log To Console    _Write To Element A ${elapsed}ms
+
+    ElementPreCheck    css=${css}
+
+    ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
+    Log To Console    _Write To Element B ${elapsed}ms
+
+    Wait Until Element Is Visible    css=${css}    timeout=20ms
+    ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
+    Log To Console    _Write To Element C ${elapsed}ms
+
+    ${klass}=    Get Element Attribute    ${element}    class
     ${is_autocomplete}=    Evaluate    "autocomplete" in "${klass}"    # works for V15 and V16 and V17
-    ${element}=    Get WebElement    xpath=${xpath}
+    ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
+    Log To Console    _Write To Element C.1 ${elapsed}ms
 
-    Capture Page Screenshot
-    JS Scroll Into View    ${xpath}
-    IF    ${odoo_version} <= 15.0
-        Set Focus To Element    xpath=${xpath}
-        Capture Page Screenshot
-        IF    ${is_autocomplete} and not ${ignore_auto_complete}
-            ${arrow_down_event}=    Get File    ${libdir}/../keywords/js/events.js
-
-            # Set value in combobox and press down cursor to select
-            ${js}=    Catenate    SEPARATOR=;
-            ...    ${arrow_down_event};
-            ...    element.value = "${value}";
-            ...    element.dispatchEvent(downArrowEvent);
-            JS On Element    ${xpath}    ${js}
-            Capture Page Screenshot
-            # Wait until options appear
-            Wait Until Page Contains Element
-            ...    xpath=//ul[contains(@class, 'ui-autocomplete')][not(contains(@style, 'display: none;'))][not(//*[contains(@class, 'fa-spin')])]
-            Capture Page Screenshot
-
-            ${js}=    Catenate    SEPARATOR=;
-            ...    ${arrow_down_event};
-            ...    element.dispatchEvent(enterEvent);
-            JS On Element    ${xpath}    ${js}
-            Sleep    500ms    # required; needed to set element value
-            Capture Page Screenshot
-        ELSE
-            Set Focus To Element    xpath=${xpath}
-            Input Text    ${xpath}    ${value}
-            _blur_active_element
-        END
+    IF    ${ODOO_VERSION} <= 15.0
+        Set Focus To Element    ${element}
+        _Write To Element 15smaller
+        ...    element=${element}
+        ...    is_autocomplete=${is_autocomplete}
+        ...    ignore_auto_complete=${ignore_auto_complete}
+        ...    arrow_down_event=${arrow_down_event}
+        ...    js=${js}
+        ...    css=${css}
+        ...    value=${value}
     ELSE
-        ${status}    ${error}=    Run Keyword And Ignore Error    Input Text    ${xpath}    ${value}
+        ${status}    ${error}=    Run Keyword And Ignore Error    Input Text    css=${css}    ${value}
+        ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
+        Log To Console    _Write To Element D ${elapsed}ms
         IF    '${status}' == 'FAIL'
-            Log To Console    Could not regularly insert text to ${xpath} - trying to scroll into view first
-            JS Scroll Into View    ${xpath}
-            Set Focus To Element    xpath=${xpath}
-            Input Text    xpath=${xpath}    ${value}
+            Log To Console    Could not regularly insert text to ${css} - trying to scroll into view first
+            JS Scroll Into View    ${css}
+            Set Focus To Element    css=${css}
+            Input Text    css=${css}    ${value}
         END
         IF    ${is_autocomplete} and not ${ignore_auto_complete}
-            _Write To XPath AutoComplete
+            _Write To CSS AutoComplete
         END
         # Try to blur to show save button
         _blur_active_element
+        ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
+        Log To Console    _Write To Element E ${elapsed}ms
     END
 
     ElementPostCheck
+    ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
+    Log To Console    _Write To Element DONE ${elapsed}ms
+
+_Write To Element 15smaller    [Arguments]
+    ...    ${element}
+    ...    ${is_autocomplete}
+    ...    ${ignore_auto_complete}
+    ...    ${arrow_down_event}
+    ...    ${js}
+    ...    ${css}
+    ...    ${value}
+    ${libdir}=    library Directory
+    IF    ${is_autocomplete} and not ${ignore_auto_complete}
+        ${arrow_down_event}=    Get File    ${libdir}/../keywords/js/events.js
+
+        # Set value in combobox and press down cursor to select
+        ${js}=    Catenate    SEPARATOR=;
+        ...    ${arrow_down_event};
+        ...    element.value = "${value}";
+        ...    element.dispatchEvent(downArrowEvent);
+        JS On Element    ${css}    ${js}
+        # Wait until options appear
+        Wait Until Page Contains Element
+        ...    xpath=//ul[contains(@class, 'ui-autocomplete')][not(contains(@style, 'display: none;'))][not(//*[contains(@class, 'fa-spin')])]
+        ${js}=    Catenate    SEPARATOR=;
+        ...    ${arrow_down_event};
+        ...    element.dispatchEvent(enterEvent);
+        JS On Element    ${css}    ${js}
+        Sleep    500ms    # required; needed to set element value
+    ELSE
+        Set Focus To Element    ${element}
+        Input Text    ${css}    ${value}
+        _blur_active_element
+    END
 
 _blur_active_element    ${js}=    Catenate    SEPARATOR=\n
     ...    const callback = arguments[arguments.length-1]
@@ -134,35 +166,30 @@ _blur_active_element    ${js}=    Catenate    SEPARATOR=\n
     ...    callback()
     Execute Async Javascript    ${js}
 
-_Write To XPath AutoComplete
+_Write To CSS AutoComplete
     Wait Blocking
     IF    ${odoo_version} == 16.0
-        ${xpath}=    Catenate
-        ...    //ul[contains(@class, 'o-autocomplete--dropdown-menu dropdown-menu')][not(//*[contains(@class, 'fa-spin')])]
-        Wait To Click    xpath=${xpath}/li[1]
+        ${css}=    Catenate
+        ...    ul.o-autocomplete--dropdown-menu.dropdown-menu:not(:has(.fa-spin)) li:first-child
+        Wait To Click    css=${css}
     ELSE IF    ${odoo_version} == 17.0
-        ${xpath}=    Catenate
-        ...    //ul[@role='menu' and contains(@class, 'o-autocomplete--dropdown-menu')][not(//*[contains(@class, 'fa-spin')])]
-        Wait To Click    xpath=${xpath}/li[1]/a
+        ${css}=    Catenate
+        ...    ul.o-autocomplete--dropdown-menu[role="menu"]:not(:has(.fa-spin)) li:first-child a
+        Wait To Click    css=${css}
     ELSE
         FAIL    needs implementation for ${odoo_version}
     END
     Wait Blocking
 
 Wait Blocking
-    ${start}=  tools.Get Current Time Ms
+    ${start}=    tools.Get Current Time Ms
     # TODO something not ok here - if --timeout is 30 then this function
     # executes 20 times slower then with robot --timeout 10
 
     # o_loading in V14
     # o_loading_indicator since ??
 
-    ${xpath}=    Catenate
-    ...    (
-    ...    //div[contains(@class, 'o_loading')] |
-    ...    //span[contains(@class, 'o_loading_indicator')] |
-    ...    //div[contains(@class, 'o_blockUI')]
-    ...    )
+    ${css}=    Set Variable    div.o_loading, span.o_loading_indicator, div.o_blockUI
 
     # Repeat Keyword
     # ...    2 times
@@ -171,22 +198,21 @@ Wait Blocking
 
     # ${state}    ${result}=    Run Keyword And Ignore Error
     # ...    Wait Until Element Is Visible
-    # ...    xpath=${xpath}  timeout=10ms
+    # ...    xpath=${xpath}    timeout=10ms
 
     ${state}    ${result}=    Run Keyword And Ignore Error
     ...    Wait Until Element Is Not Visible
-    ...    xpath=${xpath}  timeout=10ms
+    ...    css=${css}    timeout=10ms
 
     # TODO dont know when introduced
     IF    ${odoo_version} < 17.0
         ${state}    ${result}=    Run Keyword And Ignore Error
         ...    Wait Until Element Is Not Visible
-        ...    xpath=//body[contains(@class, 'o_ewait')]  timeout=10ms
+        ...    css=body.o_ewait    timeout=10ms
         IF    '${state}' == 'FAIL'    Log To Console    o_ewait still visible
     END
     ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
     Log To Console    Wait Blocking Done in ${elapsed}ms
-
 
 ElementPostCheck
     Wait Blocking
@@ -194,24 +220,37 @@ ElementPostCheck
     Eval Validation User Error Dialog
 
 Eval Validation User Error Dialog
-    ${locator}=    Set Variable
-    ...    //div[@role='dialog'][contains(@class, 'modal')][//*[contains(text(), 'Validation Error') or contains(text(), 'User Error')]]
-    ${visible}=    Is Visible    xpath=${locator}
+    # TODO evaluate Validation Error and User Error again; best return text error immediatley
+    ${js}=    Catenate    SEPARATOR=\n
+    ...    const callback = arguments[arguments.length - 1];
+    ...    const elements = Array.from(document.querySelectorAll("div.modal[role='dialog'] button")).filter(
+    ...    element => element.textContent.includes("See details"));
+    ...    if (elements.length > 0) {
+    ...    callback(true);
+    ...    } else { callback(false); }
 
-    IF    ${visible}
-        ${content}=    Get Text    xpath=${locator}//*[contains(@class, 'modal-body')]
-        FAIL    Popup-Window: ${content}
+    ${error_dialog}=    Execute Async Javascript    ${js}
+
+    IF    ${error_dialog}
+        FAIL    Popup-Window: ${error_dialog}
     END
 
 Eval JS Error Dialog
-    ${locator}=    Set Variable    //div[@role='alert'][//button[text() = 'See details']]
-    ${status}=    Run Keyword And Return Status    Get WebElement    xpath=${locator}
-    Log    ${status}
-    IF    ${status}
+    ${js}=    Catenate    SEPARATOR=\n
+    ...    const callback = arguments[arguments.length - 1];
+    ...    const elements = Array.from(document.querySelectorAll("div[role='alert'] button")).filter(
+    ...    element => element.textContent.includes("See details"));
+    ...    if (elements.length > 0) {
+    ...    callback(true);
+    ...    } else { callback(false); }
+
+    ${has_error_dialog}=    Execute Async Javascript    ${js}
+
+    IF    ${has_error_dialog}
         Click Element    xpath=//button[text() = 'See details']
         Screenshot
-        ${locator}=    Set Variable    //div[contains(@class, 'o_error_detail')]
-        ${code_content}=    Get Text    xpath=${locator}/pre
+        ${locator}=    Set Variable    div.o_error_detail pre
+        ${code_content}=    Get Text    css=${locator}
 
         Log    ${code_content}
         Log To Console    Error dialog was shown
@@ -221,27 +260,26 @@ Eval JS Error Dialog
         FAIL    error dialog was shown - please check ${code_content}
     END
 
-ElementPreCheck    [Arguments]    ${element}
+ElementPreCheck    [Arguments]    ${css}
 
-    Log2    Element Precheck ${element}
+    Log2    Element Precheck ${css}
     Wait Blocking
     # Element may be in a tab. So click the parent tab. If there is no parent tab, forget about the result
     # not verified for V16 yet with tabs
+    # TODO HERE
     ${code}=    Catenate
     ...    const callback = arguments[arguments.length - 1];
-    ...    var path="${element}".replace('xpath=','');
-    ...    var id=document.evaluate("("+path+")/ancestor::div[contains(@class,'oe_notebook_page')]/@id"
-    ...    ,document,null,XPathResult.STRING_TYPE,null).stringValue;
-    ...    if (id != ''){
+    ...    var path=`${css}`.replace('css=','');
+    ...    const item = document.querySelector(path).closest('div.oe_notebook_page');
+    ...    if (item && item.id) {
     ...    window.location = "#"+id;
     ...    $("a[href='#"+id+"']").click();
-    ...    console.log("Clicked at #" + id);
     ...    }
     ...    callback();
     ...    return true;
     Execute Async Javascript    ${code}
     Wait Blocking
-    Log2    Done: Element Precheck ${element}
+    Log2    Done: Element Precheck ${css}
 
 _has_module_installed    [Arguments]    ${modulename}
 
@@ -263,9 +301,9 @@ _has_module_installed    [Arguments]    ${modulename}
     Log To Console    Checking ${modulename} installed: False
     RETURN    ${False}
 
-_While Element Attribute Value    [Arguments]    ${xpath}    ${attribute}    ${operator}    ${param_value}    ${conversion}=${None}
+_While Element Attribute Value    [Arguments]    ${css}    ${attribute}    ${operator}    ${param_value}    ${conversion}=${None}
 
-    Log To Console    While Element Attribute Value ${xpath} ${attribute} ${operator} ${param_value} ${conversion}
+    Log To Console    While Element Attribute Value ${css} ${attribute} ${operator} ${param_value} ${conversion}
 
     IF    '${conversion}' == 'as_bool'
         ${param_value}=    Convert To Boolean    ${param_value}
@@ -282,7 +320,7 @@ _While Element Attribute Value    [Arguments]    ${xpath}    ${attribute}    ${o
         END
         ${status}    ${value}=    Run Keyword And Ignore Error
         ...    Get Element Attribute
-        ...    xpath=${xpath}
+        ...    css=${css}
         ...    ${attribute}
         IF    '${status}' == 'FAIL'
             # in V17 a newbutton is quickly gone and checking is not possible
@@ -309,8 +347,8 @@ _While Element Attribute Value    [Arguments]    ${xpath}    ${attribute}    ${o
         END
     END
     Log To Console
-    ...    Done: While Element Attribute Value ${xpath} ${attribute} ${operator} ${param_value} ${conversion}
+    ...    Done: While Element Attribute Value ${css} ${attribute} ${operator} ${param_value} ${conversion}
 
-_Wait Until Element Is Not Disabled    [Arguments]    ${xpath}
+_Wait Until Element Is Not Disabled    [Arguments]    ${css}
 
-    _While Element Attribute Value    ${xpath}    disabled    ==    true    as_bool
+    _While Element Attribute Value    ${css}    disabled    ==    true    as_bool

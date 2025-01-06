@@ -1,15 +1,8 @@
-function highlightElementByXPath(xpath, toggle=true) {
+function highlightElementByCss(css, toggle=true) {
 	const color = '#FFF9C4';
-    const elements = document.evaluate(
-        xpath,
-        document,
-        null,
-        XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
-        null
-    );
+    const elements = document.querySelectorAll(css);
 
-    for (let i = 0; i < elements.snapshotLength; i++) {
-        const element = elements.snapshotItem(i);
+    for (const element of elements) {
 		if (toggle) {
 			element.style.backgroundColor = color;
             element.dataset.original_background_color = element.style.backgroundColor;
@@ -29,18 +22,9 @@ function removeTooltips() {
     document.getElementById('robot-tooltip')?.remove();
 }
 
-function showTooltipByXPath(xpath, tooltipText) {
+function showTooltipByCss(css, tooltipText) {
     // Find the element using XPath
-    const result = document.evaluate(
-        xpath,
-        document,
-        null,
-        XPathResult.FIRST_ORDERED_NODE_TYPE,
-        null
-    );
-
-    const element = result.singleNodeValue;
-
+    const element = document.querySelector(css);
     if (!element) {
         console.error('No element found for the provided XPath:', xpath);
         return;
