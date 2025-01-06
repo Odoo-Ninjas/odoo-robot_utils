@@ -296,7 +296,7 @@ Wait To Click    [Arguments]    ${css}    ${tooltip}=${NONE}
     Add Cursor
     Log To Console    Wait To Click ${css}
 
-    Wait Until Page Contains Element    xpath=${css}
+    Wait Until Page Contains Element    css=${css}
     Wait Blocking
     Log    Could not identify element ${css} - so trying by pure javascript to click it.
     ${hastooltip}=    Eval    bool(h)    h=${tooltip}
