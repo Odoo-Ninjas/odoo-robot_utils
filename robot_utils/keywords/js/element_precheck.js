@@ -1,12 +1,29 @@
 // arguments: mode, css
 const callback = arguments[arguments.length - 1];
-const path=`${css}`.replace('css=','');
+const path = `${css}`.replace('css=', '');
+console.log("Opening tab for " + path);
 
 function open_closest_tab() {
-    const item = document.querySelector(path).closest('div.oe_notebook_page,div.o_notebook_headers');
-    if (item && item.id) {
-        window.location = "#"+id;
-        $("a[href='#"+id+"']").click();
+    // Verified V15
+    const baseitem = document.querySelector(path);
+    if (!baseitem) {
+        console.log("open_closest_tab: baseitem not found for " + path);
+        return;
+    }
+    console.log(baseitem);
+    //const item = baseitem.closest('div.oe_notebook_page li a, div.o_notebook_headers li a');
+    const parenttab = baseitem.closest('div.tab-pane');
+    if (!parenttab) {
+        return;
+    }
+    if (!parenttab.classList.contains('active')) {
+        parenttab.id;  //notebok_page_48  e.g.
+        for (tabheader of document.querySelectorAll('div.oe_notebook_page li a,div.o_notebook_headers li a')) {
+            if (tabheader.href.includes(parenttab.id)) {
+                tabheader.click();
+                break;
+            }
+        }
     }
     callback();
 }
