@@ -72,7 +72,7 @@ def _load_test_defaults():
     # W3C:
     # https://github.com/SeleniumHQ/selenium/issues/10352
     b = BuiltIn()
-    PORT = b.get_variable_value(_make_robot_key("ODOO_PORT"))
+    PORT = b.get_variable_value(_make_robot_key("ROBO_ODOO_PORT"))
     ODOO_URL = os_get_env("ROBO_ODOO_HOST")
     if PORT and ":" not in ODOO_URL.split("://")[-1]:
         ODOO_URL += ":" + str(PORT)
