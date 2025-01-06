@@ -17,7 +17,7 @@ Library             ../library/default_vars.py
 
 
 *** Keywords ***
-Login    [Arguments]    ${user}=${ODOO_USER}    ${password}=${ODOO_PASSWORD}    ${url}=${ODOO_URL}/web/login
+Login    [Arguments]    ${user}=${ROBO_ODOO_USER}    ${password}=${ODOO_PASSWORD}    ${url}=${ODOO_URL}/web/login
     #{user} is overwritten by context usually
     ${param_user}=   Get Variable Value    ${user}
     Load Default Vars
@@ -97,7 +97,7 @@ MainMenu    [Arguments]    ${menu}
             Wait Until Element is visible    div.o_navbar_apps_menu
             Wait To Click    div.o_navbar_apps_menu button
         END
-        ${css}=    Set Variable    a[data-menu-xmlid='${menu}']:first-child
+        ${css}=    Set Variable    a[data-menu-xmlid='${menu}']
         Wait Until Page Contains Element    css=${css}
         Wait To Click    css=${css}
         Wait Until Page Contains Element    css=body.o_web_client
@@ -112,7 +112,7 @@ MainMenu    [Arguments]    ${menu}
             Wait Until Page Contains Element    css=${home_menu}
             Wait To Click    css=${home_menu}
         END
-        Wait To Click    css=a[data-menu-xmlid='${menu}']:first-child
+        Wait To Click    css=a[data-menu-xmlid='${menu}']
     END
 
 ApplicationMainMenuOverview
@@ -304,10 +304,10 @@ Wait To Click    [Arguments]    ${css}    ${tooltip}=${NONE}
     Log    Could not identify element ${css} - so trying by pure javascript to click it.
     ${hastooltip}=    Eval    bool(h)    h=${tooltip}
 
-    ${status_mouse_over}=    Run Keyword And Return Status    Mouse Over    ${css}
+    ${status_mouse_over}=    Run Keyword And Return Status    Mouse Over    css=${css}
     IF    '${status_mouse_over}' == 'FAIL'
         JS Scroll Into View    ${css}
-        ${status_mouse_over}=    Run Keyword And Return Status    Mouse Over    ${css}
+        ${status_mouse_over}=    Run Keyword And Return Status    Mouse Over    css=${css}
     END
     IF    ${hastooltip}
         ShowTooltip By Locator    css=${css}    tooltip=${tooltip}
@@ -329,7 +329,7 @@ Odoo Button    [Arguments]    ${text}=${NONE}    ${name}=${NONE}    ${tooltip}=$
     ${hastext}=    Eval    bool(t)    t=${text}    n=${name}
 
     IF    ${hasname}
-        Wait To Click    button[name='${name}']:first-child, a[name='${name}']:first-child    tooltip=${tooltip}
+        Wait To Click    button[name='${name}'], a[name='${name}']    tooltip=${tooltip}
     ELSE IF    ${hastext}
 		${attname}=  Set Variable  data-id-findbutton
         ${tempid}=  Do Get Guid
