@@ -37,11 +37,10 @@ _WriteSelect    [Arguments]    ${fieldname}    ${value}    ${parent}    ${css_pa
     Screenshot
     ${locator}=    _LocatorSelect    ${fieldname}    ${parent}    css_parent=${css_parent}
     IF    ${tooltip}
-        _showTooltipByLocator    ${locator}    tooltip=${tooltip}
+        ShowTooltip By Locator    ${locator}    tooltip=${tooltip}
     END
     Log    The select locator is ${locator}
-    Select From List By Label    ${locator}    ${value}
-    Screenshot
+    Select From List By Label    css=${locator}    ${value}
     Remove Tooltips
 
 _WriteACEEditor    [Arguments]    ${fieldname}    ${value}    ${parent}    ${css_parent}    ${tooltip}
@@ -53,7 +52,7 @@ _WriteACEEditor    [Arguments]    ${fieldname}    ${value}    ${parent}    ${css
     ${tempId}=    Generate Random String    8
 
     IF    ${tooltip}
-        _showTooltipByLocator    ${locator}    tooltip=${tooltip}
+        ShowTooltip By Locator    ${locator}    tooltip=${tooltip}
     END
 
     Assign Id To Element    locator=${locator}    id=${tempId}
