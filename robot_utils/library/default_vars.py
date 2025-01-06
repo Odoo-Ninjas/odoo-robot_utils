@@ -23,12 +23,12 @@ def load_default_vars():
     _load_test_defaults()
 
     try:
-        test = BuiltIn().get_variable_value(_make_robot_key("ODOO_PASSWORD"))
+        test = BuiltIn().get_variable_value(_make_robot_key("ROBO_ODOO_PASSWORD"))
     except:
         test = None
     if not test:
         raise Exception(
-            "Please define ODOO_PASSWORD in .robot-vars file. "
+            "Please define ROBO_ODOO_PASSWORD in .robot-vars file. "
             "Or run at least one time 'odoo set-password'."
         )
 

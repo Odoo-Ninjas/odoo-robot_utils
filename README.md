@@ -177,8 +177,8 @@ Wait For Marker  products_on_stock
 
 ## Available Variables (also in loaded xml files)
 
-* ODOO_DB
-* ODOO_USER
-* ODOO_PASSWORD
+* ROBO_ODOO_DB
+* ROBO_ODOO_USER
+* ROBO_ODOO_PASSWORD
 * ODOO_URL
 * TOKEN

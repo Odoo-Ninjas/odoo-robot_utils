@@ -17,7 +17,7 @@ Library             ../library/default_vars.py
 
 
 *** Keywords ***
-Login    [Arguments]    ${user}=${ODOO_USER}    ${password}=${ODOO_PASSWORD}    ${url}=${ODOO_URL}/web/login
+Login    [Arguments]    ${user}=${ROBO_ODOO_USER}    ${password}=${ROBO_ODOO_PASSWORD}    ${url}=${ODOO_URL}/web/login
     Load Default Vars
     ${randomstring}=    Evaluate    str(uuid.uuid4())    modules=uuid
     ${url}=    Set Variable    ${url}#${randomstring}

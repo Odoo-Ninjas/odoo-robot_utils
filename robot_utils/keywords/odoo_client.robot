@@ -14,10 +14,10 @@ Technical Testname
 
 Odoo Conn
     [Arguments]
-    ...            ${dbname}=${ODOO_DB}
+    ...            ${dbname}=${ROBO_ODOO_DB}
     ...            ${host}=${ODOO_URL}
-    ...            ${user}=${ODOO_USER}
-    ...            ${pwd}=${ODOO_PASSWORD}
+    ...            ${user}=${ROBO_ODOO_USER}
+    ...            ${pwd}=${ROBO_ODOO_PASSWORD}
     ${conn}=       odoo._get Conn             ${host}    ${dbname}    ${user}    ${pwd}
     RETURN         ${conn}
 
@@ -25,10 +25,10 @@ Odoo Search
     [Arguments]
     ...            ${model}
     ...            ${domain}
-    ...            ${dbname}=${ODOO_DB}
+    ...            ${dbname}=${ROBO_ODOO_DB}
     ...            ${host}=${ODOO_URL}
-    ...            ${user}=${ODOO_USER}
-    ...            ${pwd}=${ODOO_PASSWORD}
+    ...            ${user}=${ROBO_ODOO_USER}
+    ...            ${pwd}=${ROBO_ODOO_PASSWORD}
     ...            ${count}=${FALSE}
     ...            ${limit}=${NONE}
     ...            ${order}=${NONE}
@@ -55,10 +55,10 @@ Odoo Search Records
     [Arguments]
     ...               ${model}
     ...               ${domain}
-    ...               ${dbname}=${ODOO_DB}
+    ...               ${dbname}=${ROBO_ODOO_DB}
     ...               ${host}=${ODOO_URL}
-    ...               ${user}=${ODOO_USER}
-    ...               ${pwd}=${ODOO_PASSWORD}
+    ...               ${user}=${ROBO_ODOO_USER}
+    ...               ${pwd}=${ROBO_ODOO_PASSWORD}
     ...               ${count}=${FALSE}
     ...               ${limit}=${NONE}
     ...               ${order}=${NONE}
@@ -78,10 +78,10 @@ Odoo Search Read Records
     ...               ${model}
     ...               ${domain}
     ...               ${fields}
-    ...               ${dbname}=${ODOO_DB}
+    ...               ${dbname}=${ROBO_ODOO_DB}
     ...               ${host}=${ODOO_URL}
-    ...               ${user}=${ODOO_USER}
-    ...               ${pwd}=${ODOO_PASSWORD}
+    ...               ${user}=${ROBO_ODOO_USER}
+    ...               ${pwd}=${ROBO_ODOO_PASSWORD}
     ...               ${count}=${FALSE}
     ...               ${limit}=${NONE}
     ...               ${order}=${NONE}
@@ -95,30 +95,30 @@ Odoo Load Data
     [Arguments]
     ...               ${filepath}
     ...               ${module_name}=robobase
-    ...               ${dbname}=${ODOO_DB}
+    ...               ${dbname}=${ROBO_ODOO_DB}
     ...               ${host}=${ODOO_URL}
-    ...               ${user}=${ODOO_USER}
-    ...               ${pwd}=${ODOO_PASSWORD}
+    ...               ${user}=${ROBO_ODOO_USER}
+    ...               ${pwd}=${ROBO_ODOO_PASSWORD}
     odoo.Load File    ${host}                    ${dbname}    ${user}    ${pwd}    ${filepath}    ${module_name}
 
 Odoo Put File
     [Arguments]
     ...              ${file_path}
     ...              ${dest_path_on_odoo_container}
-    ...              ${dbname}=${ODOO_DB}
+    ...              ${dbname}=${ROBO_ODOO_DB}
     ...              ${host}=${ODOO_URL}
-    ...              ${user}=${ODOO_USER}
-    ...              ${pwd}=${ODOO_PASSWORD}
+    ...              ${user}=${ROBO_ODOO_USER}
+    ...              ${pwd}=${ROBO_ODOO_PASSWORD}
     odoo.Put File    ${host}                           ${dbname}    ${user}    ${pwd}    ${file_path}    ${dest_path_on_odoo_container}
 
 Odoo Create
     [Arguments]
     ...               ${model}
     ...               ${values}
-    ...               ${dbname}=${ODOO_DB}
+    ...               ${dbname}=${ROBO_ODOO_DB}
     ...               ${host}=${ODOO_URL}
-    ...               ${user}=${ODOO_USER}
-    ...               ${pwd}=${ODOO_PASSWORD}
+    ...               ${user}=${ROBO_ODOO_USER}
+    ...               ${pwd}=${ROBO_ODOO_PASSWORD}
     ...               ${lang}=en_US
     ...               ${context}=${None}
     ${new_dict}=      Convert To Dictionary                         ${values}
@@ -131,10 +131,10 @@ Odoo Write
     ...               ${model}
     ...               ${ids}
     ...               ${values}
-    ...               ${dbname}=${ODOO_DB}
+    ...               ${dbname}=${ROBO_ODOO_DB}
     ...               ${host}=${ODOO_URL}
-    ...               ${user}=${ODOO_USER}
-    ...               ${pwd}=${ODOO_PASSWORD}
+    ...               ${user}=${ROBO_ODOO_USER}
+    ...               ${pwd}=${ROBO_ODOO_PASSWORD}
     ...               ${lang}=en_US
     ...               ${context}=${None}
     ${values}=        Odoo Convert To Dictionary                    ${values}
@@ -146,10 +146,10 @@ Odoo Unlink
     [Arguments]
     ...            ${model}
     ...            ${ids}
-    ...            ${dbname}=${ODOO_DB}
+    ...            ${dbname}=${ROBO_ODOO_DB}
     ...            ${host}=${ODOO_URL}
-    ...            ${user}=${ODOO_USER}
-    ...            ${pwd}=${ODOO_PASSWORD}
+    ...            ${user}=${ROBO_ODOO_USER}
+    ...            ${pwd}=${ROBO_ODOO_PASSWORD}
     ...            ${context}=${None}
     ${result}=     odoo.Rpc Client Execute    method=unlink    host=${host}    dbname=${dbname}    user=${user}    pwd=${pwd}    model=${model}    ids=${ids}    context=${context}
     RETURN         ${result}
@@ -158,10 +158,10 @@ Odoo Search Unlink
     [Arguments]
     ...                    ${model}
     ...                    ${domain}
-    ...                    ${dbname}=${ODOO_DB}
+    ...                    ${dbname}=${ROBO_ODOO_DB}
     ...                    ${host}=${ODOO_URL}
-    ...                    ${user}=${ODOO_USER}
-    ...                    ${pwd}=${ODOO_PASSWORD}
+    ...                    ${user}=${ROBO_ODOO_USER}
+    ...                    ${pwd}=${ROBO_ODOO_PASSWORD}
     ...                    ${lang}=en_US
     ...                    ${context}=${None}
     ...                    ${limit}=${None}
@@ -177,10 +177,10 @@ Odoo Search Unlink
 Odoo Ref Id
     [Arguments]
     ...               ${xml_id}
-    ...               ${dbname}=${ODOO_DB}
+    ...               ${dbname}=${ROBO_ODOO_DB}
     ...               ${host}=${ODOO_URL}
-    ...               ${user}=${ODOO_USER}
-    ...               ${pwd}=${ODOO_PASSWORD}
+    ...               ${user}=${ROBO_ODOO_USER}
+    ...               ${pwd}=${ROBO_ODOO_PASSWORD}
     Log to Console    XML ID: ${xml_id}
     ${result}=        odoo.Rpc Client Ref Id     ${host}    ${dbname}    ${user}    ${pwd}    ${xml_id}
     RETURN          ${result}
@@ -188,10 +188,10 @@ Odoo Ref Id
 Odoo Ref
     [Arguments]
     ...               ${xml_id}
-    ...               ${dbname}=${ODOO_DB}
+    ...               ${dbname}=${ROBO_ODOO_DB}
     ...               ${host}=${ODOO_URL}
-    ...               ${user}=${ODOO_USER}
-    ...               ${pwd}=${ODOO_PASSWORD}
+    ...               ${user}=${ROBO_ODOO_USER}
+    ...               ${pwd}=${ROBO_ODOO_PASSWORD}
     Log to Console    XML ID: ${xml_id}
     ${result}=        odoo.Rpc Client Ref        ${host}    ${dbname}    ${user}    ${pwd}    ${xml_id}
     RETURN          ${result}
@@ -204,10 +204,10 @@ Odoo Execute
     ...            ${ids}=${{None}}
     ...            ${params}=${{[]}}
     ...            ${kwparams}=${{{}}}
-    ...            ${dbname}=${ODOO_DB}
+    ...            ${dbname}=${ROBO_ODOO_DB}
     ...            ${host}=${ODOO_URL}
-    ...            ${user}=${ODOO_USER}
-    ...            ${pwd}=${ODOO_PASSWORD}
+    ...            ${user}=${ROBO_ODOO_USER}
+    ...            ${pwd}=${ROBO_ODOO_PASSWORD}
     ...            ${lang}=en_US
     ...            ${context}=${None}
     ${result}=     odoo.Rpc Client Execute    ${host}    ${dbname}    ${user}    ${pwd}    model=${model}    ids=${ids}    method=${method}    params=${params}    kwparams=${kwparams}    lang=${lang}    context=${context}
@@ -219,10 +219,10 @@ Odoo Read
     ...            ${model}
     ...            ${ids}
     ...            ${fields}
-    ...            ${dbname}=${ODOO_DB}
+    ...            ${dbname}=${ROBO_ODOO_DB}
     ...            ${host}=${ODOO_URL}
-    ...            ${user}=${ODOO_USER}
-    ...            ${pwd}=${ODOO_PASSWORD}
+    ...            ${user}=${ROBO_ODOO_USER}
+    ...            ${pwd}=${ROBO_ODOO_PASSWORD}
     ...            ${lang}=en_US
     ...            ${context}=${None}
     ${result}=     odoo.Rpc Client Read       ${host}    ${dbname}    ${user}    ${pwd}    model=${model}    ids=${ids}    fields=${fields}    lang=${lang}    context=${context}
@@ -233,10 +233,10 @@ Odoo Read Field
     ...            ${model}
     ...            ${id}
     ...            ${field}
-    ...            ${dbname}=${ODOO_DB}
+    ...            ${dbname}=${ROBO_ODOO_DB}
     ...            ${host}=${ODOO_URL}
-    ...            ${user}=${ODOO_USER}
-    ...            ${pwd}=${ODOO_PASSWORD}
+    ...            ${user}=${ROBO_ODOO_USER}
+    ...            ${pwd}=${ROBO_ODOO_PASSWORD}
     ...            ${lang}=en_US
     ...            ${context}=${None}
     ${result}=     odoo.Rpc Client Get Field    ${host}    ${dbname}    ${user}    ${pwd}    model=${model}    id=${id}    field=${field}    lang=${lang}    context=${context}
@@ -245,19 +245,19 @@ Odoo Read Field
 Odoo Exec Sql
     [Arguments]
     ...            ${sql}
-    ...            ${dbname}=${ODOO_DB}
+    ...            ${dbname}=${ROBO_ODOO_DB}
     ...            ${host}=${ODOO_URL}
-    ...            ${user}=${ODOO_USER}
-    ...            ${pwd}=${ODOO_PASSWORD}
+    ...            ${user}=${ROBO_ODOO_USER}
+    ...            ${pwd}=${ROBO_ODOO_PASSWORD}
     ${result}=     odoo.Exec Sql              ${host}    ${dbname}    ${user}    ${pwd}    ${sql}
     RETURN         ${result}
 
 Odoo Make Same Passwords
     [Arguments]
-    ...            ${dbname}=${ODOO_DB}
+    ...            ${dbname}=${ROBO_ODOO_DB}
     ...            ${host}=${ODOO_URL}
-    ...            ${user}=${ODOO_USER}
-    ...            ${pwd}=${ODOO_PASSWORD}
+    ...            ${user}=${ROBO_ODOO_USER}
+    ...            ${pwd}=${ROBO_ODOO_PASSWORD}
     ...            ${context}=${None}
     ${result}=     tools.Make Same Passwords    ${host}    ${dbname}    ${user}    ${pwd}
     RETURN         ${result}

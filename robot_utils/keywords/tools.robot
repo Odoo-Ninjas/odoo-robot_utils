@@ -30,10 +30,10 @@ Get Guid
 Odoo Sql
     [Arguments]
     ...    ${sql}
-    ...    ${dbname}=${ODOO_DB}
+    ...    ${dbname}=${ROBO_ODOO_DB}
     ...    ${host}=${ODOO_URL}
-    ...    ${user}=${ODOO_USER}
-    ...    ${pwd}=${ODOO_PASSWORD}
+    ...    ${user}=${ROBO_ODOO_USER}
+    ...    ${pwd}=${ROBO_ODOO_PASSWORD}
     ...    ${context}=${None}
     ${result}=    tools.Execute Sql    ${host}    ${dbname}    ${user}    ${pwd}    ${sql}    context=${context}
     RETURN    ${result}
@@ -48,10 +48,10 @@ Wait For Marker
     [Arguments]
     ...    ${appendix}
     ...    ${timeout}=120
-    ...    ${dbname}=${ODOO_DB}
+    ...    ${dbname}=${ROBO_ODOO_DB}
     ...    ${host}=${ODOO_URL}
-    ...    ${user}=${ODOO_USER}
-    ...    ${pwd}=${ODOO_PASSWORD}
+    ...    ${user}=${ROBO_ODOO_USER}
+    ...    ${pwd}=${ROBO_ODOO_PASSWORD}
     tools.Internal Wait For Marker
     ...    ${host}
     ...    ${dbname}
@@ -63,10 +63,10 @@ Wait For Marker
 Set Wait Marker
     [Arguments]
     ...    ${appendix}
-    ...    ${dbname}=${ODOO_DB}
+    ...    ${dbname}=${ROBO_ODOO_DB}
     ...    ${host}=${ODOO_URL}
-    ...    ${user}=${ODOO_USER}
-    ...    ${pwd}=${ODOO_PASSWORD}
+    ...    ${user}=${ROBO_ODOO_USER}
+    ...    ${pwd}=${ROBO_ODOO_PASSWORD}
     tools.Internal Set Wait Marker    ${host}    ${dbname}    ${user}    ${pwd}    ${TEST_NAME}${appendix}
 
 Eval Regex
