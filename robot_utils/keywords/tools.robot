@@ -158,8 +158,6 @@ Set Element Attribute
 
 JS On Element    [Arguments]    ${css}    ${jscode}    ${maxcount}=0
 
-    # TODO HERE
-
     ${js}=    Catenate    SEPARATOR=\n
     ...    const callback = arguments[arguments.length - 1];
     ...    const css = `${css}`;
@@ -167,14 +165,14 @@ JS On Element    [Arguments]    ${css}    ${jscode}    ${maxcount}=0
     ...    let funcresult = true;
     ...    if (${maxcount} && ${maxcount} > result.length) {
     ...      callback("maxcount");
-    ...    return;
     ...    }
-    ...    for (let i = 0; i < result.length; i++) {
-    ...        const element = result[i];
+    ...    else {
+    ...      for (const element of result) {
     ...        funcresult = 'ok';
     ...        ${jscode};
+    ...      }
+    ...      callback(funcresult);
     ...    }
-    ...    callback(funcresult);
 
     ${res}=    Execute Async Javascript    ${js}
     IF    "${res}" == "maxcount"

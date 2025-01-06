@@ -17,8 +17,11 @@ Library             ../library/default_vars.py
 
 
 *** Keywords ***
-Login    [Arguments]    ${user}=${ROBO_ODOO_USER}    ${password}=${ROBO_ODOO_PASSWORD}    ${url}=${ODOO_URL}/web/login
+Login    [Arguments]    ${user}=${ODOO_USER}    ${password}=${ODOO_PASSWORD}    ${url}=${ODOO_URL}/web/login
+    #{user} is overwritten by context usually
+    ${param_user}=   Get Variable Value    ${user}
     Load Default Vars
+    ${user}=    Get Variable Value    ${param_user}
     ${randomstring}=    Evaluate    str(uuid.uuid4())    modules=uuid
     ${url}=    Set Variable    ${url}#${randomstring}
     ${browser_id}=    Open New Browser    ${url}
@@ -60,19 +63,19 @@ ClickMenu    [Arguments]    ${menu}
 
     Screenshot
     Log To Console    Clicking menu ${menu}
-    ${xpath}=    Set Variable    //a[@data-menu-xmlid='${menu}'] | //button[@data-menu-xmlid='${menu}']
-    Wait Until Element is visible    xpath=${xpath}
+    ${css}=    Set Variable    a[data-menu-xmlid='${menu}'], button[data-menu-xmlid='${menu}']
+    Wait Until Element is visible    css=${css}
 
-    ${attribute_value}=    Get Element Attribute    ${xpath}    aria-expanded
+    ${attribute_value}=    Get Element Attribute    css=${css}    aria-expanded
 
     IF    '${attribute_value}' == 'true'
         RETURN
     ELSE IF    '${attribute_value}' == 'false'
-        Wait To Click    xpath=${xpath}
-        _While Element Attribute Value    ${xpath}    aria-expanded    ==    false    as_bool
+        Wait To Click    css=${css}
+        _While Element Attribute Value    ${css}    aria-expanded    ==    false    as_bool
     ELSE
-        Wait To Click    xpath=${xpath}
-        Wait Until Page Contains Element    xpath=//body[contains(@class, 'o_web_client')]
+        Wait To Click    ${css}
+        Wait Until Page Contains Element    css=body.o_web_client
     END
 
     ElementPostCheck
@@ -84,20 +87,20 @@ MainMenu    [Arguments]    ${menu}
         IF    ${odoo_version} == 11.0
             Log    not needed - top menue on top
         ELSE IF    ${odoo_version} == 14.0
-            Wait Until Element is visible    xpath=//nav[contains(@class, "o_main_navbar")]
+            Wait Until Element is visible    nav.o_main_navbar
         ELSE IF    ${odoo_version} == 17.0
             ${homemenu}=    Run Keyword And Return Status    Get WebElement    css=div.o_home_menu
             IF    not ${homemenu}
-                Wait To Click    xpath=//nav/a[contains(@class, 'o_menu_toggle')]
+                Wait To Click    nav a.o_menu_toggle
             END
         ELSE
-            Wait Until Element is visible    xpath=//div[contains(@class, "o_navbar_apps_menu")]
-            Wait To Click    xpath=//div[contains(@class, "o_navbar_apps_menu")]/button
+            Wait Until Element is visible    div.o_navbar_apps_menu
+            Wait To Click    div.o_navbar_apps_menu button
         END
-        ${xpath}=    Set Variable    //a[@data-menu-xmlid='${menu}'][1]
-        Wait Until Page Contains Element    xpath=${xpath}
-        Wait To Click    xpath=${xpath}
-        Wait Until Page Contains Element    xpath=//body[contains(@class, 'o_web_client')]
+        ${css}=    Set Variable    a[data-menu-xmlid='${menu}']:first-child
+        Wait Until Page Contains Element    css=${css}
+        Wait To Click    css=${css}
+        Wait Until Page Contains Element    css=body.o_web_client
         ElementPostCheck
     ELSE
         # Works V16
@@ -105,11 +108,11 @@ MainMenu    [Arguments]    ${menu}
         IF    ${odoo_version} == 11.0
             Log    not needed - top menue on top
         ELSE
-            ${home_menu}=    Set Variable    //nav[@class='o_main_navbar']//button[@title='Home Menu']
-            Wait Until Page Contains Element    xpath=${home_menu}
-            Wait To Click    xpath=${home_menu}
+            ${home_menu}=    Set Variable    nav.o_main_navbar button[title='Home Menu']
+            Wait Until Page Contains Element    css=${home_menu}
+            Wait To Click    css=${home_menu}
         END
-        Wait To Click    xpath=//a[@data-menu-xmlid='${menu}'][position() = 1]
+        Wait To Click    css=a[data-menu-xmlid='${menu}']:first-child
     END
 
 ApplicationMainMenuOverview
@@ -326,11 +329,13 @@ Odoo Button    [Arguments]    ${text}=${NONE}    ${name}=${NONE}    ${tooltip}=$
     ${hastext}=    Eval    bool(t)    t=${text}    n=${name}
 
     IF    ${hasname}
-        Wait To Click    (//button[@name='${name}'] | //a[@name='${name}'])[1]    tooltip=${tooltip}
+        Wait To Click    button[name='${name}']:first-child, a[name='${name}']:first-child    tooltip=${tooltip}
     ELSE IF    ${hastext}
-        Wait To Click
-        ...    (//button[contains(text(), '${text}')] | //a[contains(text(), '${text}')])[1]
-        ...    tooltip=${tooltip}
+		${attname}=  Set Variable  data-id-findbutton
+        ${tempid}=  Do Get Guid
+        JS On Element    button,a  
+        ...  if (element.textContent.trim() === `${text}`) element.setAttribute('${attname}', 'id${tempid}');
+        Wait To Click  [${attname}='id${tempid}']  tooltip=${tooltip}
     ELSE
         FAIL    provide either text or name
     END
