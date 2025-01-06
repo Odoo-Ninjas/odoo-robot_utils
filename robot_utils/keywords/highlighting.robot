@@ -27,6 +27,9 @@ Highlight Element    [Arguments]    ${css}    ${toggle}
 
 
 Add Cursor
+    IF  ${ROBO_NO_UI_HIGHLIGHTING}
+        RETURN
+    END
 
     ${content}=                 Get File                                             ${CUSTOMS_DIR}/addons_robot/robot_utils/keywords/js/cursor.js
     ${js}=                      Catenate                                             SEPARATOR=\n
@@ -37,6 +40,9 @@ Add Cursor
     Execute Async Javascript    ${js}
 
 Remove Cursor
+    IF  ${ROBO_NO_UI_HIGHLIGHTING}
+        RETURN
+    END
     ${content}=                 Get File                                             ${CUSTOMS_DIR}/addons_robot/robot_utils/keywords/js/cursor.js
     ${js}=                      Catenate                                             SEPARATOR=\n
     ...                         const callback = arguments[arguments.length - 1];
@@ -46,21 +52,26 @@ Remove Cursor
     Execute Async Javascript    ${js}
 
 
-ShowTooltipByXPath    [Arguments]    ${css}    ${tooltip}
+ShowTooltipByLocator    [Arguments]    ${css}    ${tooltip}
+    IF  ${ROBO_NO_UI_HIGHLIGHTING}
+        RETURN
+    END
 
     ${content}=
     ...                         Get File
     ...                         ${CUSTOMS_DIR}/addons_robot/robot_utils/keywords/js/highlight_element.js
     ${js}=                      Catenate                                                              SEPARATOR=\n
-    ...                         const xpath = `${css}`;
     ...                         const tooltip = "${tooltip}";
     ...                         const callback = arguments[arguments.length - 1];
     ...                         ${content}
-    ...                         showTooltipByCss(css, tooltip);
+    ...                         showTooltipByCss(`${css}`, tooltip);
     ...                         callback();
     Execute Async Javascript    ${js}
 
 RemoveTooltips    [Arguments]
+    IF  ${ROBO_NO_UI_HIGHLIGHTING}
+        RETURN
+    END
 
     ${content}=
     ...                         Get File

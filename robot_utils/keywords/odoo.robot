@@ -31,19 +31,19 @@ Login    [Arguments]    ${user}=${ODOO_USER}    ${password}=${ODOO_PASSWORD}    
     Capture Page Screenshot
     Wait Until Element is Visible    name=login
     Log To Console    Input is visible, now entering credentials for user ${user} with password ${password}
-    Input Text    xpath=//input[@name='login'][1]    ${user}
-    Input Text    xpath=//input[@name='password'][1]    ${password}
+    Input Text    css=input#login    ${user}
+    Input Text    css=input#password    ${password}
     Log To Console    Clicking Login
     Capture Page Screenshot
-    Click Button    xpath=//div[contains(@class, 'oe_login_buttons')]//button[@type='submit']
+    Click Button    css=div.oe_login_buttons button[type='submit']
     Log To Console    Clicked login button - waiting
     Capture Page Screenshot
     IF    ${odoo_version} <= 11.0
-        Wait Until Page Contains Element    xpath=//body[contains(@class, 'o_web_client')]
+        Wait Until Page Contains Element    css=body.o_web_client
     ELSE IF    ${odoo_version} < 14.0
-        Wait Until Page Contains Element    xpath=//nav[contains(@id, 'oe_main_menu_navbar')]
+        Wait Until Page Contains Element    css=nav.oe_main_menu_navbar
     ELSE
-        Wait Until Page Contains Element    xpath=//nav[contains(@class, 'o_main_navbar')]
+        Wait Until Page Contains Element    css=nav.o_main_navbar
     END
     ElementPostCheck
     Log To Console    Logged In - continuing
@@ -252,18 +252,18 @@ Write    [Arguments]
 
 Breadcrumb Back
     Log To Console    Click breadcrumb - last item
-    IF    ${odoo_version} == 17.0
-        Wait To Click    //ol[contains(@class, 'breadcrumb')]/li[a][last()]
-    ELSE IF    ${odoo_version} == 16.0
-        Wait To Click    //ol[contains(@class, 'breadcrumb')]/li[a][last()]
+    IF    ${ODOO_VERSION} == 17.0
+        Wait To Click    ol.breadcrumb li:last-child a:last-child
+    ELSE IF    ${ODOO_VERSION} == 16.0
+        Wait To Click    ol.breadcrumb li:last-child a:last-child
     ELSE
-        FAIL    Breadcrumb Needs implementation for ${odoo_version}
+        FAIL    Breadcrumb Needs implementation for ${ODOO_VERSION}
     END
     ElementPostCheck
 
 Form Save
     Screenshot
-    Wait To Click    xpath=//button[contains(@class, 'o_form_button_save')]
+    Wait To Click    button.o_form_button_save
     Screenshot
 
 Goto View    [Arguments]    ${model}    ${id}    ${type}=form
@@ -310,7 +310,7 @@ Wait To Click    [Arguments]    ${css}    ${tooltip}=${NONE}
         ${status_mouse_over}=    Run Keyword And Return Status    Mouse Over    ${css}
     END
     IF    ${hastooltip}
-        _showTooltipByLocator    ${css}    tooltip=${tooltip}
+        ShowTooltip By Locator    css=${css}    tooltip=${tooltip}
     END
     JS On Element    ${css}    jscode=element.click()    maxcount=1
     IF    ${hastooltip}    _removeTooltips
