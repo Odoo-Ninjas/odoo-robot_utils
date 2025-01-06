@@ -208,6 +208,8 @@ Write    [Arguments]
         ${elapsed}=  Get Elapsed Time Ms  ${start}
         Log To Console    Elapsed time WriteInField at Pos B3: ${elapsed}ms
 
+        Element Pre Check  ${css}
+
         ${element}=  Get WebElement  css=${css}
         ${tempid}=  Do Get Guid
         ${tempid}=  Set Variable  id${tempid}
@@ -232,7 +234,11 @@ Write    [Arguments]
         Log To Console    Elapsed time WriteInField at Pos B3.2: ${elapsed}ms
         ${elapsed}=  Get Elapsed Time Ms  ${start}
         Log To Console    Elapsed time WriteInField at Pos B3.3: ${elapsed}ms
+
         _Write To Element    ${element}    ${value}    ignore_auto_complete=${ignore_auto_complete}
+
+        ElementPostCheck
+
         ${elapsed}=  Get Elapsed Time Ms  ${start}
         Log To Console    Elapsed time WriteInField at Pos B3.4: ${elapsed}ms
         Highlight Element    ${css}    ${FALSE}

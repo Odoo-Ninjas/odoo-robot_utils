@@ -80,8 +80,6 @@ _Write To Element    [Arguments]    ${element}    ${value}    ${ignore_auto_comp
     ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
     Log To Console    _Write To Element A ${elapsed}ms
 
-    ElementPreCheck    css=${css}
-
     ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
     Log To Console    _Write To Element C ${elapsed}ms
 
@@ -93,10 +91,10 @@ _Write To Element    [Arguments]    ${element}    ${value}    ${ignore_auto_comp
     # ${status}    ${error}=    Run Keyword And Ignore Error    Input Text    css=${css}    ${value}
     ${libdir}=    library Directory
     ${inputelement_js}=    Get File    ${libdir}/../keywords/js/inputelement.js
-    ${inputelement_js}=    Catenate  SEPARATOR=\n
-    ...   const css =`${css}`;
-    ...   const value =`${value}`;
-    ...   ${inputelement_js}
+    ${inputelement_js}=    Catenate    SEPARATOR=\n
+    ...    const css =`${css}`;
+    ...    const value =`${value}`;
+    ...    ${inputelement_js}
     ${status}=    Execute Async Javascript    ${inputelement_js}
     ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
     Log To Console    _Write To Element D ${elapsed}ms
@@ -106,7 +104,7 @@ _Write To Element    [Arguments]    ${element}    ${value}    ${ignore_auto_comp
         JS Scroll Into View    ${css}
     END
     IF    ${is_autocomplete} and not ${ignore_auto_complete}
-        IF  ${ODOO_VERSION} <= 15.0
+        IF    ${ODOO_VERSION} <= 15.0
             ${arrow_down_event}=    Get File    ${libdir}/../keywords/js/events.js
 
             # Set value in combobox and press down cursor to select
@@ -130,7 +128,6 @@ _Write To Element    [Arguments]    ${element}    ${value}    ${ignore_auto_comp
     ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
     Log To Console    _Write To Element E ${elapsed}ms
 
-    ElementPostCheck
     ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
     Log To Console    _Write To Element DONE ${elapsed}ms
 
@@ -249,25 +246,20 @@ Eval JS Error Dialog
     END
 
 ElementPreCheck    [Arguments]    ${css}
+    ${start}=  tools.Get Current Time Ms
+    Wait Blocking
+    IF    ${ODOO_VERSION} < 16.0
+        ${mode}=    Set Variable    closest
+    ELSE
+        ${mode}=    Set Variable    clickall
+    END
 
-    Log2    Element Precheck ${css}
-    Wait Blocking
-    # Element may be in a tab. So click the parent tab. If there is no parent tab, forget about the result
-    # not verified for V16 yet with tabs
-    # TODO HERE
-    ${code}=    Catenate
-    ...    const callback = arguments[arguments.length - 1];
-    ...    var path=`${css}`.replace('css=','');
-    ...    const item = document.querySelector(path).closest('div.oe_notebook_page');
-    ...    if (item && item.id) {
-    ...    window.location = "#"+id;
-    ...    $("a[href='#"+id+"']").click();
-    ...    }
-    ...    callback();
-    ...    return true;
-    Execute Async Javascript    ${code}
-    Wait Blocking
-    Log2    Done: Element Precheck ${css}
+    ${js}=    Get JS    element_precheck.js
+    ...    const mode="${mode}"; const css=`${css}`;
+
+    Execute Async Javascript    ${js}
+    ${elapsed}=  tools.Get Elapsed Time Ms  ${start}
+    Log2    Done: Element Precheck ${css} done in ${elapsed}ms
 
 _has_module_installed    [Arguments]    ${modulename}
 
