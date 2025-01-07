@@ -21,10 +21,12 @@ Test Many2one
     Odoo Search Unlink    res.partner    [('name', '=', 'Mickey Mouse')]
 
     # V15 is create
-    Wait To Click    //button[contains(text(), 'New') or contains(text(), 'Create')]
+    ${css1}=          CSS Identifier With Text  button  New
+    ${css2}=          CSS Identifier With Text  button  Create
+    Wait To Click    ${css1},${css2}
 
-    WriteInField    fieldname=name    value=Mickey Mouse    ignore_auto_complete=True
-    WriteInField    category_id    value=Services
+    Write    fieldname=name    value=Mickey Mouse    ignore_auto_complete=True
+    Write    category_id    value=Services
     Form Save
 
     ${partners}=    Odoo Search    res.partner    []    order=id desc    limit=1
@@ -41,7 +43,7 @@ Test One2many-Give Dict
     ClickMenu    sale.sale_order_menu
     ClickMenu    sale.menu_sale_order
     Wait To Click    //button[contains(@class, 'o_list_button_add')]
-    Write In Field    partner_id    Deco Addict
+    Write    partner_id    Deco Addict
     Screenshot
 
     Wait To Click    //div[@id='order_line' or @name='order_line']//a[text() = 'Add a product']

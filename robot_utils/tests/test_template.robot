@@ -19,10 +19,10 @@ Buy Something and change amount
     # Odoo Load Data    ../data/products.xml 
     MainMenu          purchase.menu_purchase_root
     Odoo Button       Create
-    WriteInField      partner_id                     A-Vendor DE
+    Write             partner_id                     A-Vendor DE
     Odoo Button       text=Add a product
-    WriteInField      product_id                     Storage Box    parent=order_line
-    WriteInField      product_qty                    50             parent=order_line
+    Write             product_id                     Storage Box    parent=order_line
+    Write             product_qty                    50             parent=order_line
     FormSave
     Screenshot
     Odoo Button       name=button_confirm
