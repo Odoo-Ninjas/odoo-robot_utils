@@ -210,3 +210,23 @@ Get JS    [Arguments]    ${name}    ${prepend_js}=${NONE}
     ...    ${prepend_js}
     ...    ${result}
     RETURN    ${result}
+
+
+CSS Identifier With Text  [Arguments]  ${css}  ${text}  ${match}=exact
+    Assert  '${match}' in ['exact', 'contains']
+    ${identifier}=  Do Get Guid
+    ${identifier}=  Set Variable  id${identifier}
+    ${dataname}=  Set Variable  cssidentifier
+    Execute Async Javascript  
+    ...  const callback = arguments[arguments.length - 1];
+    ...  const id = `${identifier}`;
+    ...  const css = `${css}`;
+    ...  const text = `${text}`.trim();
+    ...  const arr = Array.from(document.querySelectorAll(css));
+    ...  for (el of arr.filter(fe => '${match}' === 'exact' ? fe.textContent.trim() === text : fe.textContent.indexOf(text) >= 0)) {
+    ...      el.dataset.${dataname} = id;
+    ...  }
+    ...  callback(true);
+    ${result}=  Set Variable  [data-${dataname} = "${identifier}"]
+    RETURN  ${result}
+

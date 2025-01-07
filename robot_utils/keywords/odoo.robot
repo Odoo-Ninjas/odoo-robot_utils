@@ -159,15 +159,15 @@ Write    [Arguments]
     END
 
     ${elapsed}=  Get Elapsed Time Ms  ${start}
-    Log To Console    Elapsed time WriteInField at Pos A: ${elapsed}ms
+    Log To Console    Elapsed time Write at Pos A: ${elapsed}ms
 
     Log2
-    ...    WriteInField ${fieldname}=${value} ignore_auto_complete=${ignore_auto_complete} with parent=${parent} and xpath_parent=${css_parent}
+    ...    Write ${fieldname}=${value} ignore_auto_complete=${ignore_auto_complete} with parent=${parent} and xpath_parent=${css_parent}
     ${locator_ACE}=    _LocatorACE    ${fieldname}    ${parent}    css_parent=${css_parent}
 
     ${locator_select}=    _LocatorSelect    ${fieldname}    ${parent}    css_parent=${css_parent}
     ${elapsed}=  Get Elapsed Time Ms  ${start}
-    Log To Console    Elapsed time WriteInField at Pos A0: ${elapsed}ms
+    Log To Console    Elapsed time Write at Pos A0: ${elapsed}ms
 
     ${js}=    Catenate
     ...    SEPARATOR=\n
@@ -179,7 +179,7 @@ Write    [Arguments]
     ...    else callback("none");
     ${eltype}=  Execute Async Javascript    ${js}
     ${elapsed}=  Get Elapsed Time Ms  ${start}
-    Log To Console    Elapsed time WriteInField at Pos A0.1: ${elapsed}ms
+    Log To Console    Elapsed time Write at Pos A0.1: ${elapsed}ms
 
     ${hastooltip}=    Eval    bool(h)    h=${tooltip}
 
@@ -191,7 +191,7 @@ Write    [Arguments]
         _WriteSelect    ${fieldname}    ${value}    ${parent}    css_parent=${css_parent}    tooltip=${tooltip}
     ELSE
         ${elapsed}=  Get Elapsed Time Ms  ${start}
-        Log To Console    Elapsed time WriteInField at Pos B1: ${elapsed}ms
+        Log To Console    Elapsed time Write at Pos B1: ${elapsed}ms
 
         ${csss}=    Create List
         ...    div[name='${fieldname}'] input
@@ -203,7 +203,7 @@ Write    [Arguments]
         ${css}=    Catenate    SEPARATOR=,      @{csss}
 
         ${elapsed}=  Get Elapsed Time Ms  ${start}
-        Log To Console    Elapsed time WriteInField at Pos B3: ${elapsed}ms
+        Log To Console    Elapsed time Write at Pos B3: ${elapsed}ms
 
         Element Pre Check  ${css}
 
@@ -218,28 +218,28 @@ Write    [Arguments]
 
         Highlight Element    ${css}    ${TRUE}
         ${elapsed}=  Get Elapsed Time Ms  ${start}
-        Log To Console    Elapsed time WriteInField at Pos B3.1: ${elapsed}ms
+        Log To Console    Elapsed time Write at Pos B3.1: ${elapsed}ms
         IF  not ${ROBO_NO_UI_HIGHLIGHTING}
             JS Scroll Into View    ${css}
         END
         ${elapsed}=  Get Elapsed Time Ms  ${start}
-        Log To Console    Elapsed time WriteInField at Pos B3.1.1: ${elapsed}ms
+        Log To Console    Elapsed time Write at Pos B3.1.1: ${elapsed}ms
         IF  not ${ROBO_NO_UI_HIGHLIGHTING}
             Mouse Over  ${testwebel}
         END
         ${elapsed}=  Get Elapsed Time Ms  ${start}
-        Log To Console    Elapsed time WriteInField at Pos B3.2: ${elapsed}ms
+        Log To Console    Elapsed time Write at Pos B3.2: ${elapsed}ms
         ${elapsed}=  Get Elapsed Time Ms  ${start}
-        Log To Console    Elapsed time WriteInField at Pos B3.3: ${elapsed}ms
+        Log To Console    Elapsed time Write at Pos B3.3: ${elapsed}ms
 
         _Write To Element    ${element}    ${value}    ignore_auto_complete=${ignore_auto_complete}
 
 
         ${elapsed}=  Get Elapsed Time Ms  ${start}
-        Log To Console    Elapsed time WriteInField at Pos B3.4: ${elapsed}ms
+        Log To Console    Elapsed time Write at Pos B3.4: ${elapsed}ms
         Highlight Element    ${css}    ${FALSE}
         ${elapsed}=  Get Elapsed Time Ms  ${start}
-        Log To Console    Elapsed time WriteInField at Pos B3.5: ${elapsed}ms
+        Log To Console    Elapsed time Write at Pos B3.5: ${elapsed}ms
 
         Set Element Attribute  ${css}  id  ${oldid}
         ${css}=  Set Variable  ${oldcss}
@@ -248,10 +248,10 @@ Write    [Arguments]
     IF    ${hastooltip}    
         _removeTooltips
     END
-    Log To Console    Done: WriteInField ${fieldname}=${value}
+    Log To Console    Done: Write ${fieldname}=${value}
     Screenshot
     ${elapsed}=    Get Elapsed Time MS  ${start}
-    Log To Console    Elapsed time WriteInField: ${elapsed}ms
+    Log To Console    Elapsed time Write: ${elapsed}ms
 
 Breadcrumb Back
     Log To Console    Click breadcrumb - last item
@@ -334,11 +334,8 @@ Odoo Button    [Arguments]    ${text}=${NONE}    ${name}=${NONE}    ${tooltip}=$
     IF    ${hasname}
         Wait To Click    button[name='${name}'], a[name='${name}']    tooltip=${tooltip}
     ELSE IF    ${hastext}
-		${attname}=  Set Variable  data-id-findbutton
-        ${tempid}=  Do Get Guid
-        JS On Element    button,a  
-        ...  if (element.textContent.trim() === `${text}`) element.setAttribute('${attname}', 'id${tempid}');
-        Wait To Click  [${attname}='id${tempid}']  tooltip=${tooltip}
+        ${css}=   CSS Identifier With Text  button,a  ${text}
+        Wait To Click  ${css}  tooltip=${tooltip}
     ELSE
         FAIL    provide either text or name
     END
