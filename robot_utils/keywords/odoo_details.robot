@@ -48,14 +48,14 @@ _WriteACEEditor    [Arguments]    ${fieldname}    ${value}    ${parent}    ${css
     # V17
     # <div name="field1" class="o_field_widget o_field_ace"
     ${locator}=    _LocatorACE    ${fieldname}    ${parent}    ${css_parent}
-    ${origId}=    Get Element Attribute    ${locator}    id
+    ${origId}=    Get Element Attribute    css=${locator}    id
     ${tempId}=    Generate Random String    8
 
     IF    ${tooltip}
         ShowTooltip By Locator    ${locator}    tooltip=${tooltip}
     END
 
-    Assign Id To Element    locator=${locator}    id=${tempId}
+    Assign Id To Element    css=${locator}    id=${tempId}
     ${js}=    Catenate
     ...    const callback = arguments[arguments.length - 1];
     ...    var editor = ace.edit(document.getElementById("${tempId}"));
@@ -65,7 +65,7 @@ _WriteACEEditor    [Arguments]    ${fieldname}    ${value}    ${parent}    ${css
     ...    callback();
     Screenshot
     Execute Async Javascript    ${js}
-    Assign Id To Element    locator=${locator}    id=${origId}
+    Assign Id To Element    css=${locator}    id=${origId}
     Remove Tooltips
     Screenshot
 
