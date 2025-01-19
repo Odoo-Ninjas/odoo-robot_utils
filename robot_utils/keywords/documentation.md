@@ -1,3 +1,13 @@
+# browser.robot
+  * Detect DevTools
+  * Last Browser
+  * Open New Browser
+# highlighting.robot
+  * Add Cursor
+  * Highlight Element
+  * Remove Cursor
+  * RemoveTooltips
+  * ShowTooltipByLocator
 # odoo.robot
   * ApplicationMainMenuOverview
   * Breadcrumb Back
@@ -10,9 +20,10 @@
   * MainMenu
   * Odoo Button
   * Odoo Click
-  * Upload File
+  * Odoo Setting Checkbox
+  * Odoo Upload File
+  * Odoo Write One2many
   * Wait To Click
-  * Write One2many
   * Write
 # odoo_client.robot
   * Odoo Conn
@@ -44,15 +55,14 @@
   * _LocatorSelect
   * _Wait Until Element Is Not Disabled
   * _While Element Attribute Value
-  * _Write To XPath AutoComplete
-  * _Write To Xpath
+  * _Write To CSS AutoComplete
+  * _Write To Element
+  * _Write To Element 15smaller
   * _WriteACEEditor
   * _WriteSelect
-  * _blur_active_element    ${js}=    Catenate    SEPARATOR=;
+  * _blur_active_element    ${js}=    Catenate    SEPARATOR=\n
   * _has_module_installed
-  * _highlight_element
   * _prepend_parent
-  * _showTooltipByXPath
 # roundcube.robot
   * Create Identity
   * Delete All Mails
@@ -70,22 +80,27 @@
   * Highlight heading
   * Red Rect on
   * Show Number
+# test_setup.robot
+  * Setup Test Basic
+  * Toggle Module Installation
 # tools.robot
   * Assert
+  * CSS Identifier With Text
   * Eval Regex
   * Extract Param From Url
   * Get All Variables
   * Get Guid
   * Get Instance ID From Url
+  * Get JS
   * Get Now As String
-  * Get Selenium Timeout
+  * Get Selenium Timeout    # this gets the current timeout
   * Is Visible
   * JS On Element
+  * JS Scroll Into View
   * Log All Variables
   * Log Keyword Parameters
   * Log2
   * Odoo Sql
-  * Open New Browser
   * Output Source
   * Screenshot
   * Set Dict Key

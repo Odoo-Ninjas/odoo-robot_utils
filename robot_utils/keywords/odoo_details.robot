@@ -202,6 +202,8 @@ Wait Blocking
     Log To Console    Wait Blocking Done in ${elapsed}ms
 
 ElementPostCheck
+    [Documentation]
+    ...    Run Keyword And Expect Error    *invalid syntax*    Wait To Click    css=${css}
     Wait Blocking
     Eval JS Error Dialog
     Eval Validation User Error Dialog
@@ -209,31 +211,31 @@ ElementPostCheck
 Eval Validation User Error Dialog
     # TODO evaluate Validation Error and User Error again; best return text error immediatley
     ${js}=    Catenate    SEPARATOR=\n
-    ...    const callback = arguments[arguments.length - 1];
-    ...    const elements = Array.from(document.querySelectorAll("div.modal[role='dialog'] button")).filter(
-    ...    element => element.textContent.includes("See details"));
-    ...    if (elements.length > 0) {
-    ...    callback(true);
-    ...    } else { callback(false); }
+    ...    let textcontent = element.textContent;
+    ...    if (textcontent.includes("User Error") || textcontent.includes("Validation Error")) {
+    ...    funcresult = "has_error_dialog";
+    ...    }
+    ${has_error_dialog}=    JS On Element    div.modal[role='dialog'] header    ${js}    return_callback=${TRUE}
+    ${is_error_dialog}=  Evaluate  '${has_error_dialog}' == 'has_error_dialog'
 
-    ${error_dialog}=    Execute Async Javascript    ${js}
-
-    IF    ${error_dialog}    FAIL    Popup-Window: ${error_dialog}
+    IF    ${is_error_dialog}
+        ${js}=    Catenate    SEPARATOR=\n    funcresult = element.textContent;
+        ${content}=    JS On Element    div.modal[role='dialog'] main.modal-body    ${js}    return_callback=${TRUE}
+        FAIL    Popup-Window: ${content}
+    END
 
 Eval JS Error Dialog
     ${js}=    Catenate    SEPARATOR=\n
-    ...    const callback = arguments[arguments.length - 1];
-    ...    const elements = Array.from(document.querySelectorAll("div[role='alert'] button")).filter(
-    ...    element => element.textContent.includes("See details"));
-    ...    if (elements.length > 0) {
-    ...    callback(true);
-    ...    } else { callback(false); }
+    ...    if (element.textContent.includes("See details")) {
+    ...    funcresult = "has_error_dialog";
+    ...    } callback(true);
+    ${has_error_dialog}    ${msg}=    Run Keyword And Ignore Error
+    ...    JS On Element
+    ...    div[role='alert'] button
+    ...    ${js}
 
-    ${has_error_dialog}=    Execute Async Javascript    ${js}
-
-    IF    ${has_error_dialog}
+    IF    '${has_error_dialog}' != 'FAIL'
         Click Element    xpath=//button[text() = 'See details']
-        Screenshot
         ${locator}=    Set Variable    div.o_error_detail pre
         ${code_content}=    Get Text    css=${locator}
 
@@ -246,7 +248,7 @@ Eval JS Error Dialog
     END
 
 ElementPreCheck    [Arguments]    ${css}
-    ${start}=  tools.Get Current Time Ms
+    ${start}=    tools.Get Current Time Ms
     Wait Blocking
     IF    ${ODOO_VERSION} < 16.0
         ${mode}=    Set Variable    closest
@@ -258,7 +260,7 @@ ElementPreCheck    [Arguments]    ${css}
     ...    const mode="${mode}"; const css=`${css}`;
 
     Execute Async Javascript    ${js}
-    ${elapsed}=  tools.Get Elapsed Time Ms  ${start}
+    ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
     Log2    Done: Element Precheck ${css} done in ${elapsed}ms
 
 _has_module_installed    [Arguments]    ${modulename}

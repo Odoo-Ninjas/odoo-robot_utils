@@ -156,29 +156,33 @@ Set Element Attribute
     ...    element.setAttribute("${attribute}", "${value}");
     JS On Element    ${css}    ${js}
 
-JS On Element    [Arguments]    ${css}    ${jscode}    ${maxcount}=0
+JS On Element    [Arguments]    ${css}    ${jscode}    ${maxcount}=0  ${return_callback}=${FALSE}
 
     ${js}=    Catenate    SEPARATOR=\n
     ...    const callback = arguments[arguments.length - 1];
     ...    const css = `${css}`;
     ...    const result = document.querySelectorAll(css);
-    ...    let funcresult = true;
+    ...    let funcresult = "not_ok";
     ...    if (${maxcount} && ${maxcount} > result.length) {
-    ...    callback("maxcount");
+    ...      callback("maxcount");
     ...    }
     ...    else {
-    ...    for (const element of result) {
-    ...    funcresult = 'ok';
-    ...    ${jscode};
-    ...    }
-    ...    callback(funcresult);
+    ...      for (const element of result) {
+    ...        funcresult = 'ok';
+    ...        ${jscode};
+    ...      }
+    ...      callback(funcresult);
     ...    }
 
     ${res}=    Execute Async Javascript    ${js}
-    IF    "${res}" == "maxcount"
-        FAIL    Too many elements found for ${css}. Please make sure you identify it more closely.
+    IF  ${return_callback}
+        RETURN  ${res}
+    ELSE
+        IF    "${res}" == "maxcount"
+            FAIL    Too many elements found for ${css}. Please make sure you identify it more closely.
+        END
+        IF    "${res}" != "ok"    FAIL    did not find the element ${css} to click
     END
-    IF    "${res}" != "ok"    FAIL    did not find the element ${css} to click
 
 Get Selenium Timeout    # this gets the current timeout
     ${current_timeout}=    Set Selenium Timeout    0
