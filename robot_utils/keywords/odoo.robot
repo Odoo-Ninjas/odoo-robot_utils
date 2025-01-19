@@ -340,41 +340,30 @@ Odoo Button    [Arguments]    ${text}=${NONE}    ${name}=${NONE}    ${tooltip}=$
         FAIL    provide either text or name
     END
 
-Odoo Upload File    [Arguments]    ${fieldname}    ${filepath}    ${parent}=${NONE}    ${xpath_parent}=${NONE}
+Odoo Upload File    [Arguments]    ${fieldname}    ${filepath}    ${parent}=${NONE}    ${css_parent}=${NONE}
 
     Log To Console    UploadFile ${fieldname}=${filepath}
     File Should Exist    ${filepath}
 
-    ${xpath}=    Set Variable
-    ...    //div[@name='${fieldname}']//input[@type='file']
-    ${xpath}=    _prepend_parent    ${xpath}    ${parent}    xpath_parent=${xpath_parent}
+    ${css}=    Create List    
+    ...  div[name='${fieldname}'] input[type='file']
+    ...  div.o_field_binary_file[name='${fieldname}'] div.o_hidden_input_file
+    ...  div.o_field_binary_file[name='${fieldname}'] div.o_hidden
+    ${css}=    _prepend_parent    ${css}    ${parent}    css_parent=${css_parent}
+    ${css}=    Catenate  SEPARATOR=,  @{css}
 
     Log To Console    Uploading file to ${fieldname}
-    ${js_show_fileupload}=    Catenate
-    ...    SEPARATOR=\n
-    ...    const callback = arguments[arguments.length - 1];
-    ...    const nodes = Array.from(document.querySelectorAll("div[name='${fieldname}'] input[type='file'], div.o_field_binary_file[name='${fieldname}'] div.o_hidden_input_file, div.o_field_binary_file[name='${fieldname}'] div.o_hidden"));
-    ...    nodes.forEach(inputel => {
-    ...    inputel.classList.remove("o_hidden_input_file");
-    ...    inputel.classList.remove("o_hidden");
-    ...    inputel.style.display = "";
-    ...    });
-    ...    callback();
-    Screenshot
-    Wait Until Page Contains Element    xpath=${xpath}/..
 
-    Screenshot
-    Log To Console    ${js_show_fileupload}
-    Execute Async Javascript    ${js_show_fileupload}
-    Screenshot
-
-    Wait Until Element Is Visible    xpath=${xpath}/..
-    Screenshot
+    ${js}=  Catenate  SEPARATOR=\n
+    ...   element.classList.remove("o_hidden_input_file");
+    ...   element.classList.remove("o_hidden");
+    ...   element.style.display = "";
+    JS On Element  ${css}  ${js}
 
     ${file_name}=    tools.Get File Name    ${file_path}
-    Copy File    ${filepath}    ${DIRECTORY UPLOAD FILES LOCAL}/${file_name}
+    tools.Copy File    ${filepath}    ${DIRECTORY UPLOAD FILES LOCAL}/${file_name}
 
-    Choose File    xpath=${xpath}    ${DIRECTORY UPLOAD FILES BROWSER DRIVER}/${file_name}
+    Choose File    css=${css}    ${DIRECTORY UPLOAD FILES BROWSER DRIVER}/${file_name}
     ElementPostCheck
     Log To Console    Done UploadFile ${fieldname}=${filepath}
 
