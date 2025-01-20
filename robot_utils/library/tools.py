@@ -219,18 +219,21 @@ class tools(object):
     def prepend_parent_in_tools(self, path, parent, css_parent):
         # Check if path is a list
         is_list = isinstance(path, (tuple, list))
+        parent = parent or ''
 
         new_path = []
         if is_list:
             for item in path:
                 for subitem in item.split(","):
-                    subitem = " ".join(filter(bool, [css_parent, parent, subitem]))
-                    new_path.append(subitem)
+                    for pparent in parent.split(","):
+                        subitem = " ".join(filter(bool, [css_parent, pparent, subitem]))
+                        new_path.append(subitem)
             path = new_path
         else:
             for item in path.split(","):
-                item = " ".join(filter(bool, [css_parent, parent, item]))
-                new_path.append(item)
+                for pparent in parent.split(","):
+                    item = " ".join(filter(bool, [css_parent, pparent, item]))
+                    new_path.append(item)
             path = ','.join(new_path)
 
         return path
