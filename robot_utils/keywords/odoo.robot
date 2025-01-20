@@ -319,6 +319,7 @@ Wait To Click    [Arguments]    ${css}    ${tooltip}=${NONE}
     IF    ${hastooltip}    _removeTooltips
 
     Sleep    10ms    # Give chance to become disabled
+    Wait Ajax Requests Done
     _Wait Until Element Is Not Disabled    ${css}
     Element Post Check
     Capture Page Screenshot
