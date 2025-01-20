@@ -234,3 +234,16 @@ CSS Identifier With Text  [Arguments]  ${css}  ${text}  ${match}=exact
     ${result}=  Set Variable  [data-${dataname} = "${identifier}"]
     RETURN  ${result}
 
+
+Activate AJAX Counter
+    ${libdir}=    library Directory
+    ${result}=    Get File    ${libdir}/../keywords/js/ajax_counter.js
+    Execute Javascript  ${result}
+
+Get Ajax Counter
+    ${counter}=  Execute Async Javascript
+    ...  const callback = arguments[arguments.length - 1];
+    ...  const counter = parseInt(localStorage.getItem('robo_counter') || 0);
+    ...  callback(counter);
+    ${counter}=  Eval  int("${counter}")
+    RETURN  ${counter}
