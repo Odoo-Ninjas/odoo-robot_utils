@@ -247,3 +247,15 @@ Get Ajax Counter
     ...  callback(counter);
     ${counter}=  Eval  int("${counter}")
     RETURN  ${counter}
+
+Wait Ajax Requests Done
+    ${counter_ajax}=  Get Ajax Counter
+    ${counter}=    Set Variable    0
+    WHILE    ${counter} < ${SELENIUM_TIMEOUT} and ${counter_ajax} > 0
+        Sleep  0.1s
+        ${counter}=  Evaluate  ${counter} + 0.1
+        ${counter_ajax}=  Get Ajax Counter
+    END
+    IF  ${counter} > 0
+        FAIL  Timeout waiting for ajax requests to finish
+    END

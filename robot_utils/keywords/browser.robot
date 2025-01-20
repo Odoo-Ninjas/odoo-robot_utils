@@ -19,6 +19,9 @@ Detect DevTools
     ...    arguments[arguments.length - 1](result);
     RETURN   ${is_open}
 
+Go To  [Arguments]  ${url}
+    SeleniumLibrary.Go To  ${url}
+    Activate Ajax Counter
 
 Open New Browser    [Arguments]    ${url}
     ${python_path}    Evaluate    sys.executable    modules=sys
@@ -37,7 +40,6 @@ Open New Browser    [Arguments]    ${url}
         Set Window Position        0                                                            0
         Set Window Size            ${BROWSER_WIDTH}                                             ${BROWSER_HEIGHT}
         Go To                      ${url}
-        Activate Ajax Counter
     END
     Capture Page Screenshot
     RETURN                     ${driver}
