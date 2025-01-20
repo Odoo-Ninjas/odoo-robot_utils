@@ -178,6 +178,12 @@ Wait Blocking
 
     ${css}=    Set Variable    div.o_loading, span.o_loading_indicator, div.o_blockUI
 
+    ${counter_ajax}=  Get Ajax Counter
+    WHILE  ${counter_ajax} > 0
+        Sleep  0.1s
+        ${counter_ajax}=  Get Ajax Counter
+    END
+
     # Repeat Keyword
     # ...    2 times
     # ...    Run Keyword And Ignore Error
