@@ -155,7 +155,7 @@ Write    [Arguments]
 
     ${parent_set}=    Eval    bool(v)    v=${parent}
     IF    ${parent_set}
-        ${parent}=    Catenate    SEPARATOR=|    div[name='${parent}'], div[id='${parent}']
+        ${parent}=    Set Variable    div[name='${parent}'], div[id='${parent}']
     END
 
     ${elapsed}=  Get Elapsed Time Ms  ${start}
