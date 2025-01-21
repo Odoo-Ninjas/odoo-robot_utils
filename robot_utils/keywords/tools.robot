@@ -256,6 +256,6 @@ Wait Ajax Requests Done
         ${counter}=  Evaluate  ${counter} + 0.1
         ${counter_ajax}=  Get Ajax Counter
     END
-    IF  ${counter} > 0
+    IF  ${counter_ajax} > 0
         FAIL  Timeout waiting for ajax requests to finish
     END
