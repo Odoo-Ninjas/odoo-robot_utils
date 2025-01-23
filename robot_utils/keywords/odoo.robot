@@ -211,7 +211,11 @@ Write    [Arguments]
         ${tempid}=  Do Get Guid
         ${tempid}=  Set Variable  id${tempid}
         ${oldid}=  Get Element Attribute  ${element}  id 
-        Execute Javascript  document.querySelector('#' + CSS.escape('${oldid}')).setAttribute('id', '${tempid}');
+        IF  "${oldid}"
+            Execute Javascript  document.querySelector('#' + CSS.escape('${oldid}')).setAttribute('id', '${tempid}');
+        ELSE
+            Set Element Attribute  ${css}  id  ${tempid}
+        END
         ${oldcss}=  Set Variable  ${css}
         ${css}=  Set Variable  \#${tempid}
         ${testwebel}=  Get WebElement  css=${css}
@@ -290,7 +294,7 @@ Goto View    [Arguments]    ${model}    ${id}    ${type}=form
 
 Odoo Write One2many    [Arguments]    ${fieldname}    ${data}
     FOR    ${key}    ${value}    IN    &{data}
-        Write In Field    ${key}    ${value}    parent=${fieldname}
+        Write     ${key}    ${value}    parent=${fieldname}
     END
 
 Odoo Click    [Arguments]    ${xpath}    ${tooltip}=${NONE}

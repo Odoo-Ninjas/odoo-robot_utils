@@ -8,8 +8,14 @@ Documentation       Testing Basic Functions of the Robot Keywords
 
 Library             OperatingSystem
 Resource            ../keywords/odoo.robot
-
+Resource            ../keywords/test_setup.robot
+# 
 Test Setup          Setup Test
+
+*** Variables ***
+${SNIPPET_MODE}    0
+@{INSTALL_MODULES}   sale_management
+@{UNINSTALL_MODULES}  ${NONE}
 
 
 *** Test Cases ***
@@ -42,17 +48,18 @@ Test One2many-Give Dict
     MainMenu    sale.sale_menu_root
     ClickMenu    sale.sale_order_menu
     ClickMenu    sale.menu_sale_order
-    Wait To Click    //button[contains(@class, 'o_list_button_add')]
+    Wait To Click    button.o_list_button_add
     Write    partner_id    Deco Addict
     Screenshot
 
-    Wait To Click    //div[@id='order_line' or @name='order_line']//a[text() = 'Add a product']
+    ${css}=  CSS Identifier With Text  div#order_line a, div[name='order_line'] a  Add a product
+    Wait To Click     ${css}
     IF    ${odoo_version} < 16.0
         ${data}=    Create Dictionary    product_id=E-COM11    product_uom_qty=25
     ELSE
         ${data}=    Create Dictionary    product_template_id=E-COM11    product_uom_qty=25
     END
-    Write One2many    order_line    ${data}
+    Odoo Write One2many    order_line    ${data}
     Form Save
     Check if there are orderlines    ${LastId}
 
@@ -61,15 +68,16 @@ Test One2many-Field By Field
     MainMenu    sale.sale_menu_root
     ClickMenu    sale.sale_order_menu
     ClickMenu    sale.menu_sale_order
-    Wait To Click    //button[contains(@class, 'o_list_button_add')]
-    Write In Field    partner_id    Deco Addict
+    Wait To Click    button.o_list_button_add
+    Write    partner_id    Deco Addict
     Screenshot
 
-    Wait To Click    //div[@id='order_line' or @name='order_line']//a[text() = 'Add a product']
+    ${css}=  CSS Identifier With Text  div#order_line a, div[name='order_line'] a  Add a product
+    Wait To Click    ${css}
     IF    ${odoo_version} < 16.0
-        Write In Field    product_id    E-COM11    parent=order_line
+        Write    product_id    E-COM11    parent=order_line
     ELSE
-        Write In Field    product_template_id    E-COM11    parent=order_line
+        Write    product_template_id    E-COM11    parent=order_line
     END
     Form Save
     Check if there are orderlines    ${LastId}
@@ -88,6 +96,7 @@ Check if there are orderlines    [Arguments]    ${LastId}=
     Assert    len(${order['order_line']}) > 0
 
 Setup Test
+    Setup Test Basic
     Login
     ${count}=    Odoo Search    res.partner    [('name', '=', 'Deco Addict')]    count=${TRUE}
     IF    not ${count}
