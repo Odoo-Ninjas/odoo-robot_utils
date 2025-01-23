@@ -52,19 +52,19 @@ Test Empty String
 
 Test Prepend
     ${result}=    _prepend_parent    a1    /parent1
-    Assert    '''${result}''' == '/parent1a1'
+    Assert    '''${result}''' == '/parent1 a1'
     ${result}=    _prepend_parent    a1    ${{ None }}
     Assert    '''${result}''' == 'a1'
     ${result}=    _prepend_parent    a1    ${NONE}
     Assert    '''${result}''' == 'a1'
 
     ${xpaths}=    Create List
-    ...    //div[@name='a1']//input
-    ...    //div[@name='a2']//input
-    ${xpaths}=    _prepend_parent    ${xpaths}    //vorne
+    ...    div[name='a1'] input
+    ...    div[name='a2'] input
+    ${xpaths}=    _prepend_parent    ${xpaths}    vorne
     Log2    ${xpaths}
     ${is_list}=  Is List  ${xpaths}
     Assert  ${is_list} == True
     ${el}   Get From List  ${xpaths}  0
-    Assert  "${el}" == "//vorne//div[@name='a1']//input"
+    Assert  "${el}" == "vorne div[name='a1'] input"
     # Assert  ${xpaths}[1] == '//vorne//div[@name='a2']//input'
