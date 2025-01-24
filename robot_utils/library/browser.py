@@ -102,6 +102,7 @@ class BrowserDriver(object):
         return options
 
     def _add_options_for_firefox(self, options):
+        options.set_preference("browser.helperApps.neverAsk.saveToDisk", "application/pdf,text/plain,application/octet-stream")
         options.set_preference("browser.download.folderList", 2)
         options.set_preference("browser.download.manager.showWhenStarting", False)
         options.set_preference("browser.download.dir", self.download_path)

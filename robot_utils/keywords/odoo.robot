@@ -366,8 +366,16 @@ Odoo Upload File    [Arguments]    ${fieldname}    ${filepath}    ${parent}=${NO
     JS On Element  ${css}  ${js}
 
     ${file_name}=    tools.Get File Name    ${file_path}
+    IF  "${DIRECTORY_UPLOAD_FILES_LOCAL}" == ""
+        FAIL  Please define DIRECTORY_UPLOAD_FILES_LOCAL
+    END
+    IF  "${DIRECTORY UPLOAD FILES BROWSER DRIVER}" == ""
+        FAIL  Please define DIRECTORY UPLOAD FILES BROWSER DRIVER
+    END
+    Log To Console  Copying file to ${DIRECTORY UPLOAD FILES LOCAL}/${file_name}
     tools.Copy File    ${filepath}    ${DIRECTORY UPLOAD FILES LOCAL}/${file_name}
 
+    Log To Console  Choosing file from ${DIRECTORY UPLOAD FILES BROWSER DRIVER}/${file_name}
     Choose File    css=${css}    ${DIRECTORY UPLOAD FILES BROWSER DRIVER}/${file_name}
     ElementPostCheck
     Log To Console    Done UploadFile ${fieldname}=${filepath}
