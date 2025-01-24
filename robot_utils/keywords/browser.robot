@@ -34,7 +34,7 @@ Open New Browser    [Arguments]    ${url}
     ${BROWSER_HEADLESS}=       Eval                                                         True if str(b) in ["1", "True"] else False    b=${BROWSER_HEADLESS}
     ${snippet}=              Get Variable Value         ${SNIPPET_MODE}  ${FALSE}
     ${TRY_REUSE_SESSION}=      Eval  True if snippetmode else False  snippetmode=${snippet}
-    ${driver}=                 Get Driver For Browser                                       ${CURDIR}${/}..${/}tests/download    ${BROWSER_HEADLESS}  try_reuse_session=${TRY_REUSE_SESSION}
+    ${driver}=                 Get Driver For Browser                                       ${ROBO_UPLOAD_FILES_DIR_BROWSER_DRIVER}    ${BROWSER_HEADLESS}  try_reuse_session=${TRY_REUSE_SESSION}
     ${x}  ${y}=  Get Window Position      
     IF  not ${snippet}
         Set Window Position        0                                                            0
