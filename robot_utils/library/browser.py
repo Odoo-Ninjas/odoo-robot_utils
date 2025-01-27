@@ -6,10 +6,15 @@ from selenium.webdriver.remote import webdriver
 import json
 from pathlib import Path
 from robot.libraries.BuiltIn import BuiltIn
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class RemoteDriver2(RemoteDriver):
-    def __init__(self, *args, do_start_session=False, desired_session_id=None, **kwargs):
+    def __init__(
+        self, *args, do_start_session=False, desired_session_id=None, **kwargs
+    ):
         self.do_start_session = do_start_session
         self.desired_session_id = desired_session_id
         super().__init__(*args, **kwargs)
@@ -19,20 +24,21 @@ class RemoteDriver2(RemoteDriver):
             self.session_id = self.desired_session_id
             return
         super().start_session(capabilities, *args, **kwargs)
-        
 
 
 def get_driver_for_browser(download_path, headless, try_reuse_session=True):
+    logger.info(f"Getting Driver For Browser: headless={headless}")
     bd = BrowserDriver(download_path, headless)
     instance = BuiltIn().get_library_instance("SeleniumLibrary")
     driver = bd.get_webdriver(try_reuse_session=try_reuse_session)
+    logger.info(f"Got web-driver")
     instance.register_driver(driver, alias="robodriver")
     return driver
 
 
 class BrowserDriver(object):
     def __init__(self, download_path, headless):
-        browser = os.environ['ROBO_WEBDRIVER_BROWSER']
+        browser = os.environ["ROBO_WEBDRIVER_BROWSER"]
         assert browser in [
             "chrome",
             "firefox",
@@ -60,7 +66,7 @@ class BrowserDriver(object):
                 command_executor=f"http://{WEBDRIVER_HOST}",
                 options=options,
                 desired_session_id=sessionId,
-                do_start_session=not sessionId
+                do_start_session=not sessionId,
             )
             if not driver.session_id:
                 raise selenium.common.exceptions.InvalidSessionIdException()
@@ -86,7 +92,8 @@ class BrowserDriver(object):
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--disable-popup-blocking")
-        return getattr(self, self.optionsMethod)(options)
+        res = getattr(self, self.optionsMethod)(options)
+        return res
 
     def _add_options_for_chrome(self, options):
         options.add_experimental_option(
@@ -99,10 +106,14 @@ class BrowserDriver(object):
                 "plugins.always_open_pdf_externally": True,
             },
         )
+        options.add_argument("--disable-gpu")
         return options
 
     def _add_options_for_firefox(self, options):
-        options.set_preference("browser.helperApps.neverAsk.saveToDisk", "application/pdf,text/plain,application/octet-stream")
+        options.set_preference(
+            "browser.helperApps.neverAsk.saveToDisk",
+            "application/pdf,text/plain,application/octet-stream",
+        )
         options.set_preference("browser.download.folderList", 2)
         options.set_preference("browser.download.manager.showWhenStarting", False)
         options.set_preference("browser.download.dir", self.download_path)
