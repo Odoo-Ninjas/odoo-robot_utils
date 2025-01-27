@@ -228,15 +228,17 @@ Eval Validation User Error Dialog
 
 Eval JS Error Dialog
     ${js}=    Catenate    SEPARATOR=\n
+    ...    funcresult = "no_error_dialog";
     ...    if (element.textContent.includes("See details")) {
-    ...    funcresult = "has_error_dialog";
-    ...    } callback(true);
-    ${has_error_dialog}    ${msg}=    Run Keyword And Ignore Error
-    ...    JS On Element
+    ...        funcresult = "has_error_dialog";
+    ...    }
+    ...    callback(funcresult);
+    ${has_error_dialog}     JS On Element
     ...    div[role='alert'] button
     ...    ${js}
+    ...    return_callback=${TRUE}
 
-    IF    '${has_error_dialog}' != 'FAIL'
+    IF    '${has_error_dialog}' == 'has_error_dialog'
         Click Element    xpath=//button[text() = 'See details']
         ${locator}=    Set Variable    div.o_error_detail pre
         ${code_content}=    Get Text    css=${locator}

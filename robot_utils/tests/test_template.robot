@@ -5,6 +5,7 @@ Resource         ../keywords/tools.robot
 Resource         ../keywords/wodoo.robot
 Resource         ../keywords/test_setup.robot
 Test Setup       Setup Test
+Test Teardown    Teardown Test
 
 
 *** Variables ***
@@ -36,3 +37,6 @@ Buy Something and change amount
 Setup Test
     Setup Test Basic
     Login
+
+Teardown Test
+    Basic Teardown
