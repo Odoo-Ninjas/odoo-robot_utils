@@ -16,11 +16,14 @@ defaults = {
 
 # if tests are run manually
 def load_default_vars():
+    _format_vars_from_test()
     _load_from_settings()
     _load_robot_vars()
     _load_default_values_from_env()
     _load_default_values()
+    check = str(BuiltIn().get_variable_value("${SELENIUM_TIMEOUT}"))
     _load_test_defaults()
+
 
     try:
         test = BuiltIn().get_variable_value(_make_robot_key("ROBO_ODOO_PASSWORD"))
@@ -42,7 +45,7 @@ def _prepare_test_token(varsfile):
     if not is_snippet_mode:
         content["TOKEN"] += 1
     varsfile.write_text(json.dumps(content, indent=2))
-    TOKEN = "#" + str(content["TOKEN"]).zfill(3)
+    TOKEN = "#" + str(content["TOKEN"]).zfill(4)
     b.set_global_variable(_make_robot_key("TOKEN"), TOKEN)
     test = b.get_variable_value(_make_robot_key("TOKEN"))
     assert TOKEN == test
@@ -99,24 +102,28 @@ def _load_test_defaults():
 
 
 def _load_robot_vars():
-    candidates = [
-        ".robot-vars",
-        "/opt/src/.robot-vars",
-    ]
-    for candidate in candidates:
+    def consume_file(candidate, evaluate_test_token):
         path = Path(candidate)
         if not path.exists():
-            continue
+            return
         vars = json.loads(path.read_text())
-        _prepare_test_token(path)
+        if evaluate_test_token:
+            _prepare_test_token(path)
         for k, v in vars.items():
             if k == "TOKEN":
                 continue
             robotkey = _make_robot_key(k)
             BuiltIn().set_global_variable(robotkey, v)
-        break
-    else:
-        raise Exception("Please define .robot-vars file.")
+
+    if os.getenv("ROBO_PARAMS_FILE"):
+        # those params come from wodoo command line
+        consume_file(os.getenv("ROBO_PARAMS_FILE"), False)
+    candidates = [
+        ".robot-vars",
+        "/opt/src/.robot-vars",
+    ]
+    for candidate in candidates:
+        consume_file(candidate, True)
 
 
 def _load_default_values_from_env():
@@ -146,6 +153,7 @@ def _load_default_values():
 
 def _load_from_settings():
     ret = subprocess.run(["odoo", "setting"], encoding="utf8", stdout=subprocess.PIPE)
+    b = BuiltIn()
     MAX = 5
     for i in range(MAX):
         for line in ret.stdout.splitlines():
@@ -159,7 +167,15 @@ def _load_from_settings():
                 robotkey = f"${{{key}}}"
                 try:
                     # some recursive ones
-                    BuiltIn().set_global_variable(robotkey, value)
+                    b.set_global_variable(robotkey, value)
                 except:
                     if i == MAX - 1:
                         raise
+
+def _format_vars_from_test():
+    b = BuiltIn()
+    is_snippet_mode = b.get_variable_value("${SNIPPET_MODE}")
+    if isinstance(is_snippet_mode, str):
+        is_snippet_mode = is_snippet_mode.lower() in ["true", "1"]
+    robotkey = _make_robot_key("SNIPPET_MODE")
+    b.set_global_variable(robotkey, is_snippet_mode)

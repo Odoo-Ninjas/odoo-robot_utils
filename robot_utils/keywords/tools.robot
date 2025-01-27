@@ -7,6 +7,10 @@ Library             Collections
 
 
 *** Keywords ***
+Eval Bool  [Arguments]  ${value}
+    ${t}=  Eval  v if isinstance(v, bool) else (v.lower() in ['1', 'true', 'wahr', 'ja'] if isinstance(v, str) else bool(v))  v=${value}
+    RETURN  ${t}
+
 Set Dict Key
     [Arguments]
     ...    ${data}
@@ -156,20 +160,29 @@ Set Element Attribute
     ...    element.setAttribute("${attribute}", "${value}");
     JS On Element    ${css}    ${js}
 
-JS On Element    [Arguments]    ${css}    ${jscode}    ${maxcount}=0  ${return_callback}=${FALSE}
+JS On Element    [Arguments]    ${css}    ${jscode}    ${maxcount}=0  ${return_callback}=${FALSE}  ${limit}=0  ${position}=0
 
     ${js}=    Catenate    SEPARATOR=\n
     ...    const callback = arguments[arguments.length - 1];
     ...    const css = `${css}`;
     ...    const result = document.querySelectorAll(css);
     ...    let funcresult = "not_ok";
-    ...    if (${maxcount} && ${maxcount} > result.length) {
-    ...      callback("maxcount");
+    ...    let position = 0;
+    ...    if (${maxcount} && result.length > ${maxcount}) {
+    ...      callback("maxcount" + result.length);
     ...    }
     ...    else {
+    ...      let counter = 0;
     ...      for (const element of result) {
     ...        funcresult = 'ok';
-    ...        ${jscode};
+    ...        if (!${position} || counter + 1 === ${position}) { 
+    ...           ${jscode};
+    ...           if (${position}) break;
+    ...        }
+    ...        if (${limit} > 0 && counter > ${limit}) {
+    ...          break;
+    ...        }
+    ...        counter++;
     ...      }
     ...      callback(funcresult);
     ...    }
@@ -178,7 +191,7 @@ JS On Element    [Arguments]    ${css}    ${jscode}    ${maxcount}=0  ${return_c
     IF  ${return_callback}
         RETURN  ${res}
     ELSE
-        IF    "${res}" == "maxcount"
+        IF    "${res}".startswith("maxcount")
             FAIL    Too many elements found for ${css}. Please make sure you identify it more closely.
         END
         IF    "${res}" != "ok"    FAIL    did not find the element ${css} to click
@@ -202,36 +215,63 @@ JS Scroll Into View    [Arguments]    ${css}
     Run Keyword And Ignore Error    JS On Element    ${css}    element.scrollIntoView(true);
     # Run Keyword And Ignore Error    Scroll Element Into View    css=${css}
 
-Get JS    [Arguments]    ${name}    ${prepend_js}=${NONE}
+Get JS    [Arguments]    ${name}    ${prepend_js}=${NONE}  ${append_js}=${NONE}
     [Documentation] 
     ...  ${js}=  Get JS  element_precheck.js
     ...  mode="${mode}"
 
+    ${prepend_js} =  Eval  X or ""  X=${prepend_js}
+    ${append_js} =  Eval  X or ""  X=${append_js}
+
     ${libdir}=    library Directory
+    ${tools}=    Get File    ${libdir}/../keywords/js/tools.js
     ${result}=    Get File    ${libdir}/../keywords/js/${name}
 
     ${result}=    Catenate    SEPARATOR=\n
+    ...    ${tools}
     ...    ${prepend_js}
     ...    ${result}
+    ...    ${append_js}
     RETURN    ${result}
 
 
-CSS Identifier With Text  [Arguments]  ${css}  ${text}  ${match}=exact
+CSS Identifier With Text  [Arguments]  ${css}  ${text}  ${match}=exact  ${attribute}=inner text  ${limit}=0  ${return_counter}=${FALSE}
     Assert  '${match}' in ['exact', 'contains']
     ${identifier}=  Do Get Guid
     ${identifier}=  Set Variable  id${identifier}
     ${dataname}=  Set Variable  cssidentifier
-    Execute Async Javascript  
+    ${toolsjs}=    Get JS  tools.js
+    ${counter}=  Execute Async Javascript  
+    ...  ${toolsjs};
     ...  const callback = arguments[arguments.length - 1];
     ...  const id = `${identifier}`;
     ...  const css = `${css}`;
     ...  const text = `${text}`.trim();
     ...  const arr = Array.from(document.querySelectorAll(css));
-    ...  for (el of arr.filter(fe => '${match}' === 'exact' ? fe.textContent.trim() === text : fe.textContent.indexOf(text) >= 0)) {
+    ...  let counter = 0;
+    ...  function matches(el) {
+    ...     let textValueToCheck = null;
+    ...     if (`${attribute}` === 'inner text') {
+    ...         textValueToCheck = el.textContent.trim();
+    ...     } else {
+    ...        textValueToCheck = el.getAttribute("${attribute}");
+    ...     }
+    ...     if (window.getComputedStyle(el).display === "none" || isAnyParentHidden(el)) {
+    ...         return false;
+    ...     }
+    ...     const matches = '${match}' === 'exact' ? textValueToCheck === text : textValueToCheck.indexOf(text) >= 0;
+    ...     if (matches) counter += 1;
+    ...     if (${limit} > 0 && counter > ${limit}) return false;
+    ...     return matches;
+    ...  }
+    ...  for (el of arr.filter(matches)) {
     ...      el.dataset.${dataname} = id;
     ...  }
-    ...  callback(true);
+    ...  callback(counter);
     ${result}=  Set Variable  [data-${dataname} = "${identifier}"]
+    IF  ${return_counter}
+        RETURN  ${counter}  ${result}
+    END
     RETURN  ${result}
 
 

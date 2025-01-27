@@ -6,6 +6,9 @@ Resource            ./wodoo.robot
 
 *** Keywords ***
 
+Basic Teardown
+    Close All Browsers
+
 Setup Test Basic
     Load Default Vars
 

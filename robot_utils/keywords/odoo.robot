@@ -18,7 +18,7 @@ Library             ../library/default_vars.py
 
 *** Keywords ***
 Login    [Arguments]    ${user}=${ROBO_ODOO_USER}    ${password}=${ROBO_ODOO_PASSWORD}    ${url}=${ODOO_URL}/web/login
-    #{user} is overwritten by context usually
+    # {user} is overwritten by context usually
     ${randomstring}=    Evaluate    str(uuid.uuid4())    modules=uuid
     ${url}=    Set Variable    ${url}#${randomstring}
     ${browser_id}=    Open New Browser    ${url}
@@ -87,9 +87,7 @@ MainMenu    [Arguments]    ${menu}
             Wait Until Element is visible    nav.o_main_navbar
         ELSE IF    ${odoo_version} == 17.0
             ${homemenu}=    Run Keyword And Return Status    Get WebElement    css=div.o_home_menu
-            IF    not ${homemenu}
-                Wait To Click    nav a.o_menu_toggle
-            END
+            IF    not ${homemenu}    Wait To Click    nav a.o_menu_toggle
         ELSE
             Wait Until Element is visible    div.o_navbar_apps_menu
             Wait To Click    div.o_navbar_apps_menu button
@@ -141,142 +139,88 @@ Close Error Dialog And Log
         END
     END
 
-Write    [Arguments]
+Write    [Documentation]
+    ...    Toggle checkbox value:    write    name    Buy
+    ...    Force Set checkbox value:    write    name    Buy    checkboxvalue=${TRUE}
+    [Arguments]
     ...    ${fieldname}
     ...    ${value}
-    ...    ${ignore_auto_complete}=False
+    ...    ${ignore_auto_complete}=${FALSE}
     ...    ${parent}=${NONE}
     ...    ${tooltip}=${NONE}
     ...    ${css_parent}=${NONE}
+    ...    ${checkboxvalue}=${NONE}
 
-    # Check if it is ACE:
-    # <div name="field1" class="o_field_widget o_field_ace"
     ${start}=    Get Current Time MS
+    Wait Blocking
 
     ${parent_set}=    Eval    bool(v)    v=${parent}
     IF    ${parent_set}
         ${parent}=    Set Variable    div[name='${parent}'], div[id='${parent}']
     END
 
-    ${elapsed}=  Get Elapsed Time Ms  ${start}
-    Log To Console    Elapsed time Write at Pos A: ${elapsed}ms
+    ${identity_type}=    Identify Input Type
+    ...    ${fieldname}
+    ...    ${value}
+    ...    ${parent}
+    ...    ${css_parent}
 
-    Log2
-    ...    Write ${fieldname}=${value} ignore_auto_complete=${ignore_auto_complete} with parent=${parent} and xpath_parent=${css_parent}
-    ${locator_ACE}=    _LocatorACE    ${fieldname}    ${parent}    css_parent=${css_parent}
-
-    ${locator_select}=    _LocatorSelect    ${fieldname}    ${parent}    css_parent=${css_parent}
-    ${elapsed}=  Get Elapsed Time Ms  ${start}
-    Log To Console    Elapsed time Write at Pos A0: ${elapsed}ms
-
-    ${js}=    Catenate
-    ...    SEPARATOR=\n
-    ...    const callback = arguments[arguments.length - 1];
-    ...    const el_ace = document.querySelector(`${locator_ACE}`);
-    ...    const el_select = document.querySelector(`${locator_select}`);
-    ...    if (el_ace) { callback("ace") }
-    ...    else if (el_select) { callback("select") }
-    ...    else callback("none");
-    ${eltype}=  Execute Async Javascript    ${js}
-    ${elapsed}=  Get Elapsed Time Ms  ${start}
-    Log To Console    Elapsed time Write at Pos A0.1: ${elapsed}ms
+    ${locator_css}=  Get From Dictionary  ${identity_type}  path
+    ${eltype}=  Get From Dictionary  ${identity_type}  key
 
     ${hastooltip}=    Eval    bool(h)    h=${tooltip}
+    IF    ${hastooltip}
+        ShowTooltip By Locator    ${locator_css}    tooltip=${tooltip}
+    END
 
-    IF    '${eltype}' == 'ace'
-        ElementPreCheck    ${locator_ACE}
-        _WriteACEEditor    ${fieldname}    ${value}    ${parent}    css_parent=${css_parent}    tooltip=${tooltip}
-    ELSE IF    '${eltype}' == 'select'
-        ElementPreCheck    ${locator_select}
-        _WriteSelect    ${fieldname}    ${value}    ${parent}    css_parent=${css_parent}    tooltip=${tooltip}
+    IF  "${eltype}" == "boolean"
+        _ToggleCheckbox    ${locator_css}    force_value=${value}
+    ELSE IF    "${eltype}" == "many2many_checkboxes"
+        _ToggleCheckbox    ${locator_css}    force_value=${checkboxvalue}
+    ELSE IF  "${eltype}" == "radio"
+        _ToggleRadio    ${locator_css}
+    ELSE IF    "${eltype}" == "ace"
+        _WriteACEEditor    ${locator_css}    ${value}    tooltip=${tooltip}
+    ELSE IF    "${eltype}" == "select"
+        _WriteSelect
+        ...    ${locator_css}
+        ...    ${fieldname}
+        ...    ${value}
+        ...    ${parent}
+        ...    css_parent=${css_parent}
+        ...    tooltip=${tooltip}
+    ELSE IF    "${eltype}" == "input"
+        _Write To Element    ${locator_css}    ${value}  ignore_auto_complete=${ignore_auto_complete}
     ELSE
-        ${elapsed}=  Get Elapsed Time Ms  ${start}
-        Log To Console    Elapsed time Write at Pos B1: ${elapsed}ms
-
-        ${csss}=    Create List
-        ...    div[name='${fieldname}'] input
-        ...    div[name='${fieldname}'] textarea
-        ...    input[id='${fieldname}'],input[id='${fieldname}_0'],input[name='${fieldname}']
-        ...    textarea[id='${fieldname}'],textarea[id='${fieldname}_0'],textarea[name='${fieldname}']
-
-        ${csss}=    _prepend_parent    ${csss}    ${parent}    css_parent=${css_parent}
-        ${css}=    Catenate    SEPARATOR=,      @{csss}
-
-        ${elapsed}=  Get Elapsed Time Ms  ${start}
-        Log To Console    Elapsed time Write at Pos B3: ${elapsed}ms
-
-        Element Pre Check  ${css}
-
-        ${element}=  Get WebElement  css=${css}
-        ${tempid}=  Do Get Guid
-        ${tempid}=  Set Variable  id${tempid}
-        ${oldid}=  Get Element Attribute  ${element}  id 
-        IF  "${oldid}"
-            Execute Javascript  document.querySelector('#' + CSS.escape('${oldid}')).setAttribute('id', '${tempid}');
-        ELSE
-            Set Element Attribute  ${css}  id  ${tempid}
-        END
-        ${oldcss}=  Set Variable  ${css}
-        ${css}=  Set Variable  \#${tempid}
-        ${testwebel}=  Get WebElement  css=${css}
-
-        Highlight Element    ${css}    ${TRUE}
-        ${elapsed}=  Get Elapsed Time Ms  ${start}
-        Log To Console    Elapsed time Write at Pos B3.1: ${elapsed}ms
-        IF  not ${ROBO_NO_UI_HIGHLIGHTING}
-            JS Scroll Into View    ${css}
-        END
-        ${elapsed}=  Get Elapsed Time Ms  ${start}
-        Log To Console    Elapsed time Write at Pos B3.1.1: ${elapsed}ms
-        IF  not ${ROBO_NO_UI_HIGHLIGHTING}
-            Mouse Over  ${testwebel}
-        END
-        ${elapsed}=  Get Elapsed Time Ms  ${start}
-        Log To Console    Elapsed time Write at Pos B3.2: ${elapsed}ms
-        ${elapsed}=  Get Elapsed Time Ms  ${start}
-        Log To Console    Elapsed time Write at Pos B3.3: ${elapsed}ms
-
-        _Write To Element    ${element}    ${value}    ignore_auto_complete=${ignore_auto_complete}
-
-
-        ${elapsed}=  Get Elapsed Time Ms  ${start}
-        Log To Console    Elapsed time Write at Pos B3.4: ${elapsed}ms
-        Highlight Element    ${css}    ${FALSE}
-        ${elapsed}=  Get Elapsed Time Ms  ${start}
-        Log To Console    Elapsed time Write at Pos B3.5: ${elapsed}ms
-
-        Set Element Attribute  ${css}  id  ${oldid}
-        ${css}=  Set Variable  ${oldcss}
-        ElementPostCheck
+        FAIL    not implemented: ${eltype}
     END
-    IF    ${hastooltip}    
-        _removeTooltips
-    END
-    Log To Console    Done: Write ${fieldname}=${value}
-    Screenshot
-    ${elapsed}=    Get Elapsed Time MS  ${start}
-    Log To Console    Elapsed time Write: ${elapsed}ms
+    Remove Tooltips
+    Element Post Check
+
+    IF    ${hastooltip}    _removeTooltips
 
 Breadcrumb Back
     Log To Console    Click breadcrumb - last item
-    IF    ${ODOO_VERSION} == 17.0
-        Wait To Click    ol.breadcrumb a:last-child
-    ELSE IF    ${ODOO_VERSION} == 16.0
-        Wait To Click    ol.breadcrumb a:last-child
+    IF    ${ODOO_VERSION} in [17.0, 16.0]
+        Wait To Click    ol.breadcrumb li:nth-last-child(2) a
     ELSE
         FAIL    Breadcrumb Needs implementation for ${ODOO_VERSION}
     END
     ElementPostCheck
 
 Form Save
-    Screenshot
     Wait To Click    button.o_form_button_save
-    Screenshot
+
+Slug    [Arguments]    ${ids}
+    ${id}=    Eval    ids and isinstance(id, (list,tuple)) and len(ids) \=\= 1 ids[0] else ids    id=${ids}
+    RETURN    ${id}
 
 Goto View    [Arguments]    ${model}    ${id}    ${type}=form
     Log To Console    Goto View ${model} ${id} ${type}
     Go To    ${ODOO_URL}/web
     Screenshot
+
+    ${id}=    Slug    ${ids}
 
     ${random}=    Generate Random String    10    [LETTERS]
     ${url}=    Set Variable    ${ODOO_URL}/web#id=${id}&cids=1&model=${model}&view_type=${type}&randomid=${random}
@@ -294,13 +238,13 @@ Goto View    [Arguments]    ${model}    ${id}    ${type}=form
 
 Odoo Write One2many    [Arguments]    ${fieldname}    ${data}
     FOR    ${key}    ${value}    IN    &{data}
-        Write     ${key}    ${value}    parent=${fieldname}
+        Write    ${key}    ${value}    parent=${fieldname}
     END
 
 Odoo Click    [Arguments]    ${xpath}    ${tooltip}=${NONE}
     Wait To Click    xpath=${xpath}    tooltip=${tooltip}
 
-Wait To Click    [Arguments]    ${css}    ${tooltip}=${NONE}
+Wait To Click    [Arguments]    ${css}    ${tooltip}=${NONE}    ${maxcount}=1    ${limit}=1    ${position}=0
 # V17: they disable also menuitems and enable to avoid double clicks; not
 # so in <= V16
     Add Cursor
@@ -319,7 +263,7 @@ Wait To Click    [Arguments]    ${css}    ${tooltip}=${NONE}
     IF    ${hastooltip}
         ShowTooltip By Locator    css=${css}    tooltip=${tooltip}
     END
-    JS On Element    ${css}    jscode=element.click()    maxcount=1
+    JS On Element    ${css}    jscode=element.click()    maxcount=${maxcount}    limit=${limit}    position=${position}
     IF    ${hastooltip}    _removeTooltips
 
     Sleep    10ms    # Give chance to become disabled
@@ -339,8 +283,8 @@ Odoo Button    [Arguments]    ${text}=${NONE}    ${name}=${NONE}    ${tooltip}=$
     IF    ${hasname}
         Wait To Click    button[name='${name}'], a[name='${name}']    tooltip=${tooltip}
     ELSE IF    ${hastext}
-        ${css}=   CSS Identifier With Text  button,a  ${text}
-        Wait To Click  ${css}  tooltip=${tooltip}
+        ${css}=    CSS Identifier With Text    button,a    ${text}
+        Wait To Click    ${css}    tooltip=${tooltip}
     ELSE
         FAIL    provide either text or name
     END
@@ -350,32 +294,32 @@ Odoo Upload File    [Arguments]    ${fieldname}    ${filepath}    ${parent}=${NO
     Log To Console    UploadFile ${fieldname}=${filepath}
     File Should Exist    ${filepath}
 
-    ${css}=    Create List    
-    ...  div[name='${fieldname}'] input[type='file']
-    ...  div.o_field_binary_file[name='${fieldname}'] div.o_hidden_input_file
-    ...  div.o_field_binary_file[name='${fieldname}'] div.o_hidden
+    ${css}=    Create List
+    ...    div[name='${fieldname}'] input[type='file']
+    ...    div.o_field_binary_file[name='${fieldname}'] div.o_hidden_input_file
+    ...    div.o_field_binary_file[name='${fieldname}'] div.o_hidden
     ${css}=    _prepend_parent    ${css}    ${parent}    css_parent=${css_parent}
-    ${css}=    Catenate  SEPARATOR=,  @{css}
+    ${css}=    Catenate    SEPARATOR=,    @{css}
 
     Log To Console    Uploading file to ${fieldname}
 
-    ${js}=  Catenate  SEPARATOR=\n
-    ...   element.classList.remove("o_hidden_input_file");
-    ...   element.classList.remove("o_hidden");
-    ...   element.style.display = "";
-    JS On Element  ${css}  ${js}
+    ${js}=    Catenate    SEPARATOR=\n
+    ...    element.classList.remove("o_hidden_input_file");
+    ...    element.classList.remove("o_hidden");
+    ...    element.style.display = "";
+    JS On Element    ${css}    ${js}
 
     ${file_name}=    tools.Get File Name    ${file_path}
-    IF  "${DIRECTORY_UPLOAD_FILES_LOCAL}" == ""
-        FAIL  Please define DIRECTORY_UPLOAD_FILES_LOCAL
+    IF    "${DIRECTORY_UPLOAD_FILES_LOCAL}" == ""
+        FAIL    Please define DIRECTORY_UPLOAD_FILES_LOCAL
     END
-    IF  "${DIRECTORY UPLOAD FILES BROWSER DRIVER}" == ""
-        FAIL  Please define DIRECTORY UPLOAD FILES BROWSER DRIVER
+    IF    "${DIRECTORY UPLOAD FILES BROWSER DRIVER}" == ""
+        FAIL    Please define DIRECTORY UPLOAD FILES BROWSER DRIVER
     END
-    Log To Console  Copying file to ${DIRECTORY UPLOAD FILES LOCAL}/${file_name}
+    Log To Console    Copying file to ${DIRECTORY UPLOAD FILES LOCAL}/${file_name}
     tools.Copy File    ${filepath}    ${DIRECTORY UPLOAD FILES LOCAL}/${file_name}
 
-    Log To Console  Choosing file from ${DIRECTORY UPLOAD FILES BROWSER DRIVER}/${file_name}
+    Log To Console    Choosing file from ${DIRECTORY UPLOAD FILES BROWSER DRIVER}/${file_name}
     Choose File    css=${css}    ${DIRECTORY UPLOAD FILES BROWSER DRIVER}/${file_name}
     ElementPostCheck
     Log To Console    Done UploadFile ${fieldname}=${filepath}
@@ -384,9 +328,19 @@ Odoo Setting Checkbox    [Arguments]    ${title}    ${toggle}=${TRUE}
 
     Log    Setting Configuration ${title}
 
-    # Works for V14:
-    ${xpath}=    Set Variable    //*[@id='${title}']//input[@type='checkbox']
+    IF    ${odoo_version} == 14.0
+        # Works for V14:
+        ${xpath}=    Set Variable    [id='${title}'] input[type='checkbox']
+    ELSE IF    ${odoo_version} == 17.0
+        ${xpath}=    Set Variable    [name='${title}'] input[type='checkbox']
+    ELSE
+        FAIL    ${odoo_version} not implemented for Setting Configuration
+    END
     JS Scroll Into View    ${xpath}
 
     ${jsvalue}=    Eval    'true' if v else 'false'    v=${toggle}
-    JS On Element    ${xpath}    element.checked=${jsvalue};    maxcount=1
+
+    ${code}=    Catenate
+    ...    element.checked=${jsvalue};
+    ...    element.dispatchEvent(new Event("change", { bubbles: true }));
+    JS On Element    ${xpath}    ${code}    maxcount=1
