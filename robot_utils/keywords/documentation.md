@@ -13,7 +13,7 @@
   * Upload File
   * Wait To Click
   * Write One2many
-  * WriteInField
+  * Write
 # odoo_client.robot
   * Odoo Conn
   * Odoo Create
