@@ -154,6 +154,7 @@ Write    [Arguments]
     # Check if it is ACE:
     # <div name="field1" class="o_field_widget o_field_ace"
     ${start}=    Get Current Time MS
+    Wait Blocking
 
     ${parent_set}=    Eval    bool(v)    v=${parent}
     IF    ${parent_set}
@@ -173,9 +174,10 @@ Write    [Arguments]
     ${elapsed}=    Get Elapsed Time Ms    ${start}
     Log To Console    Elapsed time Write at Pos A0: ${elapsed}ms
 
+
     IF  ${locator_checkbox}
-        ElementPreCheck  ${locator_checkbox}
         _ToggleCheckbox  ${locator_checkbox}  force_value=${checkboxvalue}
+        ElementPostCheck
         RETURN
     END
 
@@ -206,8 +208,12 @@ Write    [Arguments]
         ${csss}=    Create List
         ...    div[name='${fieldname}'] input
         ...    div[name='${fieldname}'] textarea
-        ...    input[id='${fieldname}'],input[id='${fieldname}_0'],input[name='${fieldname}']
-        ...    textarea[id='${fieldname}'],textarea[id='${fieldname}_0'],textarea[name='${fieldname}']
+        ...    input[id='${fieldname}']
+        ...    input[id='${fieldname}_0']
+        ...    input[name='${fieldname}']
+        ...    textarea[id='${fieldname}']
+        ...    textarea[id='${fieldname}_0']
+        ...    textarea[name='${fieldname}']
 
         ${csss}=    _prepend_parent    ${csss}    ${parent}    css_parent=${css_parent}
         ${css}=    Catenate    SEPARATOR=,    @{csss}

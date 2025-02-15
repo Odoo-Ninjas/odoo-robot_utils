@@ -38,6 +38,8 @@ _LocatorCheckboxes    [Arguments]    ${fieldname}    ${value}    ${parent}    ${
     ${css}=    Set Variable    div[name='${fieldname}'] div.o-checkbox label
     ${css}=    _prepend_parent    ${css}    ${parent}    css_parent=${css_parent}
 
+    Search All Tabs For CSS  ${css}
+
     ${js}=    Catenate
     ...    SEPARATOR=\n
     ...    const callback = arguments[arguments.length - 1];
@@ -68,7 +70,7 @@ _ToggleCheckbox    [Documentation]    If not force value is set, then value is t
 
     ${doselect}=    Evaluate    True
     ${forcevalue_is_none}=    Eval    v is None    v=${force_value}
-    ${forcevalue_as_bool}=  Eval Bool  ${force_value}
+    ${forcevalue_as_bool}=    Eval Bool    ${force_value}
     ${forcevalue_is_false}=    Eval    not v    v=${forcevalue_as_bool}
     IF    ${forcevalue_is_none}
         ${status}=    Get Element Attribute    css=${locator_checkbox_value}    checked
@@ -304,19 +306,26 @@ Eval JS Error Dialog
         FAIL    error dialog was shown - please check ${code_content}
     END
 
-ElementPreCheck    [Arguments]    ${css}
-    ${start}=    tools.Get Current Time Ms
-    Wait Blocking
+Search All Tabs For CSS    [Arguments]    ${css}
+    [Documentation]  returns bool true if found a parent tab
     IF    ${ODOO_VERSION} < 16.0
         ${mode}=    Set Variable    closest
     ELSE
         ${mode}=    Set Variable    clickall
     END
-
-    ${js}=    Get JS    element_precheck.js
+    ${js}=    Get JS    search_all_tabs_for_css.js
     ...    const mode="${mode}"; const css=`${css}`;
 
-    Execute Async Javascript    ${js}
+	# TODO undo next line
+    # Set Selenium Timeout    100s
+    ${result}=  Execute Async Javascript    ${js}
+    Log2  Search All Tabs Result: ${result}
+    RETURN  ${result}
+
+ElementPreCheck    [Arguments]    ${css}
+    ${start}=    tools.Get Current Time Ms
+    Wait Blocking
+    Search All Tabs For CSS    ${css}
     ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
     Log2    Done: Element Precheck ${css} done in ${elapsed}ms
 
