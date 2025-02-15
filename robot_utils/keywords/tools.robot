@@ -7,6 +7,10 @@ Library             Collections
 
 
 *** Keywords ***
+Eval Bool  [Arguments]  ${value}
+    ${t}=  Eval  v if isinstance(v, bool) else (v.lower() in ['1', 'true', 'wahr', 'ja'] if isinstance(v, str) else bool(v))  v=${value}
+    RETURN  ${t}
+
 Set Dict Key
     [Arguments]
     ...    ${data}
@@ -227,13 +231,13 @@ Get JS    [Arguments]    ${name}    ${prepend_js}=${NONE}
     RETURN    ${result}
 
 
-CSS Identifier With Text  [Arguments]  ${css}  ${text}  ${match}=exact  ${attribute}=inner text  ${limit}=0
+CSS Identifier With Text  [Arguments]  ${css}  ${text}  ${match}=exact  ${attribute}=inner text  ${limit}=0  ${return_counter}=${FALSE}
     Assert  '${match}' in ['exact', 'contains']
     ${identifier}=  Do Get Guid
     ${identifier}=  Set Variable  id${identifier}
     ${dataname}=  Set Variable  cssidentifier
     ${toolsjs}=    Get JS  tools.js
-    Execute Async Javascript  
+    ${counter}=  Execute Async Javascript  
     ...  ${toolsjs};
     ...  const callback = arguments[arguments.length - 1];
     ...  const id = `${identifier}`;
@@ -259,8 +263,11 @@ CSS Identifier With Text  [Arguments]  ${css}  ${text}  ${match}=exact  ${attrib
     ...  for (el of arr.filter(matches)) {
     ...      el.dataset.${dataname} = id;
     ...  }
-    ...  callback(true);
+    ...  callback(counter);
     ${result}=  Set Variable  [data-${dataname} = "${identifier}"]
+    IF  ${return_counter}
+        RETURN  ${counter}  ${result}
+    END
     RETURN  ${result}
 
 

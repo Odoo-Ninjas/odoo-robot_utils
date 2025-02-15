@@ -146,6 +146,10 @@ Write    [Arguments]
     ...    ${parent}=${NONE}
     ...    ${tooltip}=${NONE}
     ...    ${css_parent}=${NONE}
+    ...    ${checkboxvalue}=${NONE}
+    [Documentation]
+    ...    Toggle checkbox value:  write  name  Buy
+    ...    Force Set checkbox value:  write  name  Buy  checkboxvalue=${TRUE}
 
     # Check if it is ACE:
     # <div name="field1" class="o_field_widget o_field_ace"
@@ -164,8 +168,16 @@ Write    [Arguments]
     ${locator_ACE}=    _LocatorACE    ${fieldname}    ${parent}    css_parent=${css_parent}
 
     ${locator_select}=    _LocatorSelect    ${fieldname}    ${parent}    css_parent=${css_parent}
+    ${locator_checkbox}=    _LocatorCheckboxes  ${fieldname}  ${value}  ${parent}  css_parent=${css_parent}
+
     ${elapsed}=    Get Elapsed Time Ms    ${start}
     Log To Console    Elapsed time Write at Pos A0: ${elapsed}ms
+
+    IF  ${locator_checkbox}
+        ElementPreCheck  ${locator_checkbox}
+        _ToggleCheckbox  ${locator_checkbox}  force_value=${checkboxvalue}
+        RETURN
+    END
 
     ${js}=    Catenate
     ...    SEPARATOR=\n

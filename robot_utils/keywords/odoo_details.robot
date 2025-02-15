@@ -32,6 +32,59 @@ _LocatorSelect    [Arguments]    ${fieldname}    ${parent}    ${css_parent}=""
     ${result}=    _prepend_parent    ${result}    ${parent}    css_parent=${css_parent}
     RETURN    ${result}
 
+_LocatorCheckboxes    [Arguments]    ${fieldname}    ${value}    ${parent}    ${css_parent}=""
+
+    # V17 approved
+    ${css}=    Set Variable    div[name='${fieldname}'] div.o-checkbox label
+    ${css}=    _prepend_parent    ${css}    ${parent}    css_parent=${css_parent}
+
+    ${js}=    Catenate
+    ...    SEPARATOR=\n
+    ...    const callback = arguments[arguments.length - 1];
+    ...    const el = document.querySelectorAll(`${css}`);
+    ...    if (!el.length) { callback("no match") }
+    ...    else {
+    ...    const checkvalue = `${value}`.trim();
+    ...    let found = false;
+    ...    for (const label of el) {
+    ...    if (label.textContent.trim() === checkvalue) {
+    ...    const checkbox = label.parentElement.querySelector("input");
+    ...    if (checkbox) {
+    ...    callback("input#" + checkbox.id);
+    ...    found = true;
+    ...    }
+    ...    break;
+    ...    }
+    ...    }
+    ...    if (!found) { callback("no match2") }
+    ...    }
+    ${csscheckbox}=    Execute Async Javascript    ${js}
+
+    IF    "${csscheckbox}" == "no match"    RETURN    ${FALSE}
+    RETURN    ${csscheckbox}
+
+_ToggleCheckbox    [Documentation]    If not force value is set, then value is toggled.
+    [Arguments]    ${locator_checkbox_value}    ${force_value}=${NONE}
+
+    ${doselect}=    Evaluate    True
+    ${forcevalue_is_none}=    Eval    v is None    v=${force_value}
+    ${forcevalue_as_bool}=  Eval Bool  ${force_value}
+    ${forcevalue_is_false}=    Eval    not v    v=${forcevalue_as_bool}
+    IF    ${forcevalue_is_none}
+        ${status}=    Get Element Attribute    css=${locator_checkbox_value}    checked
+        IF    '${status}' == 'true'
+            ${doselect}=    Evaluate    False
+        END
+    ELSE IF    ${force_value_is_false}
+        ${doselect}=    Evaluate    False
+    END
+
+    IF    ${doselect}
+        Select Checkbox    css=${locator_checkbox_value}
+    ELSE
+        Unselect Checkbox    css=${locator_checkbox_value}
+    END
+
 _WriteSelect    [Arguments]    ${fieldname}    ${value}    ${parent}    ${css_parent}=${NONE}    ${tooltip}=${NONE}
 
     Screenshot
@@ -218,7 +271,7 @@ Eval Validation User Error Dialog
     ...    funcresult = "has_error_dialog";
     ...    }
     ${has_error_dialog}=    JS On Element    div.modal[role='dialog'] header    ${js}    return_callback=${TRUE}
-    ${is_error_dialog}=  Evaluate  '${has_error_dialog}' == 'has_error_dialog'
+    ${is_error_dialog}=    Evaluate    '${has_error_dialog}' == 'has_error_dialog'
 
     IF    ${is_error_dialog}
         ${js}=    Catenate    SEPARATOR=\n    funcresult = element.textContent;
@@ -230,10 +283,10 @@ Eval JS Error Dialog
     ${js}=    Catenate    SEPARATOR=\n
     ...    funcresult = "no_error_dialog";
     ...    if (element.textContent.includes("See details")) {
-    ...        funcresult = "has_error_dialog";
+    ...    funcresult = "has_error_dialog";
     ...    }
     ...    callback(funcresult);
-    ${has_error_dialog}     JS On Element
+    ${has_error_dialog}=    JS On Element
     ...    div[role='alert'] button
     ...    ${js}
     ...    return_callback=${TRUE}
