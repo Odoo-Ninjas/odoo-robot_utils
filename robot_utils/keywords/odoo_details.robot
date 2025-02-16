@@ -35,7 +35,8 @@ _LocatorSelect    [Arguments]    ${fieldname}    ${parent}    ${css_parent}=""
 _LocatorCheckboxes    [Arguments]    ${fieldname}    ${value}    ${parent}    ${css_parent}=""
 
     # V17 approved
-    ${css}=    Set Variable    div[name='${fieldname}'] div.o-checkbox label
+    ${css}=    Set Variable
+    ...    div[name='${fieldname}'] div.o-checkbox label,div[name='${fieldname}'] div.o_radio_item label
     ${css}=    _prepend_parent    ${css}    ${parent}    css_parent=${css_parent}
 
     Search All Tabs For CSS    ${css}    ${css_parent}
@@ -50,15 +51,17 @@ _LocatorCheckboxes    [Arguments]    ${fieldname}    ${value}    ${parent}    ${
     ...    let found = false;
     ...    for (const label of el) {
     ...    if (label.textContent.trim() === checkvalue) {
-    ...    const checkbox = label.parentElement.querySelector("input");
-    ...    if (checkbox) {
-    ...    callback("input#" + checkbox.id);
+    ...    const input_id = label.getAttribute("for");
+    ...    const input_el = document.getElementById(input_id);
+    ...    if (input_el) {
+    ...    const type = input_el.getAttribute("type");
+    ...    callback(type + ":input#" + input_id);
     ...    found = true;
     ...    }
     ...    break;
     ...    }
     ...    }
-    ...    if (!found) { callback("no match2") }
+    ...    if (!found) { callback("no match") }
     ...    }
     ${csscheckbox}=    Execute Async Javascript    ${js}
 
@@ -68,6 +71,15 @@ _LocatorCheckboxes    [Arguments]    ${fieldname}    ${value}    ${parent}    ${
 _ToggleCheckbox    [Documentation]    If not force value is set, then value is toggled.
     [Arguments]    ${locator_checkbox_value}    ${force_value}=${NONE}
 
+    ${checkboxtype}    ${locator_checkbox_value}=    Split String
+    ...    string=${locator_checkbox_value}
+    ...    separator=:
+    ...    max_split=1
+
+    IF    "${checkboxtype}" == "radio"
+        Click Element    css=${locator_checkbox_value}
+        RETURN
+    END
     ${doselect}=    Evaluate    True
     ${forcevalue_is_none}=    Eval    v is None    v=${force_value}
     ${forcevalue_as_bool}=    Eval Bool    ${force_value}
@@ -333,7 +345,7 @@ Search All Tabs For CSS    [Documentation]
 ElementPreCheck    [Arguments]    ${css}    ${css_parent}
     ${start}=    tools.Get Current Time Ms
     Wait Blocking
-    Search All Tabs For CSS    ${css}  ${css_parent}
+    Search All Tabs For CSS    ${css}    ${css_parent}
     ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
     Log2    Done: Element Precheck ${css} done in ${elapsed}ms
 

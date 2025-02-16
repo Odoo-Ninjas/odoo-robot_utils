@@ -175,7 +175,8 @@ Write    [Arguments]
     Log To Console    Elapsed time Write at Pos A0: ${elapsed}ms
 
 
-    IF  ${locator_checkbox}
+    ${locator_checkbox_is_set}=  Eval  bool(v)  v=${locator_checkbox}
+    IF  ${locator_checkbox_is_set}
         _ToggleCheckbox  ${locator_checkbox}  force_value=${checkboxvalue}
         ElementPostCheck
         RETURN
