@@ -3,7 +3,7 @@ const callback = arguments[arguments.length - 1];
 
 function return_result(exists_result) {
     if (!exists_result) {
-        callback("no match");
+        callback({key: "no match", path: null});
         return;
     }
     const key = exists_result.key;
@@ -18,7 +18,8 @@ function return_result(exists_result) {
                 const input_el = document.getElementById(input_id);
                 if (input_el) {
                     const type = input_el.getAttribute("type");
-                    callback({ key: exists_result.key, path: exists_result.path });
+                    const path = "#" + input_id;
+                    callback({ key: exists_result.key, path: path });
                     found = true;
                     break;
                 }
@@ -64,11 +65,15 @@ function exists(paths, value) {
         const path = item[1];
 
         el = document.querySelector(path)
-        if (el) return {
-            key: key,
-            path: path,
-            el: el,
-            value: value
+        if (el) {
+            // fetch e.g. all labels
+            el = document.querySelectorAll(path);
+            return {
+                key: key,
+                path: path,
+                el: el,
+                value: value
+            }
         }
     }
     if (!el) {
