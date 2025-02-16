@@ -86,7 +86,8 @@ Identify Input Type    [Arguments]    ${fieldname}    ${value}    ${parent}    $
     ${all_css_list}=    Collect all css for inputs    ${fieldname}    ${value}    ${parent}    ${css_parent}
 
     ${found}=    Search All Tabs For CSS    ${all_css_list}    ${css_parent}    ${value}
-    IF    not ${found}
+    ${found_key}=    Get From Dictionary    ${found}    key
+    IF    "${found_key}" == "no match"
         FAIL    could not determine input for ${css_parent} ${parent} ${fieldname}
     END
 
@@ -331,9 +332,8 @@ Search All Tabs For CSS    [Documentation]
     ...    append_js=identify_input_type("${mode}", `${css_json}`, `${path_notebook_header}`, `${value}`);
 
     # TODO undo next line
-    # Set Selenium Timeout    100s
+    # Set Selenium Timeout    300s
     ${result}=    Execute Async Javascript    ${js}
-    Log2    Search All Tabs Result: ${result}
     RETURN    ${result}
 
 _has_module_installed    [Arguments]    ${modulename}
