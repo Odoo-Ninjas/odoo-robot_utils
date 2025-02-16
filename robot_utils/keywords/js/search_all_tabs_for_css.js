@@ -9,7 +9,7 @@ function return_result(exists_result) {
     const key = exists_result.key;
     const path = exists_result.path;
 
-    if (key === "checkboxes" || key === "radio") {
+    if (key === "many2many_checkboxes" || key === "radio") {
         const checkvalue = exists_result.value.trim();
         let found = false;
         for (const label of exists_result.el) {

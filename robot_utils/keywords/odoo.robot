@@ -175,7 +175,7 @@ Write    [Documentation]
 
     IF  "${eltype}" == "boolean"
         _ToggleCheckbox    ${locator_css}    force_value=${value}
-    ELSE IF    "${eltype}" == "many2many_checkbox"
+    ELSE IF    "${eltype}" == "many2many_checkboxes"
         _ToggleCheckbox    ${locator_css}    force_value=${checkboxvalue}
     ELSE IF  "${eltype}" == "radio"
         _ToggleRadio    ${locator_css}
@@ -192,7 +192,7 @@ Write    [Documentation]
     ELSE IF    "${eltype}" == "input"
         _Write To Element    ${locator_css}    ${value}  ignore_auto_complete=${ignore_auto_complete}
     ELSE
-        FAIL    not implemented
+        FAIL    not implemented: ${eltype}
     END
     Remove Tooltips
     Element Post Check
