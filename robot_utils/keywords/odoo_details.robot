@@ -38,7 +38,7 @@ _LocatorCheckboxes    [Arguments]    ${fieldname}    ${value}    ${parent}    ${
     ${css}=    Set Variable    div[name='${fieldname}'] div.o-checkbox label
     ${css}=    _prepend_parent    ${css}    ${parent}    css_parent=${css_parent}
 
-    Search All Tabs For CSS  ${css}
+    Search All Tabs For CSS    ${css}    ${css_parent}
 
     ${js}=    Catenate
     ...    SEPARATOR=\n
@@ -306,26 +306,34 @@ Eval JS Error Dialog
         FAIL    error dialog was shown - please check ${code_content}
     END
 
-Search All Tabs For CSS    [Arguments]    ${css}
-    [Documentation]  returns bool true if found a parent tab
+Search All Tabs For CSS    [Documentation]
+    ...    returns bool true if found a parent tab;
+    ...    The css variable must contain already the css parent; the
+    ...    css parent itself is used to filter the notebook tabs of a modal dialog.
+    [Arguments]    ${css}    ${css_parent}
     IF    ${ODOO_VERSION} < 16.0
         ${mode}=    Set Variable    closest
     ELSE
         ${mode}=    Set Variable    clickall
     END
+    ${path_notebook_header}=    Set Variable    div.oe_notebook_page li a,div.o_notebook_headers li a
+    ${path_notebook_header}=    _prepend_parent
+    ...    ${path_notebook_header}
+    ...    parent=${NONE}
+    ...    css_parent=${css_parent}
     ${js}=    Get JS    search_all_tabs_for_css.js
-    ...    const mode="${mode}"; const css=`${css}`;
+    ...    const mode="${mode}"; const css=`${css}`; const path_notebook_header=`${path_notebook_header}`;
 
-	# TODO undo next line
+    # TODO undo next line
     # Set Selenium Timeout    100s
-    ${result}=  Execute Async Javascript    ${js}
-    Log2  Search All Tabs Result: ${result}
-    RETURN  ${result}
+    ${result}=    Execute Async Javascript    ${js}
+    Log2    Search All Tabs Result: ${result}
+    RETURN    ${result}
 
-ElementPreCheck    [Arguments]    ${css}
+ElementPreCheck    [Arguments]    ${css}    ${css_parent}
     ${start}=    tools.Get Current Time Ms
     Wait Blocking
-    Search All Tabs For CSS    ${css}
+    Search All Tabs For CSS    ${css}  ${css_parent}
     ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
     Log2    Done: Element Precheck ${css} done in ${elapsed}ms
 

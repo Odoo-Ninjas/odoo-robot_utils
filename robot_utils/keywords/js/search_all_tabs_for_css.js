@@ -1,6 +1,7 @@
 // arguments: mode, css
 const callback = arguments[arguments.length - 1];
 const path = `${css}`.replace('css=', '');
+//const path_notebook_header = "div.oe_notebook_page li a,div.o_notebook_headers li a";
 console.log("Opening tab for " + path + " with mode " + mode);
 
 function open_closest_tab() {
@@ -18,7 +19,7 @@ function open_closest_tab() {
     }
     if (!parenttab.classList.contains('active')) {
         parenttab.id;  //notebok_page_48  e.g.
-        for (tabheader of document.querySelectorAll('div.oe_notebook_page li a,div.o_notebook_headers li a')) {
+        for (tabheader of document.querySelectorAll(path_notebook_header)) {
             if (tabheader.href.includes(parenttab.id)) {
                 tabheader.click();
                 return true;
@@ -28,43 +29,9 @@ function open_closest_tab() {
 }
 
 function exists() {
-    console.log("Testing for " + path);
     const el = document.querySelector(path);
     const result = !!el;
-    console.log("Result: " + result);
     return result;
-}
-
-function count_elements_in_active_tab() {
-    //tab-pane active
-    let count = 0;
-    const active_pane = document.querySelector('div.tab-pane.active');
-    if (active_pane) {
-        count = active_pane.querySelectorAll("*").length;
-    }
-    return count;
-}
-
-async function waitForClass(element, className, timeout = 5000) {
-    return new Promise((resolve, reject) => {
-        const observer = new MutationObserver(() => {
-            if (element.classList.contains(className)) {
-                observer.disconnect();
-                resolve();
-            }
-        });
-
-        if (element.classList.contains(className)) {
-            resolve();
-        }
-
-        observer.observe(element, { attributes: true, attributeFilter: ['class'] });
-
-        setTimeout(() => {
-            observer.disconnect();
-            reject(new Error(`Timeout: Element did not get class '${className}' within ${timeout}ms`));
-        }, timeout);
-    });
 }
 
 const search_all_tabs = async () => {
@@ -73,7 +40,7 @@ const search_all_tabs = async () => {
         callback(true);
         return;
     }
-    const tabheaders = document.querySelectorAll('div.oe_notebook_page li a,div.o_notebook_headers li a');
+    const tabheaders = document.querySelectorAll(path_notebook_header);
     for (const a of tabheaders) {
         if (!a) {
             continue;

@@ -196,10 +196,10 @@ Write    [Arguments]
     ${hastooltip}=    Eval    bool(h)    h=${tooltip}
 
     IF    '${eltype}' == 'ace'
-        ElementPreCheck    ${locator_ACE}
+        ElementPreCheck    ${locator_ACE}  css_parent=${css_parent}
         _WriteACEEditor    ${fieldname}    ${value}    ${parent}    css_parent=${css_parent}    tooltip=${tooltip}
     ELSE IF    '${eltype}' == 'select'
-        ElementPreCheck    ${locator_select}
+        ElementPreCheck    ${locator_select}  css_parent=${css_parent}
         _WriteSelect    ${fieldname}    ${value}    ${parent}    css_parent=${css_parent}    tooltip=${tooltip}
     ELSE
         ${elapsed}=    Get Elapsed Time Ms    ${start}
@@ -221,7 +221,7 @@ Write    [Arguments]
         ${elapsed}=    Get Elapsed Time Ms    ${start}
         Log To Console    Elapsed time Write at Pos B3: ${elapsed}ms
 
-        Element Pre Check    ${css}
+        Element Pre Check    ${css}  css_parent=${css_parent}
 
         ${element}=    Get WebElement    css=${css}
         ${tempid}=    Do Get Guid

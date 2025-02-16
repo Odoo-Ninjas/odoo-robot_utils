@@ -223,9 +223,11 @@ Get JS    [Arguments]    ${name}    ${prepend_js}=${NONE}
     ${prepend_js} =  Eval  X or ""  X=${prepend_js}
 
     ${libdir}=    library Directory
+    ${tools}=    Get File    ${libdir}/../keywords/js/tools.js
     ${result}=    Get File    ${libdir}/../keywords/js/${name}
 
     ${result}=    Catenate    SEPARATOR=\n
+    ...    ${tools}
     ...    ${prepend_js}
     ...    ${result}
     RETURN    ${result}
