@@ -173,8 +173,12 @@ Write    [Documentation]
         ShowTooltip By Locator    ${locator_css}    tooltip=${tooltip}
     END
 
-    IF    "${eltype}" == "checkbox" or "${eltype}" == "radio"
+    IF  "${eltype}" == "boolean"
+        _ToggleCheckbox    ${locator_css}    force_value=${value}
+    ELSE IF    "${eltype}" == "many2many_checkbox"
         _ToggleCheckbox    ${locator_css}    force_value=${checkboxvalue}
+    ELSE IF  "${eltype}" == "radio"
+        _ToggleRadio    ${locator_css}
     ELSE IF    "${eltype}" == "ace"
         _WriteACEEditor    ${locator_css}    ${value}    tooltip=${tooltip}
     ELSE IF    "${eltype}" == "select"

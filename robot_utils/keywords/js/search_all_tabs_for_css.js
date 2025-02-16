@@ -59,8 +59,10 @@ async function open_closest_tab(paths, path_notebook_header, value) {
 function exists(paths, value) {
     let el = null;
 
-    for (const key in paths) {
-        const path = paths[key];
+    for (const item of paths) {
+        const key = item[0];
+        const path = item[1];
+
         el = document.querySelector(path)
         if (el) return {
             key: key,

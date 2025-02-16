@@ -40,9 +40,9 @@ _LocatorRadio    [Arguments]    ${fieldname}    ${value}    ${parent}    ${css_p
     RETURN    ${css}
 
 _LocatorBoolean    [Arguments]    ${fieldname}    ${parent}    ${css_parent}=
-    ${css}=  Set Variable
+    ${css}=    Set Variable
     ...    div.o_field_boolean[name='${fieldname}'] input[type='checkbox']
-    RETURN  ${css}
+    RETURN    ${css}
 
 _LocatorInputAndM2O    [Arguments]    ${fieldname}    ${parent}    ${css_parent}=
     ${csss}=    Create List
@@ -54,7 +54,7 @@ _LocatorInputAndM2O    [Arguments]    ${fieldname}    ${parent}    ${css_parent}
     ...    textarea[id='${fieldname}']
     ...    textarea[id='${fieldname}_0']
     ...    textarea[name='${fieldname}']
-    RETURN  ${csss}
+    RETURN    ${csss}
 
 Collect all css for inputs    [Arguments]    ${fieldname}    ${value}    ${parent}    ${css_parent}
     ${locator_ace}=    _LocatorACE    ${fieldname}    ${parent}    ${css_parent}
@@ -70,40 +70,34 @@ Collect all css for inputs    [Arguments]    ${fieldname}    ${value}    ${paren
     ${locator_radio}=    _prepend_parent    ${locator_radio}    ${parent}    css_parent=${css_parent}
     ${locator_boolean}=    _prepend_parent    ${locator_boolean}    ${parent}    css_parent=${css_parent}
     ${locator_input_and_m2o}=    _prepend_parent    ${locator_input_and_m2o}    ${parent}    css_parent=${css_parent}
-    
-    ${locator_input_and_m2o}=  Eval   ",".join(v)  v=${locator_input_and_m2o}
 
-    ${result}=    Create Dictionary
-    ...    input=${locator_input_and_m2o}
-    ...    select=${locator_select}
-    ...    many2many_checkboxes=${locator_checkboxes}
-    ...    radio=${locator_radio}
-    ...    boolean=${locator_boolean}
-    ...    ace=${locator_ace}
+    ${locator_input_and_m2o}=    Eval    ",".join(v)    v=${locator_input_and_m2o}
+
+    ${result}=    Create List
+    ...    ${{ "boolean", "${locator_boolean}" }}
+    ...    ${{ "many2many_checkboxes", "${locator_checkboxes}" }}
+    ...    ${{ "select", "${locator_select}" }}
+    ...    ${{ "radio", "${locator_radio}" }}
+    ...    ${{ "ace", "${locator_ace}" }}
+    ...    ${{ "input", "${locator_input_and_m2o}" }}
     RETURN    ${result}
 
 Identify Input Type    [Arguments]    ${fieldname}    ${value}    ${parent}    ${css_parent}
-    ${all_css_dict}=    Collect all css for inputs    ${fieldname}    ${value}    ${parent}    ${css_parent}
+    ${all_css_list}=    Collect all css for inputs    ${fieldname}    ${value}    ${parent}    ${css_parent}
 
-    ${found}=    Search All Tabs For CSS    ${all_css_dict}    ${css_parent}  ${value}
+    ${found}=    Search All Tabs For CSS    ${all_css_list}    ${css_parent}    ${value}
     IF    not ${found}
         FAIL    could not determine input for ${css_parent} ${parent} ${fieldname}
     END
 
     RETURN    ${found}
 
+_ToggleRadio    [Arguments]    ${locator}
+    Click Element    css=${locator}
+
 _ToggleCheckbox    [Documentation]    If not force value is set, then value is toggled.
     [Arguments]    ${locator_checkbox_value}    ${force_value}=${NONE}
 
-    ${checkboxtype}    ${locator_checkbox_value}=    Split String
-    ...    string=${locator_checkbox_value}
-    ...    separator=:
-    ...    max_split=1
-
-    IF    "${checkboxtype}" == "radio"
-        Click Element    css=${locator_checkbox_value}
-        RETURN
-    END
     ${doselect}=    Evaluate    True
     ${forcevalue_is_none}=    Eval    v is None    v=${force_value}
     ${forcevalue_as_bool}=    Eval Bool    ${force_value}
@@ -320,7 +314,7 @@ Search All Tabs For CSS    [Documentation]
     ...    The css variable must contain already the css parent and is a dict:
     ...    type: css    like {'input': '..input', 'ace': textarea[...]}; the
     ...    css parent itself is used to filter the notebook tabs of a modal dialog.
-    [Arguments]    ${css}    ${css_parent}  ${value}
+    [Arguments]    ${css}    ${css_parent}    ${value}
     IF    ${ODOO_VERSION} < 16.0
         ${mode}=    Set Variable    closest
     ELSE
@@ -332,7 +326,7 @@ Search All Tabs For CSS    [Documentation]
     ...    parent=${NONE}
     ...    css_parent=${css_parent}
 
-    ${css_json}=  tools.json_dumps   ${css}
+    ${css_json}=    tools.json_dumps    ${css}
     ${js}=    Get JS    search_all_tabs_for_css.js
     ...    append_js=identify_input_type("${mode}", `${css_json}`, `${path_notebook_header}`, `${value}`);
 
