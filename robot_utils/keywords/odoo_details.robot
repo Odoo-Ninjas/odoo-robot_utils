@@ -70,6 +70,8 @@ Collect all css for inputs    [Arguments]    ${fieldname}    ${value}    ${paren
     ${locator_radio}=    _prepend_parent    ${locator_radio}    ${parent}    css_parent=${css_parent}
     ${locator_boolean}=    _prepend_parent    ${locator_boolean}    ${parent}    css_parent=${css_parent}
     ${locator_input_and_m2o}=    _prepend_parent    ${locator_input_and_m2o}    ${parent}    css_parent=${css_parent}
+    
+    ${locator_input_and_m2o}=  Eval   ",".join(v)  v=${locator_input_and_m2o}
 
     ${result}=    Create Dictionary
     ...    input=${locator_input_and_m2o}
