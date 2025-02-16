@@ -16,7 +16,6 @@ function open_closest_tab() {
     if (!parenttab) {
         return;
     }
-    let result = 'not found';
     if (!parenttab.classList.contains('active')) {
         parenttab.id;  //notebok_page_48  e.g.
         for (tabheader of document.querySelectorAll('div.oe_notebook_page li a,div.o_notebook_headers li a')) {
@@ -46,49 +45,48 @@ function count_elements_in_active_tab() {
     return count;
 }
 
-function search_all_tabs() {
+async function waitForClass(element, className, timeout = 5000) {
+    return new Promise((resolve, reject) => {
+        const observer = new MutationObserver(() => {
+            if (element.classList.contains(className)) {
+                observer.disconnect();
+                resolve();
+            }
+        });
+
+        if (element.classList.contains(className)) {
+            resolve();
+        }
+
+        observer.observe(element, { attributes: true, attributeFilter: ['class'] });
+
+        setTimeout(() => {
+            observer.disconnect();
+            reject(new Error(`Timeout: Element did not get class '${className}' within ${timeout}ms`));
+        }, timeout);
+    });
+}
+
+const search_all_tabs = async () => {
     if (exists()) {
         console.log("Searching all tabs: found element " + path);
         callback(true);
         return;
     }
     const tabheaders = document.querySelectorAll('div.oe_notebook_page li a,div.o_notebook_headers li a');
-    // TODO make concurrent run compatible
-    window.robo_tabheaders = tabheaders;
-    window.robo_tabheaders_index = 0;
-    window.robo_tabheaders_clicking = false;
-    window.robo_tabheaders_count_elements = 0;
-
-    let check = null;
-    const wait_seconds = 1;
-    check = () => {
-        if (window.robo_tabheaders_index >= tabheaders.length) {
-            console.log("Did not find tab for: " + path);
-            callback(false);
+    for (const a of tabheaders) {
+        if (!a) {
+            continue;
+        }
+        await a.click();
+        await waitForClass(a, 'active')
+        if (exists()) {
+            console.log("Found tab " + a + " for :" + path);
+            callback(true);
             return;
         }
-        if (!window.robo_tabheaders_clicking) {
-            const a = tabheaders[window.robo_tabheaders_index++];
-            if (a) {
-                a.click()
-            }
-            window.robo_tabheaders_clicking = true;
-            setTimeout(check, wait_seconds);
-        }
-        else {
-            window.robo_tabheaders_clicking = false;
-            const a = tabheaders[window.robo_tabheaders_index - 1];
-            if (exists()) {
-                console.log("Found tab " + a + " for :" + path);
-                callback(true);
-            }
-            else {
-                setTimeout(check, wait_seconds);
-            }
-        }
-    };
-    setTimeout(check, 0);
-
+    }
+    callback(false);
 }
 
 let result = false;
@@ -100,7 +98,7 @@ else if (mode === 'closest') {
     callback(result);
 }
 else if (mode === 'clickall') {
-    search_all_tabs();
+    await search_all_tabs();
 }
 else {
     throw new Error('Invalid mode: ' + mode);
