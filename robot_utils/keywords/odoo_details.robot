@@ -14,59 +14,81 @@ Library             String    # example Random String
 
 *** Keywords ***
 _prepend_parent    [Arguments]    ${path}    ${parent}    ${css_parent}=${NONE}
-
     ${res}=    _prepend_parent_in_tools    path=${path}    parent=${parent}    css_parent=${css_parent}
     RETURN    ${res}
 
 _LocatorACE    [Arguments]    ${fieldname}    ${parent}    ${css_parent}=${NONE}
-
-    ${result}=    Set Variable
-    ...    div.o_field_ace[name='${fieldname}'] div.ace_editor
-    ${result}=    _prepend_parent    ${result}    ${parent}    css_parent=${css_parent}
+    ${result}=    Set Variable    div.o_field_ace[name='${fieldname}'] div.ace_editor
     RETURN    ${result}
 
 _LocatorSelect    [Arguments]    ${fieldname}    ${parent}    ${css_parent}=""
-
-    ${result}=    Set Variable
-    ...    div.o_field_selection[name='${fieldname}'] select
-    ${result}=    _prepend_parent    ${result}    ${parent}    css_parent=${css_parent}
+    ${result}=    Set Variable    div.o_field_selection[name='${fieldname}'] select
     RETURN    ${result}
 
-_LocatorCheckboxes    [Arguments]    ${fieldname}    ${value}    ${parent}    ${css_parent}=""
+_LocatorCheckboxes    [Arguments]    ${fieldname}    ${value}    ${parent}    ${css_parent}=${NONE}
 
     # V17 approved
     ${css}=    Set Variable
-    ...    div[name='${fieldname}'] div.o-checkbox label,div[name='${fieldname}'] div.o_radio_item label
-    ${css}=    _prepend_parent    ${css}    ${parent}    css_parent=${css_parent}
+    ...    div[name='${fieldname}'] div.o-checkbox label
+    RETURN    ${css}
 
-    Search All Tabs For CSS    ${css}    ${css_parent}
+_LocatorRadio    [Arguments]    ${fieldname}    ${value}    ${parent}    ${css_parent}=${NONE}
 
-    ${js}=    Catenate
-    ...    SEPARATOR=\n
-    ...    const callback = arguments[arguments.length - 1];
-    ...    const el = document.querySelectorAll(`${css}`);
-    ...    if (!el.length) { callback("no match") }
-    ...    else {
-    ...    const checkvalue = `${value}`.trim();
-    ...    let found = false;
-    ...    for (const label of el) {
-    ...    if (label.textContent.trim() === checkvalue) {
-    ...    const input_id = label.getAttribute("for");
-    ...    const input_el = document.getElementById(input_id);
-    ...    if (input_el) {
-    ...    const type = input_el.getAttribute("type");
-    ...    callback(type + ":input#" + input_id);
-    ...    found = true;
-    ...    }
-    ...    break;
-    ...    }
-    ...    }
-    ...    if (!found) { callback("no match") }
-    ...    }
-    ${csscheckbox}=    Execute Async Javascript    ${js}
+    # V17 approved
+    ${css}=    Set Variable
+    ...    div[name='${fieldname}'] div.o_radio_item label
+    RETURN    ${css}
 
-    IF    "${csscheckbox}" == "no match"    RETURN    ${FALSE}
-    RETURN    ${csscheckbox}
+_LocatorBoolean    [Arguments]    ${fieldname}    ${parent}    ${css_parent}=
+    ${css}=  Set Variable
+    ...    div.o_field_boolean[name='${fieldname}'] input[type='checkbox']
+    RETURN  ${css}
+
+_LocatorInputAndM2O    [Arguments]    ${fieldname}    ${parent}    ${css_parent}=
+    ${csss}=    Create List
+    ...    div[name='${fieldname}'] input
+    ...    div[name='${fieldname}'] textarea
+    ...    input[id='${fieldname}']
+    ...    input[id='${fieldname}_0']
+    ...    input[name='${fieldname}']
+    ...    textarea[id='${fieldname}']
+    ...    textarea[id='${fieldname}_0']
+    ...    textarea[name='${fieldname}']
+    RETURN  ${csss}
+
+Collect all css for inputs    [Arguments]    ${fieldname}    ${value}    ${parent}    ${css_parent}
+    ${locator_ace}=    _LocatorACE    ${fieldname}    ${parent}    ${css_parent}
+    ${locator_select}=    _LocatorSelect    ${fieldname}    ${parent}    ${css_parent}
+    ${locator_checkboxes}=    _LocatorCheckboxes    ${fieldname}    ${value}    ${parent}    ${css_parent}
+    ${locator_radio}=    _LocatorRadio    ${fieldname}    ${value}    ${parent}    ${css_parent}
+    ${locator_boolean}=    _LocatorBoolean    ${fieldname}    ${parent}    ${css_parent}
+    ${locator_input_and_m2o}=    _LocatorInputAndM2O    ${fieldname}    ${parent}    ${css_parent}
+
+    ${locator_ace}=    _prepend_parent    ${locator_ace}    ${parent}    css_parent=${css_parent}
+    ${locator_select}=    _prepend_parent    ${locator_select}    ${parent}    css_parent=${css_parent}
+    ${locator_checkboxes}=    _prepend_parent    ${locator_checkboxes}    ${parent}    css_parent=${css_parent}
+    ${locator_radio}=    _prepend_parent    ${locator_radio}    ${parent}    css_parent=${css_parent}
+    ${locator_boolean}=    _prepend_parent    ${locator_boolean}    ${parent}    css_parent=${css_parent}
+    ${locator_input_and_m2o}=    _prepend_parent    ${locator_input_and_m2o}    ${parent}    css_parent=${css_parent}
+
+    ${result}=    Create Dictionary
+    ...    input=${locator_input_and_m2o}
+    ...    select=${locator_select}
+    ...    many2many_checkboxes=${locator_checkboxes}
+    ...    radio=${locator_radio}
+    ...    boolean=${locator_boolean}
+    ...    ace=${locator_ace}
+    RETURN    ${result}
+
+Identify Input Type    [Arguments]    ${fieldname}    ${value}    ${parent}    ${css_parent}
+    ${all_css_dict}=    Collect all css for inputs    ${fieldname}    ${value}    ${parent}    ${css_parent}
+
+    ${found}=    Search All Tabs For CSS    ${all_css_dict}    ${css_parent}  ${value}
+    IF    not ${found}
+        FAIL    could not determine input for ${css_parent} ${parent} ${fieldname}
+    END
+
+    RETURN    ${found}
 
 _ToggleCheckbox    [Documentation]    If not force value is set, then value is toggled.
     [Arguments]    ${locator_checkbox_value}    ${force_value}=${NONE}
@@ -99,7 +121,7 @@ _ToggleCheckbox    [Documentation]    If not force value is set, then value is t
         Unselect Checkbox    css=${locator_checkbox_value}
     END
 
-_WriteSelect    [Arguments]    ${fieldname}    ${value}    ${parent}    ${css_parent}=${NONE}    ${tooltip}=${NONE}
+_WriteSelect    [Arguments]    ${css}    ${fieldname}    ${value}    ${parent}    ${css_parent}=${NONE}    ${tooltip}=${NONE}
 
     Screenshot
     ${locator}=    _LocatorSelect    ${fieldname}    ${parent}    css_parent=${css_parent}
@@ -110,50 +132,43 @@ _WriteSelect    [Arguments]    ${fieldname}    ${value}    ${parent}    ${css_pa
     Select From List By Label    css=${locator}    ${value}
     Remove Tooltips
 
-_WriteACEEditor    [Arguments]    ${fieldname}    ${value}    ${parent}    ${css_parent}    ${tooltip}
+_WriteACEEditor    [Arguments]    ${locator}    ${value}    ${tooltip}
 
     # V17
     # <div name="field1" class="o_field_widget o_field_ace"
-    ${locator}=    _LocatorACE    ${fieldname}    ${parent}    ${css_parent}
-    ${origId}=    Get Element Attribute    css=${locator}    id
-    ${tempId}=    Generate Random String    8
-
-    IF    ${tooltip}
-        ShowTooltip By Locator    ${locator}    tooltip=${tooltip}
-    END
-
-    Assign Id To Element    css=${locator}    id=${tempId}
-    ${js}=    Catenate
-    ...    const callback = arguments[arguments.length - 1];
-    ...    var editor = ace.edit(document.getElementById("${tempId}"));
+    ${js}=    Catenate    SEPERATOR=\n
+    ...    var editor = document.querySelector(`locator`);
     ...    editor.focus();
     ...    editor.setValue(`${value}`, 1);
     ...    document.activeElement.blur();
-    ...    callback();
-    Screenshot
-    Execute Async Javascript    ${js}
-    Assign Id To Element    css=${locator}    id=${origId}
-    Remove Tooltips
-    Screenshot
+    Execute Javascript    ${js}
 
-_Write To Element    [Arguments]    ${element}    ${value}    ${ignore_auto_complete}=False
-    ${start}=    tools.Get Current Time Ms
+_Write To Element    [Arguments]    ${css}    ${value}    ${ignore_auto_complete}=${NONE}
+
+    ${element}=    Get WebElement    css=${css}
+    ${tempid}=    Do Get Guid
+    ${tempid}=    Set Variable    id${tempid}
+    ${oldid}=    Get Element Attribute    ${element}    id
+    IF    "${oldid}"
+        Execute Javascript    document.querySelector('#' + CSS.escape('${oldid}')).setAttribute('id', '${tempid}');
+    ELSE
+        Set Element Attribute    ${css}    id    ${tempid}
+    END
+    ${oldcss}=    Set Variable    ${css}
+    ${css}=    Set Variable    \#${tempid}
+    ${testwebel}=    Get WebElement    css=${css}
+
+    Highlight Element    ${css}    ${TRUE}
+    IF    not ${ROBO_NO_UI_HIGHLIGHTING}    JS Scroll Into View    ${css}
+    IF    not ${ROBO_NO_UI_HIGHLIGHTING}    Mouse Over    ${testwebel}
 
     ${elementid}=    Get Element Attribute    ${element}    id
     ${css}=    Set Variable    \#${elementid}
 
     ${libdir}=    library Directory
 
-    ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
-    Log To Console    _Write To Element A ${elapsed}ms
-
-    ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
-    Log To Console    _Write To Element C ${elapsed}ms
-
     ${klass}=    Get Element Attribute    ${element}    class
     ${is_autocomplete}=    Evaluate    "autocomplete" in "${klass}"    # works for V15 and V16 and V17
-    ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
-    Log To Console    _Write To Element C.1 ${elapsed}ms
 
     # ${status}    ${error}=    Run Keyword And Ignore Error    Input Text    css=${css}    ${value}
     ${libdir}=    library Directory
@@ -163,11 +178,8 @@ _Write To Element    [Arguments]    ${element}    ${value}    ${ignore_auto_comp
     ...    const value =`${value}`;
     ...    ${inputelement_js}
     ${status}=    Execute Async Javascript    ${inputelement_js}
-    ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
-    Log To Console    _Write To Element D ${elapsed}ms
     IF    not '${status}'
-        Log To Console    Could not regularly insert text to ${css} - trying to scroll into view first
-        FAIL    Could not write value to ${css} ${value}
+        FAIL    Could not write value to ${css}
         JS Scroll Into View    ${css}
     END
     IF    ${is_autocomplete} and not ${ignore_auto_complete}
@@ -192,27 +204,10 @@ _Write To Element    [Arguments]    ${element}    ${value}    ${ignore_auto_comp
             _Write To CSS AutoComplete
         END
     END
-    ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
-    Log To Console    _Write To Element E ${elapsed}ms
+    Highlight Element    ${css}    ${FALSE}
 
-    ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
-    Log To Console    _Write To Element DONE ${elapsed}ms
-
-_Write To Element 15smaller    [Arguments]
-    ...    ${element}
-    ...    ${is_autocomplete}
-    ...    ${ignore_auto_complete}
-    ...    ${arrow_down_event}
-    ...    ${js}
-    ...    ${css}
-    ...    ${value}
-    ${libdir}=    library Directory
-    IF    ${is_autocomplete} and not ${ignore_auto_complete}
-    ELSE
-        Set Focus To Element    ${element}
-        Input Text    ${css}    ${value}
-        _blur_active_element
-    END
+    Set Element Attribute    ${css}    id    ${oldid}
+    ${css}=    Set Variable    ${oldcss}
 
 _blur_active_element    ${js}=    Catenate    SEPARATOR=\n
     ...    const callback = arguments[arguments.length-1]
@@ -320,9 +315,10 @@ Eval JS Error Dialog
 
 Search All Tabs For CSS    [Documentation]
     ...    returns bool true if found a parent tab;
-    ...    The css variable must contain already the css parent; the
+    ...    The css variable must contain already the css parent and is a dict:
+    ...    type: css    like {'input': '..input', 'ace': textarea[...]}; the
     ...    css parent itself is used to filter the notebook tabs of a modal dialog.
-    [Arguments]    ${css}    ${css_parent}
+    [Arguments]    ${css}    ${css_parent}  ${value}
     IF    ${ODOO_VERSION} < 16.0
         ${mode}=    Set Variable    closest
     ELSE
@@ -333,21 +329,16 @@ Search All Tabs For CSS    [Documentation]
     ...    ${path_notebook_header}
     ...    parent=${NONE}
     ...    css_parent=${css_parent}
+
+    ${css_json}=  tools.json_dumps   ${css}
     ${js}=    Get JS    search_all_tabs_for_css.js
-    ...    const mode="${mode}"; const css=`${css}`; const path_notebook_header=`${path_notebook_header}`;
+    ...    append_js=identify_input_type("${mode}", `${css_json}`, `${path_notebook_header}`, `${value}`);
 
     # TODO undo next line
     # Set Selenium Timeout    100s
     ${result}=    Execute Async Javascript    ${js}
     Log2    Search All Tabs Result: ${result}
     RETURN    ${result}
-
-ElementPreCheck    [Arguments]    ${css}    ${css_parent}
-    ${start}=    tools.Get Current Time Ms
-    Wait Blocking
-    Search All Tabs For CSS    ${css}    ${css_parent}
-    ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
-    Log2    Done: Element Precheck ${css} done in ${elapsed}ms
 
 _has_module_installed    [Arguments]    ${modulename}
 

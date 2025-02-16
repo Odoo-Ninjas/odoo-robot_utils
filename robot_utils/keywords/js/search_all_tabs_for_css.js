@@ -1,43 +1,84 @@
 // arguments: mode, css
 const callback = arguments[arguments.length - 1];
-const path = `${css}`.replace('css=', '');
-//const path_notebook_header = "div.oe_notebook_page li a,div.o_notebook_headers li a";
-console.log("Opening tab for " + path + " with mode " + mode);
 
-function open_closest_tab() {
+function return_result(exists_result) {
+    if (!exists_result) {
+        callback("no match");
+        return;
+    }
+    const key = exists_result.key;
+    const path = exists_result.path;
+
+    if (key === "checkboxes" || key === "radio") {
+        const checkvalue = exists_result.value.trim();
+        let found = false;
+        for (const label of exists_result.el) {
+            if (label.textContent.trim() === checkvalue) {
+                const input_id = label.getAttribute("for");
+                const input_el = document.getElementById(input_id);
+                if (input_el) {
+                    const type = input_el.getAttribute("type");
+                    callback({ key: exists_result.key, path: exists_result.path });
+                    found = true;
+                    break;
+                }
+            }
+        }
+        if (!found) { callback("no match") }
+    }
+    else {
+        callback({ key: key, path: path });
+    }
+}
+
+async function open_closest_tab(paths, path_notebook_header, value) {
     // Verified V15
-    const baseitem = document.querySelector(path);
-    if (!baseitem) {
-        console.log("open_closest_tab: baseitem not found for " + path);
+    debugger;
+
+    const el = exists(paths, value);
+
+    if (!el) {
+        return_result(null);
         return;
     }
-    console.log(baseitem);
+
     //const item = baseitem.closest('div.oe_notebook_page li a, div.o_notebook_headers li a');
-    const parenttab = baseitem.closest('div.tab-pane');
-    if (!parenttab) {
-        return;
-    }
-    if (!parenttab.classList.contains('active')) {
+    const parenttab = el.el.closest('div.tab-panel');
+    if (parent && !parenttab.classList.contains('active')) {
         parenttab.id;  //notebok_page_48  e.g.
         for (tabheader of document.querySelectorAll(path_notebook_header)) {
             if (tabheader.href.includes(parenttab.id)) {
                 tabheader.click();
-                return true;
             }
         }
     }
+    // TODO perhaps add an await for active class in tab header
+    return_result(el);
 }
 
-function exists() {
-    const el = document.querySelector(path);
-    const result = !!el;
-    return result;
+function exists(paths, value) {
+    let el = null;
+
+    for (const key in paths) {
+        const path = paths[key];
+        el = document.querySelector(path)
+        if (el) return {
+            key: key,
+            path: path,
+            el: el,
+            value: value
+        }
+    }
+    if (!el) {
+        return false;
+    }
 }
 
-const search_all_tabs = async () => {
-    if (exists()) {
+async function search_all_tabs(path, path_notebook_header, value) {
+    let el = exists(path, value);
+    if (el) {
         console.log("Searching all tabs: found element " + path);
-        callback(true);
+        return_result(el);
         return;
     }
     const tabheaders = document.querySelectorAll(path_notebook_header);
@@ -47,26 +88,29 @@ const search_all_tabs = async () => {
         }
         await a.click();
         await waitForClass(a, 'active')
-        if (exists()) {
-            console.log("Found tab " + a + " for :" + path);
-            callback(true);
+        const exist_result = exists(path, value);
+        if (exist_result) {
+            return_result(exist_result);
             return;
         }
     }
-    callback(false);
+    return_result(null);
 }
 
-let result = false;
-if (exists()) {
-    callback(true);
-}
-else if (mode === 'closest') {
-    result = !!open_closest_tab();
-    callback(result);
-}
-else if (mode === 'clickall') {
-    await search_all_tabs();
-}
-else {
-    throw new Error('Invalid mode: ' + mode);
+async function identify_input_type(mode, paths, path_notebook_header, value) {
+    const paths_object = JSON.parse(paths);
+    const simple_hit = exists(paths_object, value);
+
+    if (simple_hit) {
+        return_result(simple_hit);
+    }
+    else if (mode === 'closest') {
+        await open_closest_tab(paths_object, path_notebook_header, value);
+    }
+    else if (mode === 'clickall') {
+        await search_all_tabs(paths_object, path_notebook_header, value);
+    }
+    else {
+        throw new Error('Invalid mode: ' + mode);
+    }
 }

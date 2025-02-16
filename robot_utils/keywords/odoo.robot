@@ -139,20 +139,18 @@ Close Error Dialog And Log
         END
     END
 
-Write    [Arguments]
+Write    [Documentation]
+    ...    Toggle checkbox value:    write    name    Buy
+    ...    Force Set checkbox value:    write    name    Buy    checkboxvalue=${TRUE}
+    [Arguments]
     ...    ${fieldname}
     ...    ${value}
-    ...    ${ignore_auto_complete}=False
+    ...    ${ignore_auto_complete}=${FALSE}
     ...    ${parent}=${NONE}
     ...    ${tooltip}=${NONE}
     ...    ${css_parent}=${NONE}
     ...    ${checkboxvalue}=${NONE}
-    [Documentation]
-    ...    Toggle checkbox value:  write  name  Buy
-    ...    Force Set checkbox value:  write  name  Buy  checkboxvalue=${TRUE}
 
-    # Check if it is ACE:
-    # <div name="field1" class="o_field_widget o_field_ace"
     ${start}=    Get Current Time MS
     Wait Blocking
 
@@ -161,111 +159,41 @@ Write    [Arguments]
         ${parent}=    Set Variable    div[name='${parent}'], div[id='${parent}']
     END
 
-    ${elapsed}=    Get Elapsed Time Ms    ${start}
-    Log To Console    Elapsed time Write at Pos A: ${elapsed}ms
+    ${identity_type}=    Identify Input Type
+    ...    ${fieldname}
+    ...    ${value}
+    ...    ${parent}
+    ...    ${css_parent}
 
-    Log2
-    ...    Write ${fieldname}=${value} ignore_auto_complete=${ignore_auto_complete} with parent=${parent} and xpath_parent=${css_parent}
-    ${locator_ACE}=    _LocatorACE    ${fieldname}    ${parent}    css_parent=${css_parent}
-
-    ${locator_select}=    _LocatorSelect    ${fieldname}    ${parent}    css_parent=${css_parent}
-    ${locator_checkbox}=    _LocatorCheckboxes  ${fieldname}  ${value}  ${parent}  css_parent=${css_parent}
-
-    ${elapsed}=    Get Elapsed Time Ms    ${start}
-    Log To Console    Elapsed time Write at Pos A0: ${elapsed}ms
-
-
-    ${locator_checkbox_is_set}=  Eval  bool(v)  v=${locator_checkbox}
-    IF  ${locator_checkbox_is_set}
-        _ToggleCheckbox  ${locator_checkbox}  force_value=${checkboxvalue}
-        ElementPostCheck
-        RETURN
-    END
-
-    ${js}=    Catenate
-    ...    SEPARATOR=\n
-    ...    const callback = arguments[arguments.length - 1];
-    ...    const el_ace = document.querySelector(`${locator_ACE}`);
-    ...    const el_select = document.querySelector(`${locator_select}`);
-    ...    if (el_ace) { callback("ace") }
-    ...    else if (el_select) { callback("select") }
-    ...    else callback("none");
-    ${eltype}=    Execute Async Javascript    ${js}
-    ${elapsed}=    Get Elapsed Time Ms    ${start}
-    Log To Console    Elapsed time Write at Pos A0.1: ${elapsed}ms
+    ${locator_css}=  Get From Dictionary  ${identity_type}  path
+    ${eltype}=  Get From Dictionary  ${identity_type}  key
 
     ${hastooltip}=    Eval    bool(h)    h=${tooltip}
-
-    IF    '${eltype}' == 'ace'
-        ElementPreCheck    ${locator_ACE}  css_parent=${css_parent}
-        _WriteACEEditor    ${fieldname}    ${value}    ${parent}    css_parent=${css_parent}    tooltip=${tooltip}
-    ELSE IF    '${eltype}' == 'select'
-        ElementPreCheck    ${locator_select}  css_parent=${css_parent}
-        _WriteSelect    ${fieldname}    ${value}    ${parent}    css_parent=${css_parent}    tooltip=${tooltip}
-    ELSE
-        ${elapsed}=    Get Elapsed Time Ms    ${start}
-        Log To Console    Elapsed time Write at Pos B1: ${elapsed}ms
-
-        ${csss}=    Create List
-        ...    div[name='${fieldname}'] input
-        ...    div[name='${fieldname}'] textarea
-        ...    input[id='${fieldname}']
-        ...    input[id='${fieldname}_0']
-        ...    input[name='${fieldname}']
-        ...    textarea[id='${fieldname}']
-        ...    textarea[id='${fieldname}_0']
-        ...    textarea[name='${fieldname}']
-
-        ${csss}=    _prepend_parent    ${csss}    ${parent}    css_parent=${css_parent}
-        ${css}=    Catenate    SEPARATOR=,    @{csss}
-
-        ${elapsed}=    Get Elapsed Time Ms    ${start}
-        Log To Console    Elapsed time Write at Pos B3: ${elapsed}ms
-
-        Element Pre Check    ${css}  css_parent=${css_parent}
-
-        ${element}=    Get WebElement    css=${css}
-        ${tempid}=    Do Get Guid
-        ${tempid}=    Set Variable    id${tempid}
-        ${oldid}=    Get Element Attribute    ${element}    id
-        IF    "${oldid}"
-            Execute Javascript    document.querySelector('#' + CSS.escape('${oldid}')).setAttribute('id', '${tempid}');
-        ELSE
-            Set Element Attribute    ${css}    id    ${tempid}
-        END
-        ${oldcss}=    Set Variable    ${css}
-        ${css}=    Set Variable    \#${tempid}
-        ${testwebel}=    Get WebElement    css=${css}
-
-        Highlight Element    ${css}    ${TRUE}
-        ${elapsed}=    Get Elapsed Time Ms    ${start}
-        Log To Console    Elapsed time Write at Pos B3.1: ${elapsed}ms
-        IF    not ${ROBO_NO_UI_HIGHLIGHTING}    JS Scroll Into View    ${css}
-        ${elapsed}=    Get Elapsed Time Ms    ${start}
-        Log To Console    Elapsed time Write at Pos B3.1.1: ${elapsed}ms
-        IF    not ${ROBO_NO_UI_HIGHLIGHTING}    Mouse Over    ${testwebel}
-        ${elapsed}=    Get Elapsed Time Ms    ${start}
-        Log To Console    Elapsed time Write at Pos B3.2: ${elapsed}ms
-        ${elapsed}=    Get Elapsed Time Ms    ${start}
-        Log To Console    Elapsed time Write at Pos B3.3: ${elapsed}ms
-
-        _Write To Element    ${element}    ${value}    ignore_auto_complete=${ignore_auto_complete}
-
-        ${elapsed}=    Get Elapsed Time Ms    ${start}
-        Log To Console    Elapsed time Write at Pos B3.4: ${elapsed}ms
-        Highlight Element    ${css}    ${FALSE}
-        ${elapsed}=    Get Elapsed Time Ms    ${start}
-        Log To Console    Elapsed time Write at Pos B3.5: ${elapsed}ms
-
-        Set Element Attribute    ${css}    id    ${oldid}
-        ${css}=    Set Variable    ${oldcss}
-        ElementPostCheck
+    IF    ${hastooltip}
+        ShowTooltip By Locator    ${locator_css}    tooltip=${tooltip}
     END
+
+    IF    "${eltype}" == "checkbox" or "${eltype}" == "radio"
+        _ToggleCheckbox    ${locator_css}    force_value=${checkboxvalue}
+    ELSE IF    "${eltype}" == "ace"
+        _WriteACEEditor    ${locator_css}    ${value}    tooltip=${tooltip}
+    ELSE IF    "${eltype}" == "select"
+        _WriteSelect
+        ...    ${locator_css}
+        ...    ${fieldname}
+        ...    ${value}
+        ...    ${parent}
+        ...    css_parent=${css_parent}
+        ...    tooltip=${tooltip}
+    ELSE IF    "${eltype}" == "input"
+        _Write To Element    ${locator_css}    ${value}  ignore_auto_complete=${ignore_auto_complete}
+    ELSE
+        FAIL    not implemented
+    END
+    Remove Tooltips
+    Element Post Check
+
     IF    ${hastooltip}    _removeTooltips
-    Log To Console    Done: Write ${fieldname}=${value}
-    Screenshot
-    ${elapsed}=    Get Elapsed Time MS    ${start}
-    Log To Console    Elapsed time Write: ${elapsed}ms
 
 Breadcrumb Back
     Log To Console    Click breadcrumb - last item
@@ -281,16 +209,16 @@ Breadcrumb Back
 Form Save
     Wait To Click    button.o_form_button_save
 
-Slug  [Arguments]  ${ids}
-    ${id}=  Eval  ids and isinstance(id, (list,tuple)) and len(ids) \=\= 1 ids[0] else ids  id=${ids}
-    RETURN  ${id}
+Slug    [Arguments]    ${ids}
+    ${id}=    Eval    ids and isinstance(id, (list,tuple)) and len(ids) \=\= 1 ids[0] else ids    id=${ids}
+    RETURN    ${id}
 
 Goto View    [Arguments]    ${model}    ${id}    ${type}=form
     Log To Console    Goto View ${model} ${id} ${type}
     Go To    ${ODOO_URL}/web
     Screenshot
 
-    ${id}=  Slug  ${ids}
+    ${id}=    Slug    ${ids}
 
     ${random}=    Generate Random String    10    [LETTERS]
     ${url}=    Set Variable    ${ODOO_URL}/web#id=${id}&cids=1&model=${model}&view_type=${type}&randomid=${random}
@@ -314,7 +242,7 @@ Odoo Write One2many    [Arguments]    ${fieldname}    ${data}
 Odoo Click    [Arguments]    ${xpath}    ${tooltip}=${NONE}
     Wait To Click    xpath=${xpath}    tooltip=${tooltip}
 
-Wait To Click    [Arguments]    ${css}    ${tooltip}=${NONE}  ${maxcount}=1  ${limit}=1  ${position}=0
+Wait To Click    [Arguments]    ${css}    ${tooltip}=${NONE}    ${maxcount}=1    ${limit}=1    ${position}=0
 # V17: they disable also menuitems and enable to avoid double clicks; not
 # so in <= V16
     Add Cursor
@@ -333,7 +261,7 @@ Wait To Click    [Arguments]    ${css}    ${tooltip}=${NONE}  ${maxcount}=1  ${l
     IF    ${hastooltip}
         ShowTooltip By Locator    css=${css}    tooltip=${tooltip}
     END
-    JS On Element    ${css}    jscode=element.click()    maxcount=${maxcount}  limit=${limit}  position=${position}
+    JS On Element    ${css}    jscode=element.click()    maxcount=${maxcount}    limit=${limit}    position=${position}
     IF    ${hastooltip}    _removeTooltips
 
     Sleep    10ms    # Give chance to become disabled

@@ -215,12 +215,13 @@ JS Scroll Into View    [Arguments]    ${css}
     Run Keyword And Ignore Error    JS On Element    ${css}    element.scrollIntoView(true);
     # Run Keyword And Ignore Error    Scroll Element Into View    css=${css}
 
-Get JS    [Arguments]    ${name}    ${prepend_js}=${NONE}
+Get JS    [Arguments]    ${name}    ${prepend_js}=${NONE}  ${append_js}=${NONE}
     [Documentation] 
     ...  ${js}=  Get JS  element_precheck.js
     ...  mode="${mode}"
 
     ${prepend_js} =  Eval  X or ""  X=${prepend_js}
+    ${append_js} =  Eval  X or ""  X=${append_js}
 
     ${libdir}=    library Directory
     ${tools}=    Get File    ${libdir}/../keywords/js/tools.js
@@ -230,6 +231,7 @@ Get JS    [Arguments]    ${name}    ${prepend_js}=${NONE}
     ...    ${tools}
     ...    ${prepend_js}
     ...    ${result}
+    ...    ${append_js}
     RETURN    ${result}
 
 

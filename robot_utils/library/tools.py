@@ -161,6 +161,9 @@ class tools(object):
         value = value or {}
         return json.loads(json.dumps(value, cls=Encoder))
 
+    def json_dumps(self, dict):
+        return json.dumps(dict, cls=Encoder)
+
     def list_all_variables(self):
         context = BuiltIn().get_library_instance("BuiltIn")
         variables = context.get_variables()
