@@ -1,9 +1,9 @@
 *** Settings ***
 # For keywords have a look in addons_robot/robot_utils/keywords/documentation.md
-Resource         ../keywords/odoo.robot
-Resource         ../keywords/tools.robot
-Resource         ../keywords/wodoo.robot
-Resource         ../keywords/test_setup.robot
+Resource         ../addons_robot/robot_utils/keywords/odoo.robot
+Resource         ../addons_robot/robot_utils/keywords/tools.robot
+Resource         ../addons_robot/robot_utils/keywords/wodoo.robot
+Resource         ../addons_robot/robot_utils/keywords/test_setup.robot
 Test Setup       Setup Test
 Test Teardown    Teardown Test
 
