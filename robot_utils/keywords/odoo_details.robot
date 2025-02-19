@@ -203,7 +203,8 @@ _Write To Element    [Arguments]    ${css}    ${value}    ${ignore_auto_complete
     END
     Highlight Element    ${css}    ${FALSE}
 
-    Set Element Attribute    ${css}    id    ${oldid}
+    # if element is part of editable tree, then it is recreated and not found;
+    Run Keyword And Ignore Error    Set Element Attribute    ${css}    id    ${oldid}
     ${css}=    Set Variable    ${oldcss}
 
 _blur_active_element    ${js}=    Catenate    SEPARATOR=\n

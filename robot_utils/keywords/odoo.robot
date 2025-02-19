@@ -165,19 +165,19 @@ Write    [Documentation]
     ...    ${parent}
     ...    ${css_parent}
 
-    ${locator_css}=  Get From Dictionary  ${identity_type}  path
-    ${eltype}=  Get From Dictionary  ${identity_type}  key
+    ${locator_css}=    Get From Dictionary    ${identity_type}    path
+    ${eltype}=    Get From Dictionary    ${identity_type}    key
 
     ${hastooltip}=    Eval    bool(h)    h=${tooltip}
     IF    ${hastooltip}
         ShowTooltip By Locator    ${locator_css}    tooltip=${tooltip}
     END
 
-    IF  "${eltype}" == "boolean"
+    IF    "${eltype}" == "boolean"
         _ToggleCheckbox    ${locator_css}    force_value=${value}
     ELSE IF    "${eltype}" == "many2many_checkboxes"
         _ToggleCheckbox    ${locator_css}    force_value=${checkboxvalue}
-    ELSE IF  "${eltype}" == "radio"
+    ELSE IF    "${eltype}" == "radio"
         _ToggleRadio    ${locator_css}
     ELSE IF    "${eltype}" == "ace"
         _WriteACEEditor    ${locator_css}    ${value}    tooltip=${tooltip}
@@ -190,7 +190,7 @@ Write    [Documentation]
         ...    css_parent=${css_parent}
         ...    tooltip=${tooltip}
     ELSE IF    "${eltype}" == "input"
-        _Write To Element    ${locator_css}    ${value}  ignore_auto_complete=${ignore_auto_complete}
+        _Write To Element    ${locator_css}    ${value}    ignore_auto_complete=${ignore_auto_complete}
     ELSE
         FAIL    not implemented: ${eltype}
     END
@@ -212,18 +212,23 @@ Form Save
     Wait To Click    button.o_form_button_save
 
 Slug    [Arguments]    ${ids}
-    ${id}=    Eval    ids and isinstance(id, (list,tuple)) and len(ids) \=\= 1 ids[0] else ids    id=${ids}
+    IF    not ${ids}
+        ${ids}=    Set Variable    ${{ [] }}
+    END
+    ${id}=    Eval    id[0] if id and isinstance(id, (list,tuple)) and len(id) \=\= 1 else id    id=${ids}
     RETURN    ${id}
 
 Goto View    [Arguments]    ${model}    ${id}    ${type}=form
     Log To Console    Goto View ${model} ${id} ${type}
     Go To    ${ODOO_URL}/web
-    Screenshot
 
-    ${id}=    Slug    ${ids}
+    ${id}=    Slug    ${id}
 
     ${random}=    Generate Random String    10    [LETTERS]
-    ${url}=    Set Variable    ${ODOO_URL}/web#id=${id}&cids=1&model=${model}&view_type=${type}&randomid=${random}
+    ${url}=    Set Variable    ${ODOO_URL}/web#cids=1&model=${model}&view_type=${type}&randomid=${random}
+    IF  ${id}
+        ${url}=  Set Variable  ${url}&id=${id}
+    END
     Log To Console    url: ${url}
     Go To    ${url}
     IF    '${type}' == 'form'

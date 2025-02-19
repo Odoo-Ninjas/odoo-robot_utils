@@ -158,16 +158,20 @@ Set Element Attribute
     [Arguments]    ${css}    ${attribute}    ${value}
     ${js}=    Catenate    SEPARATOR=;
     ...    element.setAttribute("${attribute}", "${value}");
-    JS On Element    ${css}    ${js}
+    ${res}=  JS On Element    ${css}    ${js}
 
 JS On Element    [Arguments]    ${css}    ${jscode}    ${maxcount}=0  ${return_callback}=${FALSE}  ${limit}=0  ${position}=0
+    ${max_and_pos}=  Eval  max and pos  max=${maxcount}  pos=${position}
+    IF  ${max_and_pos}
+        ${maxcount}=  Set Variable  0
+    END
 
     ${js}=    Catenate    SEPARATOR=\n
+    ...    if (${position})   debugger;
     ...    const callback = arguments[arguments.length - 1];
     ...    const css = `${css}`;
     ...    const result = document.querySelectorAll(css);
     ...    let funcresult = "not_ok";
-    ...    let position = 0;
     ...    if (${maxcount} && result.length > ${maxcount}) {
     ...      callback("maxcount" + result.length);
     ...    }
@@ -187,6 +191,7 @@ JS On Element    [Arguments]    ${css}    ${jscode}    ${maxcount}=0  ${return_c
     ...      callback(funcresult);
     ...    }
 
+    # Set Selenium Timeout    100
     ${res}=    Execute Async Javascript    ${js}
     IF  ${return_callback}
         RETURN  ${res}
