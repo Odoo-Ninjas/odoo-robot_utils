@@ -107,7 +107,7 @@ MainMenu    [Arguments]    ${menu}
             Wait Until Page Contains Element    css=${home_menu}
             Wait To Click    css=${home_menu}
         END
-        Wait To Click    css=a[data-menu-xmlid='${menu}']
+        Wait To Click    css=a[data-menu-xmlid='${menu}']  position=1
     END
 
 ApplicationMainMenuOverview
