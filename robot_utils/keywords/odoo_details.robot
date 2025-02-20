@@ -267,7 +267,7 @@ Eval Validation User Error Dialog
     # TODO evaluate Validation Error and User Error again; best return text error immediatley
     ${js}=    Catenate    SEPARATOR=\n
     ...    let textcontent = element.textContent;
-    ...    if (textcontent.includes("User Error") || textcontent.includes("Validation Error")) {
+    ...    if (textcontent.includes("User Error") || textcontent.includes("Validation Error") || textcontent.includes("Invalid Operation") ) {
     ...    funcresult = "has_error_dialog";
     ...    }
     ${has_error_dialog}=    JS On Element    div.modal[role='dialog'] header    ${js}    return_callback=${TRUE}
