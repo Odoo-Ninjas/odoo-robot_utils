@@ -201,7 +201,9 @@ Write    [Documentation]
 
 Breadcrumb Back
     Log To Console    Click breadcrumb - last item
-    IF    ${ODOO_VERSION} in [17.0, 16.0]
+    IF    ${ODOO_VERSION} in [17.0]
+        Wait To Click    ol.breadcrumb li:nth-last-child(1) a
+    ELSE IF  ${ODOO_VERSION} in [16.0]
         Wait To Click    ol.breadcrumb li:nth-last-child(2) a
     ELSE
         FAIL    Breadcrumb Needs implementation for ${ODOO_VERSION}
