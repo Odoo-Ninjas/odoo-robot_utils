@@ -42,7 +42,7 @@ Login    [Arguments]    ${user}=${ROBO_ODOO_USER}    ${password}=${ROBO_ODOO_PAS
     ELSE
         Wait Until Page Contains Element    css=nav.o_main_navbar
     END
-    ElementPostCheck
+    Wait Blocking And Eval Error States
     Log To Console    Logged In - continuing
     RETURN    ${browser_id}
 
@@ -75,7 +75,7 @@ ClickMenu    [Arguments]    ${menu}
         Wait Until Page Contains Element    css=body.o_web_client
     END
 
-    ElementPostCheck
+    Wait Blocking And Eval Error States
 
 MainMenu    [Arguments]    ${menu}
     # works V16
@@ -96,7 +96,7 @@ MainMenu    [Arguments]    ${menu}
         Wait Until Page Contains Element    css=${css}
         Wait To Click    css=${css}
         Wait Until Page Contains Element    css=body.o_web_client
-        ElementPostCheck
+        Wait Blocking And Eval Error States
     ELSE
         # Works V16
         Log To Console    Enterprise is not installed - there is no main menu - just the burger menu
@@ -107,7 +107,7 @@ MainMenu    [Arguments]    ${menu}
             Wait Until Page Contains Element    css=${home_menu}
             Wait To Click    css=${home_menu}
         END
-        Wait To Click    css=a[data-menu-xmlid='${menu}']  position=1
+        Wait To Click    css=a[data-menu-xmlid='${menu}']    position=1
     END
 
 ApplicationMainMenuOverview
@@ -123,7 +123,7 @@ ApplicationMainMenuOverview
             FAIL    not implemented ${odoo_version}
         END
     END
-    ElementPostCheck
+    Wait Blocking And Eval Error States
 
 Close Error Dialog And Log
     ${visible_js_error_dialog}=    Is Visible    xpath=//div[contains(@class, 'o_dialog_error')]
@@ -152,7 +152,7 @@ Write    [Documentation]
     ...    ${checkboxvalue}=${NONE}
 
     ${start}=    Get Current Time MS
-    Wait Blocking
+    Wait Blocking And Eval Error States
 
     ${parent_set}=    Eval    bool(v)    v=${parent}
     IF    ${parent_set}
@@ -195,7 +195,7 @@ Write    [Documentation]
         FAIL    not implemented: ${eltype}
     END
     Remove Tooltips
-    Element Post Check
+    Wait Blocking And Eval Error States
 
     IF    ${hastooltip}    _removeTooltips
 
@@ -206,7 +206,7 @@ Breadcrumb Back
     ELSE
         FAIL    Breadcrumb Needs implementation for ${ODOO_VERSION}
     END
-    ElementPostCheck
+    Wait Blocking And Eval Error States
 
 Form Save
     Wait To Click    button.o_form_button_save
@@ -226,8 +226,8 @@ Goto View    [Arguments]    ${model}    ${id}    ${type}=form
 
     ${random}=    Generate Random String    10    [LETTERS]
     ${url}=    Set Variable    ${ODOO_URL}/web#cids=1&model=${model}&view_type=${type}&randomid=${random}
-    IF  ${id}
-        ${url}=  Set Variable  ${url}&id=${id}
+    IF    ${id}
+        ${url}=    Set Variable    ${url}&id=${id}
     END
     Log To Console    url: ${url}
     Go To    ${url}
@@ -249,14 +249,20 @@ Odoo Write One2many    [Arguments]    ${fieldname}    ${data}
 Odoo Click    [Arguments]    ${xpath}    ${tooltip}=${NONE}
     Wait To Click    xpath=${xpath}    tooltip=${tooltip}
 
-Wait To Click    [Arguments]    ${css}    ${tooltip}=${NONE}    ${maxcount}=1    ${limit}=1    ${position}=0
+Wait To Click    [Arguments]
+    ...    ${css}
+    ...    ${tooltip}=${NONE}
+    ...    ${maxcount}=1
+    ...    ${limit}=1
+    ...    ${position}=0
+    ...    ${error_check}=${TRUE}
 # V17: they disable also menuitems and enable to avoid double clicks; not
 # so in <= V16
     Add Cursor
     Log To Console    Wait To Click ${css}
 
     Wait Until Page Contains Element    css=${css}
-    Wait Blocking
+    Wait Blocking And Eval Error States    error_check=${error_check}
     Log    Could not identify element ${css} - so trying by pure javascript to click it.
     ${hastooltip}=    Eval    bool(h)    h=${tooltip}
 
@@ -274,11 +280,11 @@ Wait To Click    [Arguments]    ${css}    ${tooltip}=${NONE}    ${maxcount}=1   
     Sleep    10ms    # Give chance to become disabled
     Wait Ajax Requests Done
     _Wait Until Element Is Not Disabled    ${css}
-    Element Post Check
+    Wait Blocking And Eval Error States    error_check=${error_check}
     Capture Page Screenshot
     Remove Cursor
     Log To Console    Done Wait To Click ${css}
-    Wait Blocking
+    Wait Blocking And Eval Error States    error_check=${error_check}
 
 Odoo Button    [Arguments]    ${text}=${NONE}    ${name}=${NONE}    ${tooltip}=${NONE}
 
@@ -326,7 +332,7 @@ Odoo Upload File    [Arguments]    ${fieldname}    ${filepath}    ${parent}=${NO
 
     Log To Console    Choosing file from ${DIRECTORY UPLOAD FILES BROWSER DRIVER}/${file_name}
     Choose File    css=${css}    ${DIRECTORY UPLOAD FILES BROWSER DRIVER}/${file_name}
-    ElementPostCheck
+    Wait Blocking And Eval Error States
     Log To Console    Done UploadFile ${fieldname}=${filepath}
 
 Odoo Setting Checkbox    [Arguments]    ${title}    ${toggle}=${TRUE}
@@ -349,3 +355,7 @@ Odoo Setting Checkbox    [Arguments]    ${title}    ${toggle}=${TRUE}
     ...    element.checked=${jsvalue};
     ...    element.dispatchEvent(new Event("change", { bubbles: true }));
     JS On Element    ${xpath}    ${code}    maxcount=1
+
+Eval Error States
+    Eval JS Error Dialog
+    Eval Validation User Error Dialog

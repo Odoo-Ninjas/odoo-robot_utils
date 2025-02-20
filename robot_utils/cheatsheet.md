@@ -8,6 +8,7 @@
 	- [x-nary](#x-nary)
 	- [Evaluate python](#evaluate-python)
 	- [IF blocks](#if-blocks)
+	- [Expect Error after button click or input action](#expect-error-after-button-click-or-input-action)
 
 <!-- /TOC -->
 # Robotframework Basics
@@ -74,4 +75,21 @@ ELIF
 ELSE
 
 END
+```
+
+## Expect Error after button click or input action
+
+Some backgrounds: Permanently the robot framework is checking for a popping up error 
+dialog. To keep up the clicking speed, it is not long waitet for a popup. It is waited till 
+requests cycle down. But at next step is evaluated, if there is an error.
+
+If you MUST validate, that an error happened, following way is suggested:
+
+```robotframework
+
+  # turn off error check, to evaluate it later
+  Wait To Click    css=${css}    error_check=${FALSE}
+  Sleep 2s
+  Run Keyword And Expect Error  *invalid syntax*  Eval Error States
+  Wait To Click    div.modal-content button.btn-primary  error_check=${False}
 ```

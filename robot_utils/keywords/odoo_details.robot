@@ -229,10 +229,6 @@ _Write To CSS AutoComplete
     Wait Blocking
 
 Wait Blocking
-    ${start}=    tools.Get Current Time Ms
-    # TODO something not ok here - if --timeout is 30 then this function
-    # executes 20 times slower then with robot --timeout 10
-
     # o_loading in V14
     # o_loading_indicator since ??
 
@@ -240,14 +236,6 @@ Wait Blocking
 
     Wait Ajax Requests Done
 
-    # Repeat Keyword
-    # ...    2 times
-    # ...    Run Keyword And Ignore Error
-    # ...    Wait Until Element Is Not Visible    xpath=${xpath}    timeout=10ms
-
-    # ${state}    ${result}=    Run Keyword And Ignore Error
-    # ...    Wait Until Element Is Visible
-    # ...    xpath=${xpath}    timeout=10ms
 
     ${state}    ${result}=    Run Keyword And Ignore Error
     ...    Wait Until Element Is Not Visible
@@ -261,15 +249,19 @@ Wait Blocking
     ELSE
         Wait Until Element Is Not Visible  css=${css}
     END
-    ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
-    Log To Console    Wait Blocking Done in ${elapsed}ms
 
-ElementPostCheck
+Wait Blocking And Eval Error States
+    [Arguments]  ${error_check}=${TRUE}
     [Documentation]
     ...    Run Keyword And Expect Error    *invalid syntax*    Wait To Click    css=${css}
+    ...    UPDATE: do this by:
+    ...    Sleep  1s
+    ...    Wait Blocking And Eval Error States
     Wait Blocking
-    Eval JS Error Dialog
-    Eval Validation User Error Dialog
+    IF  ${error_check}
+        Eval Error States
+    END
+
 
 Eval Validation User Error Dialog
     # TODO evaluate Validation Error and User Error again; best return text error immediatley
@@ -386,6 +378,7 @@ _While Element Attribute Value    [Arguments]    ${css}    ${attribute}    ${ope
         END
         # Log To Console    Waiting for ${xpath} ${attribute} ${operator} ${param_value} - got ${value}
         IF    '${conversion}' == 'as_bool'
+            ${value}=  Eval  0 if i is None else i  i=${value}
             ${status}    ${integer_number}=    Run Keyword And Ignore Error    Convert To Integer    ${value}
             IF    '${status}' != 'FAIL'
                 ${value}=    Set Variable    ${integer_number}

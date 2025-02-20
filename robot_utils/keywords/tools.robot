@@ -167,7 +167,6 @@ JS On Element    [Arguments]    ${css}    ${jscode}    ${maxcount}=0  ${return_c
     END
 
     ${js}=    Catenate    SEPARATOR=\n
-    ...    if (${position})   debugger;
     ...    const callback = arguments[arguments.length - 1];
     ...    const css = `${css}`;
     ...    const result = document.querySelectorAll(css);
@@ -290,12 +289,14 @@ Get Ajax Counter
     ...  const callback = arguments[arguments.length - 1];
     ...  const counter = parseInt(localStorage.getItem('robo_counter') || 0);
     ...  callback(counter);
+    ...  console.log("Count current requests: " + counter);
     ${counter}=  Eval  int("${counter}")
     RETURN  ${counter}
 
 Wait Ajax Requests Done
     ${counter_ajax}=  Get Ajax Counter
     ${counter}=    Set Variable    0
+    ${there_was_a_request}=  Eval  c > 0  c=${counter_ajax}
     WHILE    ${counter} < ${SELENIUM_TIMEOUT} and ${counter_ajax} > 0
         Sleep  0.1s
         ${counter}=  Evaluate  ${counter} + 0.1
@@ -303,4 +304,15 @@ Wait Ajax Requests Done
     END
     IF  ${counter_ajax} > 0
         FAIL  Timeout waiting for ajax requests to finish
+    END
+
+    IF  ${there_was_a_request}
+        # Give time to react on the request;
+        # e.g. button is pressed and server executes something; with 100ms
+        # on M4 machine it was enough time to wait to show an error dialog
+
+        Sleep  10ms
+
+        # there is a documentation entry with more information:
+        ## Expect Error after button click or input action
     END
