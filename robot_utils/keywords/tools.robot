@@ -164,6 +164,7 @@ JS On Element    [Arguments]    ${css}    ${jscode}    ${maxcount}=0  ${return_c
     ${max_and_pos}=  Eval  max and pos  max=${maxcount}  pos=${position}
     IF  ${max_and_pos}
         ${maxcount}=  Set Variable  0
+        ${limit}=  Set Variable  0
     END
 
     ${js}=    Catenate    SEPARATOR=\n
