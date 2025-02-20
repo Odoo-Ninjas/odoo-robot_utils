@@ -253,12 +253,13 @@ Wait Blocking
     ...    Wait Until Element Is Not Visible
     ...    css=${css}    timeout=10ms
 
-    # TODO dont know when introduced
     IF    ${odoo_version} < 17.0
         ${state}    ${result}=    Run Keyword And Ignore Error
         ...    Wait Until Element Is Not Visible
         ...    css=body.o_ewait    timeout=10ms
         IF    '${state}' == 'FAIL'    Log To Console    o_ewait still visible
+    ELSE
+        Wait Until Element Is Not Visible  css=${css}
     END
     ${elapsed}=    tools.Get Elapsed Time Ms    ${start}
     Log To Console    Wait Blocking Done in ${elapsed}ms

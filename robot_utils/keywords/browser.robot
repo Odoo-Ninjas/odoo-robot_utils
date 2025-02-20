@@ -40,6 +40,8 @@ Open New Browser    [Arguments]    ${url}
         Set Window Position        0                                                            0
         Set Window Size            ${BROWSER_WIDTH}                                             ${BROWSER_HEIGHT}
         Go To                      ${url}
+    ELSE
+        Activate Ajax Counter
     END
     Capture Page Screenshot
     RETURN                     ${driver}

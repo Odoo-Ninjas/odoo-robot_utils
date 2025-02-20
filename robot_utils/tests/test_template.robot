@@ -9,8 +9,8 @@ Test Teardown    Teardown Test
 
 
 *** Variables ***
-${SNIPPET_MODE}    0  # if true, then login does not happen and your test continues in opened browser
-                                 # useful to fine tune some keyword
+# Set environment variable SNIPPET_MODE to robo test, to not login and continue with last ${TOKEN} !
+# Allows to continue in the middle of the test.
 @{INSTALL_MODULES}  robot_utils  purchase
 @{UNINSTALL_MODULES}  partner_autocomplete
 
@@ -20,7 +20,7 @@ Buy Something and change amount
     # Search for the admin
     # Odoo Load Data    ../data/products.xml 
     MainMenu          purchase.menu_purchase_root
-    IF  ${odoo_version} == 16.0
+    IF  ${odoo_version} <= 16.0
         Odoo Button       New
     ELSE
         Odoo Button       Create
