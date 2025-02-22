@@ -38,7 +38,9 @@ Toggle Module Installation  [Arguments]  ${modules}  ${install_state}
 
         IF  ${installed} and not ${install_state} or not ${installed} and ${install_state}
             Log To Console  ${method}ing ${module}
+            Odoo Command  kill odoo
             Odoo Command  ${method} ${module}
+            Odoo Command  up -d
         END
         
     END
