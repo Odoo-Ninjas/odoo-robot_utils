@@ -93,6 +93,12 @@ class tools(object):
     def get_now(self):
         return arrow.get().datetime
 
+    def get_now_formatted(self, format="MM/DD/YYYY HH:mm:ss", shiftparams={}):
+        d = arrow.get()
+        if shiftparams:
+            d = d.shift(**shiftparams)
+        return d.format(format)
+
     def copy_file(self, source, destination):
         shutil.copy(source, destination)
 
@@ -225,7 +231,7 @@ class tools(object):
     def prepend_parent_in_tools(self, path, parent, css_parent):
         # Check if path is a list
         is_list = isinstance(path, (tuple, list))
-        parent = parent or ''
+        parent = parent or ""
 
         new_path = []
         if is_list:
@@ -240,7 +246,7 @@ class tools(object):
                 for pparent in parent.split(","):
                     item = " ".join(filter(bool, [css_parent, pparent, item]))
                     new_path.append(item)
-            path = ','.join(new_path)
+            path = ",".join(new_path)
 
         return path
 

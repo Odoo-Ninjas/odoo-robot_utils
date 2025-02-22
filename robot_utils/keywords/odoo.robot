@@ -139,6 +139,23 @@ Close Error Dialog And Log
         END
     END
 
+Write List    [Arguments]    ${values}    ${parent_fieldname}
+
+    # select the current activated line and remember it
+    ${webelement}=    Get WebElement    css=[name='${parent_fieldname}'] tbody tr.o_data_row.o_selected_row
+    ${haswebelement}=  Eval  bool(w)  w=${webelement}
+
+    IF    not ${haswebelement}    FAIL    Please call 'add a line' or so first
+
+    FOR    ${key}    ${value}    IN    &{values}
+        ${cssparent}=    Set Variable    [name='${parent_fieldname}'] tbody tr.o_data_row.o_selected_row 
+        ${csstd}=  Set Variable  div[name='${key}']
+        JS On Element    ${cssparent} ${csstd}
+        ...    element.click()
+        Write    ${key}    ${value}    css_parent=${cssparent}
+        Log    Key: ${key}, Value: ${value}
+    END
+
 Write    [Documentation]
     ...    Toggle checkbox value:    write    name    Buy
     ...    Force Set checkbox value:    write    name    Buy    checkboxvalue=${TRUE}
