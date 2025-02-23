@@ -1,6 +1,6 @@
 repos:
 - branch: master
   freeze_sha: true
-  path: odoorpc_repo
+  path: robot_utils/library/odoorpc_repo
   type: integrated
   url: git@github.com:OCA/odoorpc
