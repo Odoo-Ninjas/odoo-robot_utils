@@ -68,7 +68,6 @@ class odoo(object):
         return res
 
     def get_conn(self, host, dbname, user, pwd):
-        from odoo_rpc_client import Client
 
         ssl = host.startswith("https")
         host = host.split("://", 1)[-1]
@@ -78,13 +77,27 @@ class odoo(object):
         else:
             port = 443 if ssl else 80
         logger.debug(f"Connection to odoo with {host} {dbname} user: {user} pw: {pwd}")
-        db = Client(
+        dbname = dbname or "odoo"
+        import odoorpc
+
+        db = odoorpc.ODOO(
             host=host,
-            dbname=dbname or "odoo",
-            user=user,
-            pwd=pwd,
             port=port,
+            protocol="jsonrpc",
+            # version=self.version or None,
+            # timeout=self.timeout,
         )
+        db.json(
+            "/web/session/authenticate",
+            {
+                "db": dbname,
+                "login": user,
+                "password": pwd,
+            },
+        )
+
+        # be compatible with more than 1 database
+        db.login(dbname, user, pwd)
         return db
 
     def rpc_client_search(
@@ -107,8 +120,18 @@ class odoo(object):
         limit = int(limit) if limit else None
         domain = eval(domain)
         logger.debug(f"Searching for records with domain {domain} {type(domain)}")
-        obj = db[model]
-        kwparams = {x:y for x,y in {'offset': int(offset or 0), 'count': count, 'limit': limit, 'order': order, 'context': context}.items() if y}
+        obj = db.env[model]
+        kwparams = {
+            x: y
+            for x, y in {
+                "offset": int(offset or 0),
+                "count": count,
+                "limit": limit,
+                "order": order,
+                "context": context,
+            }.items()
+            if y
+        }
 
         return obj.search(domain, **kwparams)
 
@@ -127,17 +150,22 @@ class odoo(object):
         lang=DEFAULT_LANG,
         context=None,
     ):
-        db = self.get_conn(host, dbname, user, pwd)
-        context = self._get_context(context, lang)
-        limit = int(limit) if limit else None
-        domain = eval(domain)
-        logger.debug(f"Searching for records with domain {domain} {type(domain)}")
-        obj = db[model]
-        kwparams = {x:y for x,y in {'offset': int(offset or 0), 'count': count, 'limit': limit, 'order': order, offset: int(offset or 0), 'context': context}.items() if y}
-        res = obj.search_records(
-            domain, **kwparams
+        ids = self.rpc_client_search(
+            host=host,
+            dbname=dbname,
+            user=user,
+            pwd=pwd,
+            model=model,
+            domain=domain,
+            limit=limit,
+            order=order,
+            count=count,
+            offset=offset,
+            lang=lang,
+            context=context,
         )
-        return res
+        db = self.get_conn(host, dbname, user, pwd)
+        return db.env[model].browse(ids)
 
     @convert_args
     def rpc_client_search_read_records(
@@ -162,12 +190,24 @@ class odoo(object):
         limit = int(limit) if limit else None
         domain = eval(domain)
         logger.debug(f"Searching for records with domain {domain} {type(domain)}")
-        kwparams = {x:y for x,y in {'offset': int(offset or 0), 'count': count, 'limit': limit, 'order': order, offset: int(offset or 0), 'context': context}.items() if y}
-        obj = db[model]
-        res = obj.search_records(
-            domain, **kwparams,
+        kwparams = {
+            x: y
+            for x, y in {
+                "offset": int(offset or 0),
+                "count": count,
+                "limit": limit,
+                "order": order,
+                offset: int(offset or 0),
+                "context": context,
+            }.items()
+            if y
+        }
+        obj = db.env[model]
+        ids = obj.search(
+            domain,
+            **kwparams,
         )
-        res = res.read(fields)
+        res = obj.read(ids, fields=fields, context=context)
         return res
 
     @convert_args
@@ -186,7 +226,7 @@ class odoo(object):
         fields = _convert_fields(fields)
         context = self._get_context(context, lang)
         db = self.get_conn(host, dbname, user, pwd)
-        obj = db[model]
+        obj = db.env[model]
         return obj.read(ids, fields=fields, context=context)
 
     @convert_args
@@ -204,7 +244,7 @@ class odoo(object):
     ):
         context = self._get_context(context, lang)
         db = self.get_conn(host, dbname, user, pwd)
-        obj = db[model]
+        obj = db.env[model]
         values = self._parse_values(values)
         return obj.write(ids, values, context=context)
 
@@ -216,31 +256,33 @@ class odoo(object):
         user,
         pwd,
         model,
+        method,
         ids=None,
-        method=None,
-        params=[],
-        kwparams={},
+        params=None,
+        kwparams=None,
         context=None,
         lang=DEFAULT_LANG,
     ):
+        params = params or []
+        kwparams = kwparams or {}
         context = self._get_context(context, lang)
         db = self.get_conn(host, dbname, user, pwd)
-        obj = db[model]
         kwparams["context"] = context
         if not ids:
             # model functions
-            return getattr(obj, method)(*params, **kwparams)
+            return db.execute_kw(model, method, params, kwparams)
         else:
-            return getattr(obj, method)(ids, *params, **kwparams)
+            return db.execute_kw(model, method, ids, params, kwparams)
 
     def rpc_client_create(
         self, host, dbname, user, pwd, model, values, context=None, lang=DEFAULT_LANG
     ):
         context = self._get_context(context, lang)
         db = self.get_conn(host, dbname, user, pwd)
-        obj = db[model]
+        obj = db.env[model]
         values = self._parse_values(values)
         res = obj.create(values)
+        res = obj.browse(res)
         return res
 
     def rpc_client_ref_id(
@@ -253,7 +295,7 @@ class odoo(object):
     def rpc_client_ref(self, host, dbname, user, pwd, xml_id):
         xml_id = xml_id.lower()
         db = self.get_conn(host, dbname, user, pwd)
-        res = db.ref(xml_id)
+        res = db.env.ref(xml_id)
         return res
 
     @convert_args
@@ -304,8 +346,7 @@ class odoo(object):
 
     def exec_sql(self, host, dbname, user, pwd, sql):
         db = self.get_conn(host, dbname, user, pwd)
-        obj = db["robot.data.loader"]
-        return obj.execute_sql(sql)
+        return db.execute("robot.data.loader", "execute_sql", [sql])
 
     def _parse_values(self, values):
         values = json.loads(json.dumps(values, cls=Encoder))
