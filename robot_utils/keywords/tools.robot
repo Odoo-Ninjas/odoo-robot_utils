@@ -7,9 +7,11 @@ Library             Collections
 
 
 *** Keywords ***
-Eval Bool  [Arguments]  ${value}
-    ${t}=  Eval  v if isinstance(v, bool) else (v.lower() in ['1', 'true', 'wahr', 'ja'] if isinstance(v, str) else bool(v))  v=${value}
-    RETURN  ${t}
+Eval Bool    [Arguments]    ${value}
+    ${t}=    Eval
+    ...    v if isinstance(v, bool) else (v.lower() in ['1', 'true', 'wahr', 'ja'] if isinstance(v, str) else bool(v))
+    ...    v=${value}
+    RETURN    ${t}
 
 Set Dict Key
     [Arguments]
@@ -158,13 +160,13 @@ Set Element Attribute
     [Arguments]    ${css}    ${attribute}    ${value}
     ${js}=    Catenate    SEPARATOR=;
     ...    element.setAttribute("${attribute}", "${value}");
-    ${res}=  JS On Element    ${css}    ${js}
+    ${res}=    JS On Element    ${css}    ${js}
 
-JS On Element    [Arguments]    ${css}    ${jscode}    ${maxcount}=0  ${return_callback}=${FALSE}  ${limit}=0  ${position}=0
-    ${max_and_pos}=  Eval  max and pos  max=${maxcount}  pos=${position}
-    IF  ${max_and_pos}
-        ${maxcount}=  Set Variable  0
-        ${limit}=  Set Variable  0
+JS On Element    [Arguments]    ${css}    ${jscode}    ${maxcount}=0    ${return_callback}=${FALSE}    ${limit}=0    ${position}=0
+    ${max_and_pos}=    Eval    max and pos    max=${maxcount}    pos=${position}
+    IF    ${max_and_pos}
+        ${maxcount}=    Set Variable    0
+        ${limit}=    Set Variable    0
     END
 
     ${js}=    Catenate    SEPARATOR=\n
@@ -173,33 +175,35 @@ JS On Element    [Arguments]    ${css}    ${jscode}    ${maxcount}=0  ${return_c
     ...    const result = document.querySelectorAll(css);
     ...    let funcresult = "not_ok";
     ...    if (${maxcount} && result.length > ${maxcount}) {
-    ...      callback("maxcount" + result.length);
+    ...    callback("maxcount" + result.length);
     ...    }
     ...    else {
-    ...      let counter = 0;
-    ...      for (const element of result) {
-    ...        funcresult = 'ok';
-    ...        if (!${position} || counter + 1 === ${position}) { 
-    ...           ${jscode};
-    ...           if (${position}) break;
-    ...        }
-    ...        if (${limit} > 0 && counter > ${limit}) {
-    ...          break;
-    ...        }
-    ...        counter++;
-    ...      }
-    ...      callback(funcresult);
+    ...    let counter = 0;
+    ...    for (const element of result) {
+    ...    funcresult = 'ok';
+    ...    if (!${position} || counter + 1 === ${position}) {
+    ...    ${jscode};
+    ...    if (${position}) break;
+    ...    }
+    ...    if (${limit} > 0 && counter > ${limit}) {
+    ...    break;
+    ...    }
+    ...    counter++;
+    ...    }
+    ...    callback(funcresult);
     ...    }
 
     # Set Selenium Timeout    100
     ${res}=    Execute Async Javascript    ${js}
-    IF  ${return_callback}
-        RETURN  ${res}
+    IF    ${return_callback}
+        RETURN    ${res}
     ELSE
         IF    "${res}".startswith("maxcount")
             FAIL    Too many elements found for ${css}. Please make sure you identify it more closely.
         END
-        IF    "${res}" != "ok"    FAIL    did not find the element ${css} to click
+        IF    "${res}" != "ok"
+            FAIL    did not find the element ${css} to click
+        END
     END
 
 Get Selenium Timeout    # this gets the current timeout
@@ -220,13 +224,13 @@ JS Scroll Into View    [Arguments]    ${css}
     Run Keyword And Ignore Error    JS On Element    ${css}    element.scrollIntoView(true);
     # Run Keyword And Ignore Error    Scroll Element Into View    css=${css}
 
-Get JS    [Arguments]    ${name}    ${prepend_js}=${NONE}  ${append_js}=${NONE}
-    [Documentation] 
-    ...  ${js}=  Get JS  element_precheck.js
-    ...  mode="${mode}"
+Get JS    [Documentation]
+    ...    ${js}=    Get JS    element_precheck.js
+    ...    mode="${mode}"
+    [Arguments]    ${name}    ${prepend_js}=${NONE}    ${append_js}=${NONE}
 
-    ${prepend_js} =  Eval  X or ""  X=${prepend_js}
-    ${append_js} =  Eval  X or ""  X=${append_js}
+    ${prepend_js}=    Eval    X or ""    X=${prepend_js}
+    ${append_js}=    Eval    X or ""    X=${append_js}
 
     ${libdir}=    library Directory
     ${tools}=    Get File    ${libdir}/../keywords/js/tools.js
@@ -239,81 +243,83 @@ Get JS    [Arguments]    ${name}    ${prepend_js}=${NONE}  ${append_js}=${NONE}
     ...    ${append_js}
     RETURN    ${result}
 
-
-CSS Identifier With Text  [Arguments]  ${css}  ${text}  ${match}=exact  ${attribute}=inner text  ${limit}=0  ${return_counter}=${FALSE}
-    Wait Until Page Contains Element  css=${css}
-    Assert  '${match}' in ['exact', 'contains']
-    ${identifier}=  Do Get Guid
-    ${identifier}=  Set Variable  id${identifier}
-    ${dataname}=  Set Variable  cssidentifier
-    ${toolsjs}=    Get JS  tools.js
-    ${counter}=  Execute Async Javascript  
-    ...  ${toolsjs};
-    ...  const callback = arguments[arguments.length - 1];
-    ...  const id = `${identifier}`;
-    ...  const css = `${css}`;
-    ...  const text = `${text}`.trim();
-    ...  const arr = Array.from(document.querySelectorAll(css));
-    ...  let counter = 0;
-    ...  function matches(el) {
-    ...     let textValueToCheck = null;
-    ...     if (`${attribute}` === 'inner text') {
-    ...         textValueToCheck = el.textContent.trim();
-    ...     } else {
-    ...        textValueToCheck = el.getAttribute("${attribute}");
-    ...     }
-    ...     if (window.getComputedStyle(el).display === "none" || isAnyParentHidden(el)) {
-    ...         return false;
-    ...     }
-    ...     const matches = '${match}' === 'exact' ? textValueToCheck === text : textValueToCheck.indexOf(text) >= 0;
-    ...     if (matches) counter += 1;
-    ...     if (${limit} > 0 && counter > ${limit}) return false;
-    ...     return matches;
-    ...  }
-    ...  for (el of arr.filter(matches)) {
-    ...      el.dataset.${dataname} = id;
-    ...  }
-    ...  callback(counter);
-    ${result}=  Set Variable  [data-${dataname} = "${identifier}"]
-    IF  ${return_counter}
-        RETURN  ${counter}  ${result}
-    END
-    RETURN  ${result}
-
+CSS Identifier With Text    [Arguments]
+    ...    ${css}
+    ...    ${text}
+    ...    ${match}=exact
+    ...    ${attribute}=inner text
+    ...    ${limit}=0
+    ...    ${return_counter}=${FALSE}
+    Wait Until Page Contains Element    css=${css}
+    Assert    '${match}' in ['exact', 'contains']
+    ${identifier}=    Do Get Guid
+    ${identifier}=    Set Variable    id${identifier}
+    ${dataname}=    Set Variable    cssidentifier
+    ${toolsjs}=    Get JS    tools.js
+    ${counter}=    Execute Async Javascript
+    ...    ${toolsjs};
+    ...    const callback = arguments[arguments.length - 1];
+    ...    const id = `${identifier}`;
+    ...    const css = `${css}`;
+    ...    const text = `${text}`.trim();
+    ...    const arr = Array.from(document.querySelectorAll(css));
+    ...    let counter = 0;
+    ...    function matches(el) {
+    ...    let textValueToCheck = null;
+    ...    if (`${attribute}` === 'inner text') {
+    ...    textValueToCheck = el.textContent.trim();
+    ...    } else {
+    ...    textValueToCheck = el.getAttribute("${attribute}");
+    ...    }
+    ...    if (window.getComputedStyle(el).display === "none" || isAnyParentHidden(el)) {
+    ...    return false;
+    ...    }
+    ...    const matches = '${match}' === 'exact' ? textValueToCheck === text : textValueToCheck.indexOf(text) >= 0;
+    ...    if (matches) counter += 1;
+    ...    if (${limit} > 0 && counter > ${limit}) return false;
+    ...    return matches;
+    ...    }
+    ...    for (el of arr.filter(matches)) {
+    ...    el.dataset.${dataname} = id;
+    ...    }
+    ...    callback(counter);
+    ${result}=    Set Variable    [data-${dataname} = "${identifier}"]
+    IF    ${return_counter}    RETURN    ${counter}    ${result}
+    RETURN    ${result}
 
 Activate AJAX Counter
     ${libdir}=    library Directory
     ${result}=    Get File    ${libdir}/../keywords/js/ajax_counter.js
-    Execute Javascript  ${result}
+    Execute Javascript    ${result}
 
 Get Ajax Counter
-    ${counter}=  Execute Async Javascript
-    ...  const callback = arguments[arguments.length - 1];
-    ...  const counter = parseInt(localStorage.getItem('robo_counter') || 0);
-    ...  callback(counter);
-    ...  console.log("Count current requests: " + counter);
-    ${counter}=  Eval  int("${counter}")
-    RETURN  ${counter}
+    ${counter}=    Execute Async Javascript
+    ...    const callback = arguments[arguments.length - 1];
+    ...    const counter = parseInt(localStorage.getItem('robo_counter') || 0);
+    ...    callback(counter);
+    ...    console.log("Count current requests: " + counter);
+    ${counter}=    Eval    int("${counter}")
+    RETURN    ${counter}
 
 Wait Ajax Requests Done
-    ${counter_ajax}=  Get Ajax Counter
+    ${counter_ajax}=    Get Ajax Counter
     ${counter}=    Set Variable    0
-    ${there_was_a_request}=  Eval  c > 0  c=${counter_ajax}
+    ${there_was_a_request}=    Eval    c > 0    c=${counter_ajax}
     WHILE    ${counter} < ${SELENIUM_TIMEOUT} and ${counter_ajax} > 0
-        Sleep  0.1s
-        ${counter}=  Evaluate  ${counter} + 0.1
-        ${counter_ajax}=  Get Ajax Counter
+        Sleep    0.1s
+        ${counter}=    Evaluate    ${counter} + 0.1
+        ${counter_ajax}=    Get Ajax Counter
     END
-    IF  ${counter_ajax} > 0
-        FAIL  Timeout waiting for ajax requests to finish
+    IF    ${counter_ajax} > 0
+        FAIL    Timeout waiting for ajax requests to finish
     END
 
-    IF  ${there_was_a_request}
+    IF    ${there_was_a_request}
         # Give time to react on the request;
         # e.g. button is pressed and server executes something; with 100ms
         # on M4 machine it was enough time to wait to show an error dialog
 
-        Sleep  10ms
+        Sleep    10ms
 
         # there is a documentation entry with more information:
         ## Expect Error after button click or input action
