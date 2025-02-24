@@ -320,14 +320,14 @@ class odoo(object):
         content = base64.encodebytes(content).decode("utf-8")
 
         db = self.get_conn(host, dbname, user, pwd)
-        obj = db["robot.data.loader"]
+        obj = db.env["robot.data.loader"]
         return obj.put_file(content, dest_path_on_odoo_container)
 
     def load_file(self, host, dbname, user, pwd, filepath, module_name):
         filepath = Path(filepath).absolute()
         logger.debug(f"FilePath: {filepath}, cwd: {os.getcwd()}")
         db = self.get_conn(host, dbname, user, pwd)
-        obj = db["robot.data.loader"]
+        obj = db.env["robot.data.loader"]
         filepath = Path(filepath)
         content = Path(filepath).read_text()
         suffix = filepath.suffix

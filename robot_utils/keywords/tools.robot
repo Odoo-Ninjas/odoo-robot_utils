@@ -241,6 +241,7 @@ Get JS    [Arguments]    ${name}    ${prepend_js}=${NONE}  ${append_js}=${NONE}
 
 
 CSS Identifier With Text  [Arguments]  ${css}  ${text}  ${match}=exact  ${attribute}=inner text  ${limit}=0  ${return_counter}=${FALSE}
+    Wait Until Page Contains Element  css=${css}
     Assert  '${match}' in ['exact', 'contains']
     ${identifier}=  Do Get Guid
     ${identifier}=  Set Variable  id${identifier}

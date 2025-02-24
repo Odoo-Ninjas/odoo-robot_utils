@@ -80,6 +80,9 @@ class BrowserDriver(object):
                 do_start_session=True,
             )
             session_file.write_text(driver.session_id)
+        except Exception:
+            logger.error(msg=f"Error connectiong to seleniumdriver at http:///{WEBDRIVER_HOST}", stack_info=True)
+            raise
         return driver
 
     def create_options(self):
