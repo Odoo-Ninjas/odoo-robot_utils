@@ -33,6 +33,7 @@ def get_driver_for_browser(download_path, headless, try_reuse_session=True):
     driver = bd.get_webdriver(try_reuse_session=try_reuse_session)
     logger.info(f"Got web-driver")
     instance.register_driver(driver, alias="robodriver")
+    logger.info(f"Driver registered")
     return driver
 
 
