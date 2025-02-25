@@ -20,6 +20,34 @@ logger = logging.getLogger()
 current_dir = Path(
     os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 )
+def _exec_get_result(code, globals_dict):
+    if not code:
+        raise Exception("Code missing")
+    from copy import deepcopy
+
+    dict2 = {k: v for (k, v) in globals_dict.items()}
+    del globals_dict
+
+    code = (code or "").strip()
+    code = code.splitlines()
+    if code and code[-1].startswith(" ") or code[-1].startswith("\t"):
+        code.append("True")
+    if " = " in code[-1]:
+        code.append("return None")
+    code[-1] = (
+        "return " + code[-1] if not code[-1].startswith("return ") else code[-1]
+    )
+    code = "\n".join(["  " + x for x in code])
+    keys = ",".join(list(dict2.keys()))
+    wrapper = (
+        f"def __wrap({keys}):\n"
+        f"{code}\n\n"
+        f"result_dict['result'] = __wrap({keys})"
+    )
+    result_dict = {}
+    dict2["result_dict"] = result_dict
+    exec(wrapper, dict2)
+    return result_dict.get("result")
 
 
 def load_default_environment():
@@ -225,8 +253,10 @@ class tools(object):
         """
         Usage:
         ${item}=      Eval  m[0].state  m=${modules}
+        Eval  m[0].state \= 'asd'  m=${modules}
         """
-        return eval(expr, vars)
+        res = _exec_get_result(expr, vars)
+        return res
 
     def prepend_parent_in_tools(self, path, parent, css_parent):
         # Check if path is a list

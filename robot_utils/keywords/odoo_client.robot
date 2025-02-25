@@ -301,9 +301,9 @@ Odoo Execute
     ...    ${dbname}
     ...    ${user}
     ...    ${pwd}
-    ...    model=${model}
+    ...    ${model}
+    ...    ${method}
     ...    ids=${ids}
-    ...    method=${method}
     ...    params=${params}
     ...    kwparams=${kwparams}
     ...    lang=${lang}
