@@ -143,13 +143,13 @@ Write List    [Arguments]    ${values}    ${parent_fieldname}
 
     # select the current activated line and remember it
     ${webelement}=    Get WebElement    css=[name='${parent_fieldname}'] tbody tr.o_data_row.o_selected_row
-    ${haswebelement}=  Eval  bool(w)  w=${webelement}
+    ${haswebelement}=    Eval    bool(w)    w=${webelement}
 
     IF    not ${haswebelement}    FAIL    Please call 'add a line' or so first
 
     FOR    ${key}    ${value}    IN    &{values}
-        ${cssparent}=    Set Variable    [name='${parent_fieldname}'] tbody tr.o_data_row.o_selected_row 
-        ${csstd}=  Set Variable  div[name='${key}']
+        ${cssparent}=    Set Variable    [name='${parent_fieldname}'] tbody tr.o_data_row.o_selected_row
+        ${csstd}=    Set Variable    div[name='${key}']
         JS On Element    ${cssparent} ${csstd}
         ...    element.click()
         Write    ${key}    ${value}    css_parent=${cssparent}
@@ -220,7 +220,7 @@ Breadcrumb Back
     Log To Console    Click breadcrumb - last item
     IF    ${ODOO_VERSION} in [17.0]
         Wait To Click    ol.breadcrumb li:nth-last-child(1) a
-    ELSE IF  ${ODOO_VERSION} in [16.0]
+    ELSE IF    ${ODOO_VERSION} in [16.0]
         Wait To Click    ol.breadcrumb li:nth-last-child(2) a
     ELSE
         FAIL    Breadcrumb Needs implementation for ${ODOO_VERSION}
@@ -305,15 +305,25 @@ Wait To Click    [Arguments]
     Log To Console    Done Wait To Click ${css}
     Wait Blocking And Eval Error States    error_check=${error_check}
 
-Odoo Button    [Arguments]    ${text}=${NONE}    ${name}=${NONE}    ${tooltip}=${NONE}
+Click Tab    [Arguments]    ${tabcaption}
+    Odoo Button    text=${tabcaption}    custom_css=a[role='tab']
+
+Odoo Button    [Arguments]    ${text}=${NONE}    ${name}=${NONE}    ${tooltip}=${NONE}    ${custom_css}=${NONE}
 
     ${hasname}=    Eval    bool(n)    t=${text}    n=${name}
     ${hastext}=    Eval    bool(t)    t=${text}    n=${name}
+    ${has_custom_css}=    Eval    bool(t)    t=${custom_css}
 
     IF    ${hasname}
+        IF    ${has_custom_css}    FAIL    not implemented
         Wait To Click    button[name='${name}'], a[name='${name}']    tooltip=${tooltip}
     ELSE IF    ${hastext}
-        ${css}=    CSS Identifier With Text    button,a    ${text}
+        IF    ${has_custom_css}
+            ${buttoncss}=    Set Variable    ${custom_css}
+        ELSE
+            ${buttoncss}=    Set Variable    button,a
+        END
+        ${css}=    CSS Identifier With Text    ${buttoncss}    ${text}
         Wait To Click    ${css}    tooltip=${tooltip}
     ELSE
         FAIL    provide either text or name
@@ -378,3 +388,9 @@ Odoo Setting Checkbox    [Arguments]    ${title}    ${toggle}=${TRUE}
 Eval Error States
     Eval JS Error Dialog
     Eval Validation User Error Dialog
+
+Add User To Group  [Arguments]  ${username}  ${groupxmlid}
+
+    ${group}=  Odoo Ref  ${groupxmlid}
+    ${user}=  Odoo Search Records  [('login', '=', '${username}')]
+    Eval  u.groups_id.add(g)  u=${user}  g=${group}
