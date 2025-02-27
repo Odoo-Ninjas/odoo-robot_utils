@@ -18,9 +18,9 @@ defaults = {
 def load_default_vars():
     _format_vars_from_test()
     _load_from_settings()
-    _load_robot_vars()
     _load_default_values_from_env()
     _load_default_values()
+    _load_robot_vars()
     check = str(BuiltIn().get_variable_value("${SELENIUM_TIMEOUT}"))
     _load_test_defaults()
 
@@ -42,7 +42,7 @@ def _prepare_test_token(varsfile):
     content = json.loads(varsfile.read_text())
     content.setdefault("TOKEN", 1)
     content["TOKEN"] = int(content["TOKEN"])
-    if not is_snippet_mode:
+    if not is_snippet_mode and not int(is_snippet_mode):
         content["TOKEN"] += 1
     varsfile.write_text(json.dumps(content, indent=2))
     TOKEN = "#" + str(content["TOKEN"]).zfill(4)
