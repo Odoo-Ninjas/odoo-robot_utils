@@ -37,7 +37,7 @@ Open New Browser    [Arguments]    ${url}
     ${driver}=                 Get Driver For Browser                                       ${ROBO_UPLOAD_FILES_DIR_BROWSER_DRIVER}    ${BROWSER_HEADLESS}  try_reuse_session=${TRY_REUSE_SESSION}
     ${x}  ${y}=  Get Window Position      
     IF  not ${snippet}
-        Set Window Position        0                                                            0
+        # Set Window Position        0                                                            0
         Set Window Size            ${BROWSER_WIDTH}                                             ${BROWSER_HEIGHT}
         Go To                      ${url}
     ELSE

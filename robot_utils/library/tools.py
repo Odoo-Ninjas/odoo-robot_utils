@@ -16,6 +16,13 @@ import os
 from pathlib import Path
 import logging
 
+TIMEFORMAT = {
+    'default': "%m/%d/%Y %H:%M:%S",
+    'system': "%Y-%m-%d %H:%M:%S",
+    'english': "%m/%d/%Y %H:%M:%S",
+    "german": "%d.%m.%Y %H:%M:%S",
+}
+
 logger = logging.getLogger()
 current_dir = Path(
     os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -60,6 +67,24 @@ def load_default_environment():
             os.environ[k] = v
 
     # TODO lost test filename
+
+def interpret_equals(string):
+    """
+    minutes=1,seconds=2 --> {'minutes': 1, 'seconds': 2}
+
+    """
+    res = {}
+    for line in string.splitlines():
+        key, value = list(map(lambda x: x.strip(), line.split("=")))
+        try:
+            value = float(value)
+        except ValueError:
+            try:
+                value = int(value)
+            except:
+                pass
+        res[key] = value
+    return res
 
 
 class Encoder(json.JSONEncoder):
@@ -118,14 +143,23 @@ class tools(object):
     def get_current_date(self):
         return date.today()
 
-    def get_now(self):
-        return arrow.get().datetime
-
-    def get_now_formatted(self, format="MM/DD/YYYY HH:mm:ss", shiftparams={}):
+    def get_now(self, shiftparams={}):
         d = arrow.get()
         if shiftparams:
+            if isinstance(shiftparams, str):
+                shiftparams = interpret_equals(shiftparams)
             d = d.shift(**shiftparams)
-        return d.format(format)
+        return d.datetime
+
+    def get_now_formatted(self, format='default', shiftparams={}):
+        res = self.get_now(shiftparams=shiftparams)
+        formatted_res = res.strftime(self.time_format(format))
+        return formatted_res
+
+    def time_format(self, format):
+        if format in TIMEFORMAT:
+            return TIMEFORMAT[format]
+        return format
 
     def copy_file(self, source, destination):
         shutil.copy(source, destination)
@@ -253,7 +287,7 @@ class tools(object):
         """
         Usage:
         ${item}=      Eval  m[0].state  m=${modules}
-        Eval  m[0].state \= 'asd'  m=${modules}
+        Eval  m[0].state \\= 'asd'  m=${modules}
         """
         res = _exec_get_result(expr, vars)
         return res

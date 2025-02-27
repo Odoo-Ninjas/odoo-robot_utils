@@ -44,7 +44,7 @@ Odoo Search
             ${method}=    Set Variable    search
         END
         Log To Console    Doing odoo execute with [${domain}] and ${kwparams}
-        ${domain}=    Evaluate  ${domain}
+        ${domain}=    Evaluate    ${domain}
         ${params}=    Eval    [d]    d=${domain}
         ${result}=    odoo.Rpc Client Execute
         ...    ${host}
@@ -385,3 +385,13 @@ Wait Queuejobs Done
     ...    Odoo Execute
     ...    robot.data.loader
     ...    method=wait_queuejobs
+
+Odoo Current Employee
+    ${emps}=    Odoo Search Records    hr.employee    [('user_id.login', '=', '${ROBO_ODOO_USER}')]
+    ${l}=  Get Length  ${emps}
+
+    IF  not ${l}
+        FAIL  Employee not found for user ${ROBO_ODOO_USER}
+    END
+    RETURN  ${emps[0].id}
+

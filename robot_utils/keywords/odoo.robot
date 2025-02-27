@@ -392,5 +392,5 @@ Eval Error States
 Add User To Group  [Arguments]  ${username}  ${groupxmlid}
 
     ${group}=  Odoo Ref  ${groupxmlid}
-    ${user}=  Odoo Search Records  [('login', '=', '${username}')]
-    Eval  u.groups_id.add(g)  u=${user}  g=${group}
+    ${user}=  Odoo Search Records  res.users  [('login', '=', '${username}')]
+    Eval  u.write({'groups_id': [[4, g.id]]})  u=${user}  g=${group}
