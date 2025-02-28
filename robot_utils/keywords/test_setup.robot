@@ -7,6 +7,9 @@ Resource            ./wodoo.robot
 *** Keywords ***
 
 Basic Teardown
+    Wait Blocking
+    Eval Error States
+
     Close All Browsers
 
 Setup Test Basic

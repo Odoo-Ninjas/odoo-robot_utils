@@ -236,7 +236,6 @@ Wait Blocking
 
     Wait Ajax Requests Done
 
-
     ${state}    ${result}=    Run Keyword And Ignore Error
     ...    Wait Until Element Is Not Visible
     ...    css=${css}    timeout=10ms
@@ -247,25 +246,23 @@ Wait Blocking
         ...    css=body.o_ewait    timeout=10ms
         IF    '${state}' == 'FAIL'    Log To Console    o_ewait still visible
     ELSE
-        Wait Until Element Is Not Visible  css=${css}
+        Wait Until Element Is Not Visible    css=${css}
     END
 
 Wait Blocking And Eval Error States
-    [Arguments]  ${error_check}=${TRUE}
     [Documentation]
     ...    Run Keyword And Expect Error    *invalid syntax*    Wait To Click    css=${css}
     ...    UPDATE: do this by:
-    ...    Sleep  1s
+    ...    Sleep    1s
     ...    Wait Blocking And Eval Error States
+    [Arguments]    ${error_check}=${TRUE}
     Wait Blocking
-    IF  ${error_check}
-        Eval Error States
-    END
-
+    IF    ${error_check}    Eval Error States
 
 Eval Validation User Error Dialog
     # TODO evaluate Validation Error and User Error again; best return text error immediatley
-    ${js}=    Catenate    SEPARATOR=\n
+    ${js}=    Catenate
+    ...    SEPARATOR=\n
     ...    let textcontent = element.textContent;
     ...    if (textcontent.includes("User Error") || textcontent.includes("Validation Error") || textcontent.includes("Invalid Operation") ) {
     ...    funcresult = "has_error_dialog";
@@ -378,7 +375,7 @@ _While Element Attribute Value    [Arguments]    ${css}    ${attribute}    ${ope
         END
         # Log To Console    Waiting for ${xpath} ${attribute} ${operator} ${param_value} - got ${value}
         IF    '${conversion}' == 'as_bool'
-            ${value}=  Eval  0 if i is None else i  i=${value}
+            ${value}=    Eval    0 if i is None else i    i=${value}
             ${status}    ${integer_number}=    Run Keyword And Ignore Error    Convert To Integer    ${value}
             IF    '${status}' != 'FAIL'
                 ${value}=    Set Variable    ${integer_number}
