@@ -13,16 +13,20 @@ defaults = {
     "BROWSER_HEADLESS": "0",
 }
 
+robo_candidates = [
+    ".robot-vars",
+    "/opt/src/.robot-vars",
+]
 
 # if tests are run manually
 def load_default_vars():
     _format_vars_from_test()
     _load_from_settings()
+    _load_robot_vars()
     _load_default_values_from_env()
     _load_default_values()
-    _load_robot_vars()
-    check = str(BuiltIn().get_variable_value("${SELENIUM_TIMEOUT}"))
     _load_test_defaults()
+    _increment_token()
 
 
     try:
@@ -38,11 +42,12 @@ def load_default_vars():
 
 def _prepare_test_token(varsfile):
     b = BuiltIn()
+    varsfile = Path(varsfile)
     is_snippet_mode = b.get_variable_value("${SNIPPET_MODE}")
     content = json.loads(varsfile.read_text())
     content.setdefault("TOKEN", 1)
     content["TOKEN"] = int(content["TOKEN"])
-    if not is_snippet_mode and not int(is_snippet_mode):
+    if not is_snippet_mode:
         content["TOKEN"] += 1
     varsfile.write_text(json.dumps(content, indent=2))
     TOKEN = "#" + str(content["TOKEN"]).zfill(4)
@@ -101,14 +106,22 @@ def _load_test_defaults():
         b.set_global_variable(_make_robot_key(k), v)
 
 
+def _increment_token():
+    def consume_file(path):
+        _format_vars_from_test()
+        _prepare_test_token(path)
+
+    for candidate in robo_candidates:
+        if Path(candidate).exists():
+            consume_file(candidate)
+            break
+
 def _load_robot_vars():
-    def consume_file(candidate, evaluate_test_token):
+    def consume_file(candidate):
         path = Path(candidate)
         if not path.exists():
             return
         vars = json.loads(path.read_text())
-        if evaluate_test_token:
-            _prepare_test_token(path)
         for k, v in vars.items():
             if k == "TOKEN":
                 continue
@@ -117,13 +130,10 @@ def _load_robot_vars():
 
     if os.getenv("ROBO_PARAMS_FILE"):
         # those params come from wodoo command line
-        consume_file(os.getenv("ROBO_PARAMS_FILE"), False)
-    candidates = [
-        ".robot-vars",
-        "/opt/src/.robot-vars",
-    ]
-    for candidate in candidates:
-        consume_file(candidate, True)
+        consume_file(os.getenv("ROBO_PARAMS_FILE"))
+
+    for candidate in robo_candidates:
+        consume_file(candidate)
 
 
 def _load_default_values_from_env():
