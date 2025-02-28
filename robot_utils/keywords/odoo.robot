@@ -396,6 +396,6 @@ Add User To Group  [Arguments]  ${username}  ${groupxmlid}
     Eval  u.write({'groups_id': [[4, g.id]]})  u=${user}  g=${group}
 
 Odoo Field Exists  [Arguments]  ${model}  ${fieldname}
-    ${has}=    Odoo Search    ir.model.fields    [('model_id.model', '=', "${model}"), ('name', '=', 'loading_date')]    count=${TRUE}
+    ${has}=    Odoo Search    ir.model.fields    [('model_id.model', '=', "${model}"), ('name', '=', '${fieldname}')]    count=${TRUE}
     ${has}=   Eval  bool(h)  h=${has}
     RETURN  ${has}
