@@ -33,7 +33,6 @@ def get_driver_for_browser(download_path, headless, try_reuse_session=True):
     driver = bd.get_webdriver(try_reuse_session=try_reuse_session)
     logger.info(f"Got web-driver")
     instance.register_driver(driver, alias="robodriver")
-    logger.info(f"Driver registered")
     return driver
 
 
@@ -81,9 +80,6 @@ class BrowserDriver(object):
                 do_start_session=True,
             )
             session_file.write_text(driver.session_id)
-        except Exception:
-            logger.error(msg=f"Error connectiong to seleniumdriver at http:///{WEBDRIVER_HOST}", stack_info=True)
-            raise
         return driver
 
     def create_options(self):
@@ -111,6 +107,8 @@ class BrowserDriver(object):
             },
         )
         options.add_argument("--disable-gpu")
+        options.add_argument("--disable-web-security")
+        options.add_argument("--disable-site-isolation-trials")
         return options
 
     def _add_options_for_firefox(self, options):
