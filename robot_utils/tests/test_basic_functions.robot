@@ -11,6 +11,7 @@ Resource            ../keywords/odoo.robot
 Resource            ../keywords/test_setup.robot
 # 
 Test Setup          Setup Test
+Test Teardown       Teardown Test
 
 *** Variables ***
 ${SNIPPET_MODE}    0
@@ -102,3 +103,6 @@ Setup Test
     IF    not ${count}
         Odoo Create    res.partner    ${{ {'name': 'Deco Addict'} }}
     END
+
+Teardown Test
+    Run Keyword And Ignore Error    Close All Browsers
