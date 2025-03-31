@@ -89,14 +89,28 @@ Extract Param From Url    [Arguments]    ${param}    ${url}=${NONE}
     IF    not ${url}
         ${url}=    Get Location
     END
-    TRY
-        ${param_value}=    Evaluate
-        ...    urllib.parse.parse_qs(urllib.parse.urlparse("${url}").query)['${param}'][0]
-        ...    modules=urllib
-    EXCEPT
-        ${param_value}=    Evaluate
-        ...    urllib.parse.parse_qs(urllib.parse.urlparse("${url}").fragment)['${param}'][0]
-        ...    modules=urllib
+    IF    ${ODOO_VERSION} >= 18.0
+        IF  "${param}" == "model"
+            ${param_value}=    Evaluate
+            ...    "${url}".split("/")[-2]
+            ...    modules=urllib
+        ELSE IF  "${param}" == "id"
+            ${param_value}=    Evaluate
+            ...    int("${url}".split("/")[-1])
+            ...    modules=urllib
+        ELSE
+            FAIL  not implemented ${param}
+        END
+    ELSE
+        TRY
+            ${param_value}=    Evaluate
+            ...    urllib.parse.parse_qs(urllib.parse.urlparse("${url}").query)['${param}'][0]
+            ...    modules=urllib
+        EXCEPT
+            ${param_value}=    Evaluate
+            ...    urllib.parse.parse_qs(urllib.parse.urlparse("${url}").fragment)['${param}'][0]
+            ...    modules=urllib
+        END
     END
 
     Log To Console    Parameter value: ${param_value} from ${param} in ${url}
