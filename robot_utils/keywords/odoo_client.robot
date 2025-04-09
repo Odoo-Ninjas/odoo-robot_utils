@@ -356,16 +356,6 @@ Odoo Read Field
     ...    context=${context}
     RETURN    ${result}
 
-Odoo Exec Sql
-    [Arguments]
-    ...    ${sql}
-    ...    ${dbname}=${ROBO_ODOO_DB}
-    ...    ${host}=${ODOO_URL}
-    ...    ${user}=${ROBO_ODOO_USER}
-    ...    ${pwd}=${ROBO_ODOO_PASSWORD}
-    ${result}=    odoo.Exec Sql    ${host}    ${dbname}    ${user}    ${pwd}    ${sql}
-    RETURN    ${result}
-
 Odoo Make Same Passwords
     [Arguments]
     ...    ${dbname}=${ROBO_ODOO_DB}
