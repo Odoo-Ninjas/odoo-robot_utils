@@ -308,7 +308,7 @@ Wait To Click    [Arguments]
 Click Tab    [Arguments]    ${tabcaption}
     Odoo Button    text=${tabcaption}    custom_css=a[role='tab']
 
-Odoo Button    [Arguments]    ${text}=${NONE}    ${name}=${NONE}    ${tooltip}=${NONE}    ${custom_css}=${NONE}
+Odoo Button    [Arguments]    ${text}=${NONE}    ${name}=${NONE}    ${tooltip}=${NONE}    ${custom_css}=${NONE}  ${limit}=0
 
     ${hasname}=    Eval    bool(n)    t=${text}    n=${name}
     ${hastext}=    Eval    bool(t)    t=${text}    n=${name}
@@ -323,7 +323,7 @@ Odoo Button    [Arguments]    ${text}=${NONE}    ${name}=${NONE}    ${tooltip}=$
         ELSE
             ${buttoncss}=    Set Variable    button,a
         END
-        ${css}=    CSS Identifier With Text    ${buttoncss}    ${text}
+        ${css}=    CSS Identifier With Text    ${buttoncss}    ${text}  limit=${limit}
         Wait To Click    ${css}    tooltip=${tooltip}
     ELSE
         FAIL    provide either text or name
