@@ -322,6 +322,8 @@ class odoo(object):
         return obj.put_file(content, dest_path_on_odoo_container)
 
     def load_file(self, host, dbname, user, pwd, filepath, module_name):
+        bi = BuiltIn()
+        vars = bi.get_variables()
         filepath = Path(filepath).absolute()
         logger.debug(f"FilePath: {filepath}, cwd: {os.getcwd()}")
         db = self.get_conn(host, dbname, user, pwd)
@@ -334,6 +336,10 @@ class odoo(object):
         test_name = self.technical_testname()
         content = content.replace("${CURRENT_TEST}", test_name)
         content = content.replace("${ODOO_DB}", dbname)
+        for var_name, value in vars.items():
+            value = str(value)
+            # replaces ${VAR_NAME}; in var_name there is ${ inside
+            content = content.replace(f"{var_name}", value)
 
         module_name = module_name.lower()
 
