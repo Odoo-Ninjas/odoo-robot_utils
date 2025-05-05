@@ -281,10 +281,15 @@ Eval JS Error Dialog
     ...    funcresult = "no_error_dialog";
     ...    if (element.textContent.includes("See details")) {
     ...    funcresult = "has_error_dialog";
+    ...    } else {
+    ...    for (const child of element.parentElement.children) {
+    ...       if (child.textContent.includes("See details")) { funcresult = "has_error_dialog"; }
+    ...    }
     ...    }
     ...    callback(funcresult);
+    # structure V16: main>div[role='alert'], main>button[text="See details"] with technical error message
     ${has_error_dialog}=    JS On Element
-    ...    div[role='alert'] button
+    ...    div[role='alert'], div[role='alert'] button
     ...    ${js}
     ...    return_callback=${TRUE}
 
