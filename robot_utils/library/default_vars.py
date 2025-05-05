@@ -148,6 +148,10 @@ def _load_default_values_from_env():
 
     if "ODOO_HOME" in os.environ.keys():
         b.set_global_variable(_make_robot_key("CUSTOMS_DIR"), os.environ["ODOO_HOME"])
+    elif "HOST_CUSTOMS_DIR" in os.environ.keys() and not "CUSTOMS_DIR" in os.environ.keys():
+        b.set_global_variable(
+            _make_robot_key("CUSTOMS_DIR"), os.environ["HOST_CUSTOMS_DIR"]
+        )
 
 
 def _load_default_values():
