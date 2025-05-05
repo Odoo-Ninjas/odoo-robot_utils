@@ -338,3 +338,17 @@ Wait Ajax Requests Done
         # there is a documentation entry with more information:
         ## Expect Error after button click or input action
     END
+
+JS Exists Element  [Arguments]  ${css}  ${text}
+    ${js}=  Catenate  SEPARATOR=\n
+    ...  debugger;
+    ...  if (element.textContent.includes('${text}')) { 
+    ...  funcresult = 'found';
+    ...  }
+    ...  if (element.value && element.value.includes('${text}')) { 
+    ...  funcresult = 'found';
+    ...  }
+    ${exists}=  JS On Element  textarea  ${js}  return_callback=${TRUE}
+    IF  "${exists}" != "found"
+        Fail  Error not found
+    END
