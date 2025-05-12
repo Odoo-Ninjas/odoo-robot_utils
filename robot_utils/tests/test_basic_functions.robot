@@ -15,7 +15,7 @@ Test Teardown       Teardown Test
 
 *** Variables ***
 ${SNIPPET_MODE}    0
-@{INSTALL_MODULES}   sale_management
+@{INSTALL_MODULES}   sale_management  contacts  partner_autocomplete
 @{UNINSTALL_MODULES}  ${NONE}
 
 

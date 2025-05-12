@@ -200,14 +200,21 @@ _Write To Element    [Arguments]    ${css}    ${value}    ${ignore_auto_complete
         ELSE
             _Write To CSS AutoComplete
         END
+    ELSE IF    ${is_autocomplete} and ${ignore_auto_complete}
+        # clicking into the element to trigger the autocomplete vanish
+        ${js}=    Catenate    SEPARATOR=\n
+        ...    element.click();
+        JS On Element  ${css}  ${js}
     END
     Highlight Element    ${css}    ${FALSE}
+
 
     # if element is part of editable tree, then it is recreated and not found;
     Run Keyword And Ignore Error    Set Element Attribute    ${css}    id    ${oldid}
     ${css}=    Set Variable    ${oldcss}
 
-_blur_active_element    ${js}=    Catenate    SEPARATOR=\n
+_blur_active_element    
+    ${js}=    Catenate    SEPARATOR=\n
     ...    const callback = arguments[arguments.length-1]
     ...    document.activeElement ? document.activeElement.blur() : null
     ...    callback()
