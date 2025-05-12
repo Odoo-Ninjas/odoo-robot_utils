@@ -27,6 +27,7 @@ Open New Browser    [Arguments]    ${url}
     ${python_path}    Evaluate    sys.executable    modules=sys
     Log    Python Executable: ${python_path}
 
+	Log  Selenium Speed ${SELENIUM_SPEED} with timeout: ${SELENIUM_TIMEOUT}
     Set Selenium Speed         ${SELENIUM_SPEED}
     Set Selenium Timeout       ${SELENIUM_TIMEOUT}
     Log To Console             ${url}

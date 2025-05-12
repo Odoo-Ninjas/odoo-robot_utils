@@ -221,11 +221,7 @@ JS On Element    [Arguments]    ${css}    ${jscode}    ${maxcount}=0    ${return
     END
 
 Get Selenium Timeout    # this gets the current timeout
-    ${current_timeout}=    Set Selenium Timeout    0
-    Set Selenium Timeout    ${current_timeout}
-    # current_timeout = 3 seconds
-    ${current_timeout}=    Eval    int(t.split(" ")[0])    t=${current_timeout}
-    RETURN    ${current_timeout}
+    RETURN  ${SELENIUM_TIMEOUT}
 
 Is Visible    [Arguments]    ${css}
 
