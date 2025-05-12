@@ -336,10 +336,11 @@ class odoo(object):
         test_name = self.technical_testname()
         content = content.replace("${CURRENT_TEST}", test_name)
         content = content.replace("${ODOO_DB}", dbname)
+        content = content.replace("${ODOO_VERSION}", str(vars["${ROBO_ODOO_VERSION}"]))
         for var_name, value in vars.items():
             value = str(value)
             # replaces ${VAR_NAME}; in var_name there is ${ inside
-            content = content.replace(f"{var_name}", value)
+            content = content.replace(f"{var_name}", str(value))
 
         module_name = module_name.lower()
 
