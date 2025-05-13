@@ -4,6 +4,7 @@ Documentation       Some Tools
 Library             ../library/odoo.py
 Library             ../library/tools.py
 Library             Collections
+Library             SeleniumLibrary
 
 
 *** Keywords ***
@@ -167,7 +168,7 @@ Assert    [Arguments]    ${expr}    ${msg}=Assertion failed
 
 Screenshot
     Log To Console    no screenshots
-    # Capture Page Screenshot
+    Capture Page Screenshot
 
 Set Element Attribute
     # UNTESTED

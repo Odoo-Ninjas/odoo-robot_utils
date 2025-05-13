@@ -83,11 +83,16 @@ Collect all css for inputs    [Arguments]    ${fieldname}    ${value}    ${paren
     RETURN    ${result}
 
 Identify Input Type    [Arguments]    ${fieldname}    ${value}    ${parent}    ${css_parent}
+    Screenshot
     ${all_css_list}=    Collect all css for inputs    ${fieldname}    ${value}    ${parent}    ${css_parent}
+    Log To Console  message=${all_css_list}
 
+    Screenshot
     ${found}=    Search All Tabs For CSS    ${all_css_list}    ${css_parent}    ${value}
+    Screenshot
     ${found_key}=    Get From Dictionary    ${found}    key
     IF    "${found_key}" == "no match"
+        Screenshot
         FAIL    could not determine input for ${css_parent} ${parent} ${fieldname}
     END
 
