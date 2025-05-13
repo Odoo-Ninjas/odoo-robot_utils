@@ -209,12 +209,11 @@ _Write To Element    [Arguments]    ${css}    ${value}    ${ignore_auto_complete
         # clicking into the element to trigger the autocomplete vanish
         Wait Until Page Contains Element  css=ul.ui-autocomplete  timeout=2s
         ${js}=    Catenate    SEPARATOR=\n
-        ...  debugger;
         ...  element.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', keyCode: 27, which: 27, bubbles: true, cancelable: true }));
         ...  element.dispatchEvent(new KeyboardEvent('keyup', { key: 'Escape', code: 'Escape', keyCode: 27, which: 27, bubbles: true, cancelable: true} ));
         ...  element.click();
         Log To Console  css is ${css}
-        Wait Until Page Does Not Contain Element  css=ul.ui-autocomplete
+        Wait Until Page Does Not Contain Element  css=ul.ui-autocomplete  timeout=4s
     END
     Highlight Element    ${css}    ${FALSE}
 
