@@ -207,13 +207,14 @@ _Write To Element    [Arguments]    ${css}    ${value}    ${ignore_auto_complete
         END
     ELSE IF    ${is_autocomplete} and ${ignore_auto_complete}
         # clicking into the element to trigger the autocomplete vanish
-        Wait Until Page Contains Element  css=ul.ui-autocomplete  timeout=2s
-        ${js}=    Catenate    SEPARATOR=\n
-        ...  element.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', keyCode: 27, which: 27, bubbles: true, cancelable: true }));
-        ...  element.dispatchEvent(new KeyboardEvent('keyup', { key: 'Escape', code: 'Escape', keyCode: 27, which: 27, bubbles: true, cancelable: true} ));
-        ...  element.click();
-        Log To Console  css is ${css}
-        Wait Until Page Does Not Contain Element  css=ul.ui-autocomplete  timeout=4s
+        ${result}=  Run Keyword And Ignore Error  Wait Until Page Contains Element  css=ul.ui-autocomplete  timeout=2s
+        IF  '${result[0]}' == 'PASS'
+            ${js}=    Catenate    SEPARATOR=\n
+            ...  element.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', keyCode: 27, which: 27, bubbles: true, cancelable: true }));
+            ...  element.dispatchEvent(new KeyboardEvent('keyup', { key: 'Escape', code: 'Escape', keyCode: 27, which: 27, bubbles: true, cancelable: true} ));
+            ...  element.click();
+            Wait Until Page Does Not Contain Element  css=ul.ui-autocomplete  timeout=4s
+        END
     END
     Highlight Element    ${css}    ${FALSE}
 
