@@ -207,7 +207,7 @@ _Write To Element    [Arguments]    ${css}    ${value}    ${ignore_auto_complete
         END
     ELSE IF    ${is_autocomplete} and ${ignore_auto_complete}
         # clicking into the element to trigger the autocomplete vanish
-        ${result}=  Run Keyword And Ignore Error  Wait Until Page Contains Element  css=ul.ui-autocomplete  timeout=2s
+        ${result}=  Run Keyword And Ignore Error  Wait Until Page Contains Element  css=ul.ui-autocomplete  timeout=10s
         IF  '${result[0]}' == 'PASS'
             ${js}=    Catenate    SEPARATOR=\n
             ...  element.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', keyCode: 27, which: 27, bubbles: true, cancelable: true }));
