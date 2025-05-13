@@ -275,6 +275,7 @@ Wait To Click    [Arguments]
     ...    ${limit}=1
     ...    ${position}=0
     ...    ${error_check}=${TRUE}
+    ...    ${autowait}=${TRUE}
 # V17: they disable also menuitems and enable to avoid double clicks; not
 # so in <= V16
     Add Cursor
@@ -304,6 +305,13 @@ Wait To Click    [Arguments]
     Remove Cursor
     Log To Console    Done Wait To Click ${css}
     Wait Blocking And Eval Error States    error_check=${error_check}
+
+	IF  ${autowait}
+        ${contains_add}=  Eval  a in b  a=.o_list_button_add  b=${css}
+        IF  ${contains_add}
+            Wait Until Element is visible    css=div.o_form_sheet
+        END
+    END
 
 Click Tab    [Arguments]    ${tabcaption}
     Odoo Button    text=${tabcaption}    custom_css=a[role='tab']
