@@ -3,6 +3,8 @@ import os
 import subprocess
 from pathlib import Path
 from robot.libraries.BuiltIn import BuiltIn
+from robot.api import logger
+
 
 defaults = {
     "BROWSER_WIDTH": "1600",
@@ -139,12 +141,16 @@ def _load_robot_vars():
 def _load_default_values_from_env():
     b = BuiltIn()
     for k, v in os.environ.items():
-        robotkey = _make_robot_key(k)
-        b.set_global_variable(robotkey, v)
         try:
-            b.get_variable_value(robotkey)
-        except:
+            print(k)
+            robotkey = _make_robot_key(k)
             b.set_global_variable(robotkey, v)
+            try:
+                b.get_variable_value(robotkey)
+            except:
+                b.set_global_variable(robotkey, v)
+        except Exception as ex:
+            logger.console(f"Environment Variable {k} not parsable - perhaps not a problem: {ex}")
 
     if "ODOO_HOME" in os.environ.keys():
         b.set_global_variable(_make_robot_key("CUSTOMS_DIR"), os.environ["ODOO_HOME"])
@@ -161,7 +167,7 @@ def _load_default_values():
             test = BuiltIn().get_variable_value(robotkey)
         except:
             test = None
-        if not test:
+        if test is None:
             BuiltIn().set_global_variable(robotkey, v)
 
 
