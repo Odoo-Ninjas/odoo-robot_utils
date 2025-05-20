@@ -11,6 +11,7 @@ odoo robot setup
 ```
 odoo robot new <name>
 ```
+
 ## Run a test
 
 ```bash
@@ -27,6 +28,7 @@ python3 -m venv ~/robotenv
 . ~/robotenv/bin/actiate
 pip install -r ~/.odoo/images/robot/requirements.txt
 ```
+
 ### Settings in JSON:
 
 ```
@@ -49,7 +51,7 @@ Place in .vscode/launch.json
             "name": "Robot Framework: Current File",
             "request": "launch",
             "target": "${file}",
-            
+
         }
     ]
 }
@@ -58,10 +60,8 @@ Place in .vscode/launch.json
 ### Start geckodriver
 
 ```bash
-geckodriver --host 0.0.0.0 
+geckodriver --host 0.0.0.0
 ```
-
-
 
 # Simple Smoketest
 
@@ -140,6 +140,7 @@ Samples
 ## Impersonate User at Test
 
 Provide an xml file:
+
 ```xml
 <record model="res.users" id="purchase1">
     <field name="name">Purchaser</field>
@@ -162,7 +163,6 @@ BaseTest
     Login                user=purchase1
 ```
 
-
 ## Parallel executed test, wait till preparation is done
 
 ```robotframework
@@ -177,8 +177,8 @@ Wait For Marker  products_on_stock
 
 ## Available Variables (also in loaded xml files)
 
-* ROBO_ODOO_DB
-* ROBO_ODOO_USER
-* ROBO_ODOO_PASSWORD
-* ODOO_URL
-* TOKEN
+- ROBO_ODOO_DB
+- ROBO_ODOO_USER
+- ROBO_ODOO_PASSWORD
+- ODOO_URL
+- TOKEN

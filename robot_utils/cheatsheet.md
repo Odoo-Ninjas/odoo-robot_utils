@@ -1,17 +1,19 @@
 <!-- TOC -->
 
 - [Robotframework Basics](#robotframework-basics)
-	- [Multi-Line Documentation](#multi-line-documentation)
-	- [Show all variables](#show-all-variables)
-	- [Multiline](#multiline)
-	- [Dictionaries](#dictionaries)
-	- [x-nary](#x-nary)
-	- [Evaluate python](#evaluate-python)
-	- [IF blocks](#if-blocks)
-	- [Expect Error after button click or input action](#expect-error-after-button-click-or-input-action)
+  - [Multi-Line Documentation](#multi-line-documentation)
+  - [Show all variables](#show-all-variables)
+  - [Multiline](#multiline)
+  - [Dictionaries](#dictionaries)
+  - [x-nary](#x-nary)
+  - [Evaluate python](#evaluate-python)
+  - [IF blocks](#if-blocks)
+  - [Expect Error after button click or input action](#expect-error-after-button-click-or-input-action)
 
 <!-- /TOC -->
+
 # Robotframework Basics
+
 ## Multi-Line Documentation
 
 ```robotframework
@@ -24,16 +26,18 @@ Test Case 1
         | aliqua. Ut enim ad minim veniam, quis nostrud exercitation
         | ullamco laboris nisi ut aliquip ex ea commodo consequat.
 ```
-## Show all variables
-	${variables}=    Get All Variables
-	Log To Console  ${variables}
 
+## Show all variables
+
+    ${variables}=    Get All Variables
+    Log To Console  ${variables}
 
 ## Multiline
-  ${var1}=    Catenate  
-  ... test1
-  ... test2
-  ... test3
+
+${var1}= Catenate
+... test1
+... test2
+... test3
 
 ## Dictionaries
 
@@ -50,6 +54,7 @@ ${values}=      Create Dictionary
 ```
 
 ## x-nary
+
 ```robotframework
 ${decimalval} =   Set variable If
 ...               '${decimalval}'=='0'       //md-option[@value='0dp']
@@ -58,6 +63,7 @@ ${decimalval} =   Set variable If
 ```
 
 ## Evaluate python
+
 ```robotframework
 ${click_move_left} =    Evaluate     int(${cell_width}/2) - 1
 
@@ -66,6 +72,7 @@ ${item}=      Eval  m[0].state  m=${modules}
 ```
 
 ## IF blocks
+
 ```robotframework
 
 IF '${var1}' == '2'
@@ -79,8 +86,8 @@ END
 
 ## Expect Error after button click or input action
 
-Some backgrounds: Permanently the robot framework is checking for a popping up error 
-dialog. To keep up the clicking speed, it is not long waitet for a popup. It is waited till 
+Some backgrounds: Permanently the robot framework is checking for a popping up error
+dialog. To keep up the clicking speed, it is not long waitet for a popup. It is waited till
 requests cycle down. But at next step is evaluated, if there is an error.
 
 If you MUST validate, that an error happened, following way is suggested:
