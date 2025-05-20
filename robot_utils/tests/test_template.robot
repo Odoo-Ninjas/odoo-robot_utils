@@ -18,7 +18,7 @@ Test Teardown    Teardown Test
 *** Test Cases ***
 Buy Something and change amount
     # Search for the admin
-    # Odoo Load Data    ../data/products.xml 
+    # Odoo Load Data    ../data/products.xml
     MainMenu          purchase.menu_purchase_root
     IF  ${odoo_version} <= 16.0
         Odoo Button       New

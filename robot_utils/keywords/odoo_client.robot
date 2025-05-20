@@ -384,4 +384,3 @@ Odoo Current Employee
         FAIL  Employee not found for user ${ROBO_ODOO_USER}
     END
     RETURN  ${emps[0].id}
-

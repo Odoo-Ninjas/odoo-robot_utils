@@ -210,7 +210,7 @@ _Write To Element    [Arguments]    ${css}    ${value}    ${ignore_auto_complete
         ${result}=  Run Keyword And Ignore Error  Wait Until Page Contains Element  css=ul.ui-autocomplete  timeout=10s
         IF  '${result[0]}' == 'PASS'
             Log To Console  First round trying to click away completion element
-            ${js}=    Catenate    SEPARATOR=\n            
+            ${js}=    Catenate    SEPARATOR=\n
             ...  element.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', keyCode: 27, which: 27, bubbles: true, cancelable: true }));
             ...  element.dispatchEvent(new KeyboardEvent('keyup', { key: 'Escape', code: 'Escape', keyCode: 27, which: 27, bubbles: true, cancelable: true} ));
             ...  element.click();
@@ -225,7 +225,7 @@ _Write To Element    [Arguments]    ${css}    ${value}    ${ignore_auto_complete
     Run Keyword And Ignore Error    Set Element Attribute    ${css}    id    ${oldid}
     ${css}=    Set Variable    ${oldcss}
 
-_blur_active_element    
+_blur_active_element
     ${js}=    Catenate    SEPARATOR=\n
     ...    const callback = arguments[arguments.length-1]
     ...    document.activeElement ? document.activeElement.blur() : null

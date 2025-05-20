@@ -1,4 +1,3 @@
-import sys
 import json
 import base64
 import os
@@ -30,7 +29,6 @@ class Encoder(json.JSONEncoder):
 
 
 def convert_args(method):
-
     def _convert_ids(ids):
         if isinstance(ids, str):
             ids = ids.split(",")
@@ -68,7 +66,6 @@ class odoo(object):
         return res
 
     def get_conn(self, host, dbname, user, pwd):
-
         ssl = host.startswith("https")
         host = host.split("://", 1)[-1]
         if ":" in host:

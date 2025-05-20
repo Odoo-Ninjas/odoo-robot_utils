@@ -339,10 +339,10 @@ Wait Ajax Requests Done
 JS Exists Element  [Arguments]  ${css}  ${text}
     ${js}=  Catenate  SEPARATOR=\n
     ...  debugger;
-    ...  if (element.textContent.includes('${text}')) { 
+    ...  if (element.textContent.includes('${text}')) {
     ...  funcresult = 'found';
     ...  }
-    ...  if (element.value && element.value.includes('${text}')) { 
+    ...  if (element.value && element.value.includes('${text}')) {
     ...  funcresult = 'found';
     ...  }
     ${exists}=  JS On Element  textarea  ${js}  return_callback=${TRUE}

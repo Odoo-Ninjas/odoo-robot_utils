@@ -1,6 +1,3 @@
-import csv as Csv
-
-
 class csv(object):
     def read_csv_file(self, filename):
         """

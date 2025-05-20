@@ -46,5 +46,5 @@ Toggle Module Installation  [Arguments]  ${modules}  ${install_state}
             Odoo Command  ${method} ${module}
             Odoo Command  up -d
         END
-        
+
     END

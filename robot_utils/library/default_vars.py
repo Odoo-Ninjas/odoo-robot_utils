@@ -20,6 +20,7 @@ robo_candidates = [
     "/opt/src/.robot-vars",
 ]
 
+
 # if tests are run manually
 def load_default_vars():
     _format_vars_from_test()
@@ -29,7 +30,6 @@ def load_default_vars():
     _load_default_values()
     _load_test_defaults()
     _increment_token()
-
 
     try:
         test = BuiltIn().get_variable_value(_make_robot_key("ROBO_ODOO_PASSWORD"))
@@ -118,6 +118,7 @@ def _increment_token():
             consume_file(candidate)
             break
 
+
 def _load_robot_vars():
     def consume_file(candidate):
         path = Path(candidate)
@@ -150,11 +151,16 @@ def _load_default_values_from_env():
             except:
                 b.set_global_variable(robotkey, v)
         except Exception as ex:
-            logger.console(f"Environment Variable {k} not parsable - perhaps not a problem: {ex}")
+            logger.console(
+                f"Environment Variable {k} not parsable - perhaps not a problem: {ex}"
+            )
 
     if "ODOO_HOME" in os.environ.keys():
         b.set_global_variable(_make_robot_key("CUSTOMS_DIR"), os.environ["ODOO_HOME"])
-    elif "HOST_CUSTOMS_DIR" in os.environ.keys() and not "CUSTOMS_DIR" in os.environ.keys():
+    elif (
+        "HOST_CUSTOMS_DIR" in os.environ.keys()
+        and not "CUSTOMS_DIR" in os.environ.keys()
+    ):
         b.set_global_variable(
             _make_robot_key("CUSTOMS_DIR"), os.environ["HOST_CUSTOMS_DIR"]
         )
@@ -191,6 +197,7 @@ def _load_from_settings():
                 except:
                     if i == MAX - 1:
                         raise
+
 
 def _format_vars_from_test():
     b = BuiltIn()

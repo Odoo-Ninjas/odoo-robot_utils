@@ -134,7 +134,3 @@ Create Identity
     Capture Page Screenshot
     Click Element              jquery:button.submit
     Capture Page Screenshot
-
-
-
-

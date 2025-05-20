@@ -1,6 +1,6 @@
 *** Settings ***
 Library    SeleniumLibrary
-Library    OperatingSystem 
+Library    OperatingSystem
 Resource   ./tools.robot
 
 *** Variables ***

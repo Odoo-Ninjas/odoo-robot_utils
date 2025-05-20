@@ -9,7 +9,7 @@ Documentation       Testing Basic Functions of the Robot Keywords
 Library             OperatingSystem
 Resource            ../keywords/odoo.robot
 Resource            ../keywords/test_setup.robot
-# 
+#
 Test Setup          Setup Test
 Test Teardown       Teardown Test
 

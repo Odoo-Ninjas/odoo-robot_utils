@@ -8,7 +8,6 @@ import os
 import time
 import uuid
 import xmlrpc.client
-from robot.api.deco import keyword
 from robot.utils.dotdict import DotDict
 from robot.libraries.BuiltIn import BuiltIn
 import inspect
@@ -17,9 +16,9 @@ from pathlib import Path
 import logging
 
 TIMEFORMAT = {
-    'default': "%m/%d/%Y %H:%M:%S",
-    'system': "%Y-%m-%d %H:%M:%S",
-    'english': "%m/%d/%Y %H:%M:%S",
+    "default": "%m/%d/%Y %H:%M:%S",
+    "system": "%Y-%m-%d %H:%M:%S",
+    "english": "%m/%d/%Y %H:%M:%S",
     "german": "%d.%m.%Y %H:%M:%S",
 }
 
@@ -27,10 +26,11 @@ logger = logging.getLogger()
 current_dir = Path(
     os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 )
+
+
 def _exec_get_result(code, globals_dict):
     if not code:
         raise Exception("Code missing")
-    from copy import deepcopy
 
     dict2 = {k: v for (k, v) in globals_dict.items()}
     del globals_dict
@@ -41,15 +41,11 @@ def _exec_get_result(code, globals_dict):
         code.append("True")
     if " = " in code[-1]:
         code.append("return None")
-    code[-1] = (
-        "return " + code[-1] if not code[-1].startswith("return ") else code[-1]
-    )
+    code[-1] = "return " + code[-1] if not code[-1].startswith("return ") else code[-1]
     code = "\n".join(["  " + x for x in code])
     keys = ",".join(list(dict2.keys()))
     wrapper = (
-        f"def __wrap({keys}):\n"
-        f"{code}\n\n"
-        f"result_dict['result'] = __wrap({keys})"
+        f"def __wrap({keys}):\n" f"{code}\n\n" f"result_dict['result'] = __wrap({keys})"
     )
     result_dict = {}
     dict2["result_dict"] = result_dict
@@ -67,6 +63,7 @@ def load_default_environment():
             os.environ[k] = v
 
     # TODO lost test filename
+
 
 def interpret_equals(string):
     """
@@ -151,7 +148,7 @@ class tools(object):
             d = d.shift(**shiftparams)
         return d.datetime
 
-    def get_now_formatted(self, format='default', shiftparams={}):
+    def get_now_formatted(self, format="default", shiftparams={}):
         res = self.get_now(shiftparams=shiftparams)
         formatted_res = res.strftime(self.time_format(format))
         return formatted_res

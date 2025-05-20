@@ -2,7 +2,11 @@ from pathlib import Path
 import inspect
 import os
 from pathlib import Path
-current_dir = Path(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))))
+
+current_dir = Path(
+    os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+)
+
 
 def generate_markdown_from_keywords(input_file):
     # Parse the Robot Framework file
@@ -23,10 +27,11 @@ def generate_markdown_from_keywords(input_file):
             continue
         yield input_file, func
 
+
 # Input and output paths
 os.chdir(current_dir)
 content = {}
-output_file = Path('documentation.md')
+output_file = Path("documentation.md")
 for path in sorted(Path(".").glob("*.robot")):
     input_file = path
     for line in generate_markdown_from_keywords(input_file):
@@ -37,4 +42,4 @@ for path in sorted(Path(".").glob("*.robot")):
 strcontent = []
 for key, values in content.items():
     strcontent += [values[0]] + list(sorted(values[1:]))
-output_file.write_text('\n'.join(strcontent))
+output_file.write_text("\n".join(strcontent))

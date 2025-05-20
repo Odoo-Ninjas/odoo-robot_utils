@@ -1,9 +1,6 @@
 import os
 import selenium
 from selenium.webdriver.remote.webdriver import WebDriver as RemoteDriver
-from selenium.webdriver import FirefoxOptions, ChromeOptions
-from selenium.webdriver.remote import webdriver
-import json
 from pathlib import Path
 from robot.libraries.BuiltIn import BuiltIn
 import logging
@@ -51,7 +48,6 @@ class BrowserDriver(object):
         self.optionsMethod = f"_add_options_for_{browser}"
 
     def get_webdriver(self, try_reuse_session=True):
-
         options = self.create_options()
         sessionId = None
         WEBDRIVER_HOST = os.environ[

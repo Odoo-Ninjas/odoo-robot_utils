@@ -14,7 +14,7 @@ Last Browser
     RETURN        ${driver}
 
 Detect DevTools
-    ${is_open}=    Execute Async Javascript    
+    ${is_open}=    Execute Async Javascript
     ...    let result = (window.outerWidth - window.innerWidth > 100) || (window.outerHeight - window.innerHeight > 100);
     ...    arguments[arguments.length - 1](result);
     RETURN   ${is_open}
@@ -36,7 +36,7 @@ Open New Browser    [Arguments]    ${url}
     ${snippet}=              Get Variable Value         ${SNIPPET_MODE}  ${FALSE}
     ${TRY_REUSE_SESSION}=      Eval  True if snippetmode else False  snippetmode=${snippet}
     ${driver}=                 Get Driver For Browser                                       ${ROBO_UPLOAD_FILES_DIR_BROWSER_DRIVER}    ${BROWSER_HEADLESS}  try_reuse_session=${TRY_REUSE_SESSION}
-    ${x}  ${y}=  Get Window Position      
+    ${x}  ${y}=  Get Window Position
     IF  not ${snippet}
         # Set Window Position        0                                                            0
         Set Window Size            ${BROWSER_WIDTH}                                             ${BROWSER_HEIGHT}
