@@ -242,6 +242,10 @@ _Write To CSS AutoComplete
         ${css}=    Catenate
         ...    ul.o-autocomplete--dropdown-menu[role="menu"]:not(:has(.fa-spin)) li:first-child a
         Wait To Click    css=${css}
+    ELSE IF    ${odoo_version} == 18.0
+        ${css}=    Catenate
+        ...    ul.o-autocomplete--dropdown-menu[role="menu"]:not(:has(.fa-spin)) li:first-child a
+        Wait To Click    css=${css}
     ELSE
         FAIL    needs implementation for ${odoo_version}
     END
