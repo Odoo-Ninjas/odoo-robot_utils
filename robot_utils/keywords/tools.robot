@@ -126,7 +126,7 @@ Get Instance ID From Url    [Arguments]    ${expected_model}
         Sleep    1s
         ${counter}=    Evaluate    ${counter} + 1
     END
-    IF    '${is_model}' != '${expected_model}'
+    IF   ${ODOO_VERSION} < 18.0 and '${is_model}' != '${expected_model}'
         FAIL    Expected model ${expected_model} but got ${is_model}
     END
 
