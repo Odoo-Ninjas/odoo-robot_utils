@@ -302,7 +302,7 @@ Eval Validation User Error Dialog
 Eval JS Error Dialog
     ${js}=    Catenate    SEPARATOR=\n
     ...    funcresult = "no_error_dialog";
-    ...    if (element.textContent.includes("See details")) {
+    ...    if (element.textContent.includes("See details") || element.textContent.includes("See technical details")) {
     ...    funcresult = "has_error_dialog";
     ...    } else {
     ...    for (const child of element.parentElement.children) {
@@ -317,7 +317,7 @@ Eval JS Error Dialog
     ...    return_callback=${TRUE}
 
     IF    '${has_error_dialog}' == 'has_error_dialog'
-        Click Element    xpath=//button[text() = 'See details']
+        Click Element    xpath=//button[text() = 'See details' or text() = 'See technical details']
         ${locator}=    Set Variable    div.o_error_detail pre
         ${code_content}=    Get Text    css=${locator}
 
