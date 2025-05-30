@@ -117,16 +117,14 @@ Extract Param From Url    [Arguments]    ${param}    ${url}=${NONE}
     Log To Console    Parameter value: ${param_value} from ${param} in ${url}
     RETURN    ${param_value}
 
-Get Instance ID From Url    [Arguments]    ${expected_model}
-
-    ${counter}=    Set Variable    0
+_get_instance_id_from_url_lt_18  [Arguments]    ${expected_model}
     WHILE    ${counter} < ${SELENIUM_TIMEOUT}
         ${is_model}=    Extract Param From Url    model
         IF    '${is_model}' == '${expected_model}'    BREAK
         Sleep    1s
         ${counter}=    Evaluate    ${counter} + 1
     END
-    IF   ${ODOO_VERSION} < 18.0 and '${is_model}' != '${expected_model}'
+    IF    '${is_model}' != '${expected_model}'
         FAIL    Expected model ${expected_model} but got ${is_model}
     END
 
@@ -142,6 +140,18 @@ Get Instance ID From Url    [Arguments]    ${expected_model}
             Sleep    1s
         END
         ${counter}=    Evaluate    ${counter} + 1
+    END
+    RETURN  ${id}
+
+Get Instance ID From Url    [Arguments]    ${expected_model}
+
+    ${counter}=    Set Variable    0
+    IF  ${ODOO_VERSION} < 18.0
+        ${id}=  _get_instance_id_from_url_lt_18  expected_model=${expected_model}
+    ELSE
+        ${url}=    Get Location   #  e.g.  /odoo/action-161/3
+        ${id}=  Eval  int(s.split("/")[-1])  s=${url}
+
     END
     RETURN    ${id}
 
