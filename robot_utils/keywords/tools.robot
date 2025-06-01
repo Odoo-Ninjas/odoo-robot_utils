@@ -187,36 +187,25 @@ Set Element Attribute
     ...    element.setAttribute("${attribute}", "${value}");
     ${res}=    JS On Element    ${css}    ${js}
 
-JS On Element    [Arguments]    ${css}    ${jscode}    ${maxcount}=0    ${return_callback}=${FALSE}    ${limit}=0    ${position}=0
+JS On Element    [Arguments]    ${css}    ${jscode}    ${maxcount}=0    ${return_callback}=${FALSE}    ${limit}=0    ${position}=0  ${filter_visible}=${TRUE}
     ${max_and_pos}=    Eval    max and pos    max=${maxcount}    pos=${position}
     IF    ${max_and_pos}
         ${maxcount}=    Set Variable    0
         ${limit}=    Set Variable    0
     END
+    ${toolsjs}=    Get JS    
+    ${js_filter_visible}=   Eval  'true' if b else 'false'  b=${filter_visible}
 
     ${js}=    Catenate    SEPARATOR=\n
-    ...    const callback = arguments[arguments.length - 1];
+    ...    ${toolsjs}
+    ...    const callback_arg = arguments[arguments.length - 1];
     ...    const css = `${css}`;
-    ...    const result = document.querySelectorAll(css);
-    ...    let funcresult = "not_ok";
-    ...    if (${maxcount} && result.length > ${maxcount}) {
-    ...    callback("maxcount" + result.length);
-    ...    }
-    ...    else {
-    ...    let counter = 0;
-    ...    for (const element of result) {
-    ...    funcresult = 'ok';
-    ...    if (!${position} || counter + 1 === ${position}) {
-    ...    ${jscode};
-    ...    if (${position}) break;
-    ...    }
-    ...    if (${limit} > 0 && counter > ${limit}) {
-    ...    break;
-    ...    }
-    ...    counter++;
-    ...    }
-    ...    callback(funcresult);
-    ...    }
+    ...    const position = ${position};
+    ...    const jscode = `${jscode}`;
+    ...    const limit = ${limit};
+    ...    const filter_visible = ${js_filter_visible};
+    ...    const maxcount = ${maxcount};
+    ...    getElement(callback_arg, css, maxcount, position, jscode, limit, filter_visible);
 
     # Set Selenium Timeout    100
     ${res}=    Execute Async Javascript    ${js}
@@ -248,14 +237,19 @@ JS Scroll Into View    [Arguments]    ${css}
 Get JS    [Documentation]
     ...    ${js}=    Get JS    element_precheck.js
     ...    mode="${mode}"
-    [Arguments]    ${name}    ${prepend_js}=${NONE}    ${append_js}=${NONE}
+    [Arguments]    ${name}=${NONE}    ${prepend_js}=${NONE}    ${append_js}=${NONE}
 
     ${prepend_js}=    Eval    X or ""    X=${prepend_js}
     ${append_js}=    Eval    X or ""    X=${append_js}
 
     ${libdir}=    library Directory
     ${tools}=    Get File    ${libdir}/../keywords/js/tools.js
-    ${result}=    Get File    ${libdir}/../keywords/js/${name}
+    ${name_none}=  Eval  not x  x=${name}
+    IF  not ${name_none}
+        ${result}=    Get File    ${libdir}/../keywords/js/${name}
+    ELSE
+        ${result}=  Set Variable  # empty
+    END
 
     ${result}=    Catenate    SEPARATOR=\n
     ...    ${tools}
