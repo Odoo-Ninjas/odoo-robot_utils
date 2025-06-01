@@ -118,6 +118,7 @@ Extract Param From Url    [Arguments]    ${param}    ${url}=${NONE}
     RETURN    ${param_value}
 
 _get_instance_id_from_url_lt_18  [Arguments]    ${expected_model}
+    ${counter}=    Set Variable    0
     WHILE    ${counter} < ${SELENIUM_TIMEOUT}
         ${is_model}=    Extract Param From Url    model
         IF    '${is_model}' == '${expected_model}'    BREAK
@@ -145,7 +146,6 @@ _get_instance_id_from_url_lt_18  [Arguments]    ${expected_model}
 
 Get Instance ID From Url    [Arguments]    ${expected_model}
 
-    ${counter}=    Set Variable    0
     IF  ${ODOO_VERSION} < 18.0
         ${id}=  _get_instance_id_from_url_lt_18  expected_model=${expected_model}
     ELSE
