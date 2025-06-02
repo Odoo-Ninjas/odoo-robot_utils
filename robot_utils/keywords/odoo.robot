@@ -357,7 +357,7 @@ Odoo Upload File    [Arguments]    ${fieldname}    ${filepath}    ${parent}=${NO
     ...    element.classList.remove("o_hidden_input_file");
     ...    element.classList.remove("o_hidden");
     ...    element.style.display = "";
-    JS On Element    ${css}    ${js}
+    JS On Element    ${css}    ${js}  filter_visible=${FALSE}
 
     ${file_name}=    tools.Get File Name    ${file_path}
     IF    "${DIRECTORY_UPLOAD_FILES_LOCAL}" == ""
