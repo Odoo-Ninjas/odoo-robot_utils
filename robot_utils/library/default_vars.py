@@ -151,9 +151,10 @@ def _load_default_values_from_env():
             except:
                 b.set_global_variable(robotkey, v)
         except Exception as ex:
-            logger.console(
-                f"Environment Variable {k} not parsable - perhaps not a problem: {ex}"
-            )
+            if k not in ['PS1']:
+                logger.console(
+                    f"Environment Variable {k} not parsable - perhaps not a problem: {ex}"
+                )
 
     if "ODOO_HOME" in os.environ.keys():
         b.set_global_variable(_make_robot_key("CUSTOMS_DIR"), os.environ["ODOO_HOME"])
