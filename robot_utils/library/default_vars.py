@@ -153,7 +153,7 @@ def _load_default_values_from_env():
         except Exception as ex:
             if k not in ['PS1']:
                 logger.console(
-                    f"Environment Variable {k} not parsable - perhaps not a problem: {ex}"
+                    f"Environment Variable {k} with value {v} not parsable - perhaps not a problem: {ex}"
                 )
 
     if "ODOO_HOME" in os.environ.keys():
