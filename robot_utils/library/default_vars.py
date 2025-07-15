@@ -142,6 +142,7 @@ def _load_robot_vars():
 
 def _load_default_values_from_env():
     b = BuiltIn()
+    b.set_global_variable(_make_robot_key("ROBO_ODOO_DB"), os.getenv("DBNAME"))
     for k, v in os.environ.items():
         try:
             robotkey = _make_robot_key(k)
