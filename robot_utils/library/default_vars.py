@@ -4,6 +4,7 @@ import subprocess
 from pathlib import Path
 from robot.libraries.BuiltIn import BuiltIn
 from robot.api import logger
+from robot.errors import VariableError
 
 
 defaults = {
@@ -143,7 +144,6 @@ def _load_default_values_from_env():
     b = BuiltIn()
     for k, v in os.environ.items():
         try:
-            print(k)
             robotkey = _make_robot_key(k)
             b.set_global_variable(robotkey, v)
             try:
@@ -181,7 +181,8 @@ def _load_default_values():
 def _load_from_settings():
     ret = subprocess.run(["odoo", "setting"], encoding="utf8", stdout=subprocess.PIPE)
     b = BuiltIn()
-    MAX = 5
+    MAX = 10
+    could_not_resolve = []
     for i in range(MAX):
         for line in ret.stdout.splitlines():
             if line.strip().startswith("#"):
@@ -194,10 +195,15 @@ def _load_from_settings():
                 robotkey = f"${{{key}}}"
                 try:
                     # some recursive ones
+                    # like ${ODOO_CRONJOBS]=* * * * ${JOB_BACKUP}
                     b.set_global_variable(robotkey, value)
-                except:
+                except VariableError as ex:
                     if i == MAX - 1:
-                        raise
+                        could_not_resolve.append((key, value))
+    for error in could_not_resolve:
+        logger.console(
+            f"Could not resolve setting {error[0]} with value {error[1]} - perhaps not a problem."
+        )
 
 
 def _format_vars_from_test():
