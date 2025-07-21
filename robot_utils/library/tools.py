@@ -12,6 +12,7 @@ from robot.utils.dotdict import DotDict
 from robot.libraries.BuiltIn import BuiltIn
 import inspect
 import os
+import requests
 from pathlib import Path
 import logging
 
@@ -319,3 +320,20 @@ class tools(object):
 
     def get_elapsed_time_ms(self, start_time):
         return (time.time() * 1000) - start_time
+
+    def wait_for_200(self, url, DELAY_SECONDS=2, tries=5):
+        print(f"Checking {url} until status 200 is received...\n")
+        i  = 0
+        while i < tries:
+            try:
+                response = requests.get(url)
+                print(f"Status code: {response.status_code}")
+                if response.status_code == 200:
+                    print("✅ Success: Received status code 200.")
+                    return True
+            except requests.exceptions.RequestException as e:
+                print(f"⚠️ Request failed: {e}")
+            
+            print(f"Waiting {DELAY_SECONDS} seconds before retrying...\n")
+            time.sleep(DELAY_SECONDS)
+        raise Exception("Could not call  {url} in time")

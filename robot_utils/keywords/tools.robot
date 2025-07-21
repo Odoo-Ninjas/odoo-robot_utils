@@ -353,3 +353,10 @@ JS Exists Element  [Arguments]  ${css}  ${text}
     IF  "${exists}" != "found"
         Fail  Error not found
     END
+
+
+Wait Until Responding
+    ${url}=  Set Variable  ${ODOO_URL}/web/login
+    Log To Console  calling ${url} to wait until there
+    Wait For 200  url=${url}  DELAY_SECONDS=1  tries=10
+    Log To Console  url ${url} is responding

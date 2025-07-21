@@ -16,6 +16,8 @@ Basic Teardown
 Setup Test Basic
     Load Default Vars
 
+    Wait Until Responding
+
     @{modules}=  Get Variable Value  ${INSTALL_MODULES}  ${NONE}
     IF  ${modules}
         Toggle Module Installation  ${modules}  ${TRUE}
@@ -45,6 +47,7 @@ Toggle Module Installation  [Arguments]  ${modules}  ${install_state}
             Odoo Command  kill odoo
             Odoo Command  ${method} ${module}
             Odoo Command  up -d
+            Wait Until Responding
         END
 
     END

@@ -8,6 +8,8 @@ Odoo Command
     [Arguments]      ${shellcmd}  ${output}=${FALSE}
     wodoo.command    ${shellcmd}  ${output}
 
+    # TIPP: call Wait Until Responding when doing odoo up -d
+
 Odoo Start Queuejobs
     Odoo Command    up -d odoo_queuejobs
 
