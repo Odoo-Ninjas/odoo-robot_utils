@@ -5,6 +5,7 @@ Library             ../library/odoo.py
 Library             ../library/tools.py
 Library             Collections
 Library             SeleniumLibrary
+Library             OperatingSystem
 
 
 *** Keywords ***
@@ -178,7 +179,8 @@ Assert    [Arguments]    ${expr}    ${msg}=Assertion failed
 
 Screenshot
     Log To Console    no screenshots
-    Capture Page Screenshot
+    ${no_screenshots}=    Get Environment Variable    ROBO_NO_SCREENSHOTS
+    Run Keyword If    '${no_screenshots}' != '1'      Capture Page Screenshot
 
 Set Element Attribute
     # UNTESTED
