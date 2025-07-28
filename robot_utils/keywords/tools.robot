@@ -179,7 +179,7 @@ Assert    [Arguments]    ${expr}    ${msg}=Assertion failed
 
 Screenshot
     Log To Console    no screenshots
-    ${no_screenshots}=    Get Environment Variable    ROBO_NO_SCREENSHOTS
+    ${no_screenshots}=    Get Environment Variable    ROBO_NO_SCREENSHOTS  0
     Run Keyword If    '${no_screenshots}' != '1'      Capture Page Screenshot
 
 Set Element Attribute
