@@ -1,4 +1,5 @@
 import os
+import requests
 import selenium
 from selenium.webdriver.remote.webdriver import WebDriver as RemoteDriver
 from pathlib import Path
@@ -23,8 +24,24 @@ class RemoteDriver2(RemoteDriver):
         super().start_session(capabilities, *args, **kwargs)
 
 
-def get_driver_for_browser(download_path, headless, try_reuse_session=True):
+def clear_sessions():
+    host = os.environ['ROBO_WEBDRIVER_HOST']
+    try:
+        url = f"http://{host}/session"
+        logger.info("Recycling geckodriver session via DELETE %s", url)
+        resp = requests.delete(url, timeout=5)
+        resp.raise_for_status()
+        logger.info("Recycle OK -> %s", resp.status_code)
+    except requests.exceptions.RequestException as exc:
+        logger.warning("Recycle failed (ignored): %s", exc)
+
+
+def get_driver_for_browser(download_path, headless, try_reuse_session=True, clear_session_before=False):
     logger.info(f"Getting Driver For Browser: headless={headless}")
+    if clear_session_before:
+        clear_sessions()
+        try_reuse_session = False   # never reuse after a forced clear
+
     bd = BrowserDriver(download_path, headless)
     instance = BuiltIn().get_library_instance("SeleniumLibrary")
     driver = bd.get_webdriver(try_reuse_session=try_reuse_session)

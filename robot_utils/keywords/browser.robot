@@ -23,7 +23,10 @@ Go To  [Arguments]  ${url}
     SeleniumLibrary.Go To  ${url}
     Activate Ajax Counter
 
+
 Open New Browser    [Arguments]    ${url}
+    ${clear_session_before}       Get Environment Variable    ROBO_CLEAR_BROWSER_SESSIONS    0
+
     ${python_path}    Evaluate    sys.executable    modules=sys
     Log    Python Executable: ${python_path}
 
@@ -33,9 +36,14 @@ Open New Browser    [Arguments]    ${url}
     Log To Console             ${url}
     Log To Console             odoo-version: ${odoo_version}
     ${BROWSER_HEADLESS}=       Eval                                                         True if str(b) in ["1", "True"] else False    b=${BROWSER_HEADLESS}
-    ${snippet}=              Get Variable Value         ${SNIPPET_MODE}  ${FALSE}
+    ${snippet}=                Get Variable Value         ${SNIPPET_MODE}  ${FALSE}
     ${TRY_REUSE_SESSION}=      Eval  True if snippetmode else False  snippetmode=${snippet}
-    ${driver}=                 Get Driver For Browser                                       ${ROBO_UPLOAD_FILES_DIR_BROWSER_DRIVER}    ${BROWSER_HEADLESS}  try_reuse_session=${TRY_REUSE_SESSION}
+    ${driver}=                 Get Driver For Browser     
+    ...    ${ROBO_UPLOAD_FILES_DIR_BROWSER_DRIVER}    
+    ...    ${BROWSER_HEADLESS}  
+    ...  try_reuse_session=${TRY_REUSE_SESSION}
+    ...  clear_session_before=${clear_session_before} 
+  
     ${x}  ${y}=  Get Window Position
     IF  not ${snippet}
         # Set Window Position        0                                                            0

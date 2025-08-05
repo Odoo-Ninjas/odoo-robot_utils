@@ -333,7 +333,8 @@ class tools(object):
                     return True
             except requests.exceptions.RequestException as e:
                 print(f"⚠️ Request failed: {e}")
-            
+
             print(f"Waiting {DELAY_SECONDS} seconds before retrying...\n")
             time.sleep(DELAY_SECONDS)
         raise Exception("Could not call  {url} in time")
+

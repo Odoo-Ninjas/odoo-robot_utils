@@ -139,6 +139,15 @@ def _load_robot_vars():
     for candidate in robo_candidates:
         consume_file(candidate)
 
+def get_wodoo():
+    # scripts/run.py
+    import importlib.util, pathlib
+
+    mod_path = pathlib.Path(__file__).parent / 'wodoo.py'
+    spec = importlib.util.spec_from_file_location("common_dyn", mod_path)
+    common_dyn = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(common_dyn)
+    return common_dyn.wodoo()
 
 def _load_default_values_from_env():
     b = BuiltIn()
@@ -157,15 +166,20 @@ def _load_default_values_from_env():
                     f"Environment Variable {k} with value {v} not parsable - perhaps not a problem: {ex}"
                 )
 
-    if "ODOO_HOME" in os.environ.keys():
-        b.set_global_variable(_make_robot_key("CUSTOMS_DIR"), os.environ["ODOO_HOME"])
-    elif (
-        "HOST_CUSTOMS_DIR" in os.environ.keys()
-        and not "CUSTOMS_DIR" in os.environ.keys()
-    ):
-        b.set_global_variable(
-            _make_robot_key("CUSTOMS_DIR"), os.environ["HOST_CUSTOMS_DIR"]
-        )
+    CUSTOMS_DIR = get_wodoo().get_odoo_home()
+    b.set_global_variable(_make_robot_key("CUSTOMS_DIR"), CUSTOMS_DIR)
+    test = BuiltIn().get_variable_value(_make_robot_key("CUSTOMS_DIR"))
+    assert test == CUSTOMS_DIR
+    # if "ODOO_HOME" in os.environ.keys():
+    # if "ODOO_HOME" in os.environ.keys():
+    #     b.set_global_variable(_make_robot_key("CUSTOMS_DIR"), os.environ["ODOO_HOME"])
+    # elif (
+    #     "HOST_CUSTOMS_DIR" in os.environ.keys()
+    #     and not "CUSTOMS_DIR" in os.environ.keys()
+    # ):
+    #     b.set_global_variable(
+    #         _make_robot_key("CUSTOMS_DIR"), os.environ["HOST_CUSTOMS_DIR"]
+    #     )
 
 
 def _load_default_values():
