@@ -5,9 +5,7 @@ import os
 
 class wodoo(object):
     def command(self, shellcmd, output=True):
-        path = os.getenv(
-            "ODOO_HOME", os.getenv("CUSTOMS_DIR", os.getenv("HOST_CUSTOMS_DIR"))
-        )
+        path = os.getenv("ODOO_HOME") or os.getenv("CUSTOMS_DIR") or os.getenv("HOST_CUSTOMS_DIR")
         if not path:
             raise Exception(
                 "ODOO_HOME or CUSTOMS_DIR or HOST_CUSTOMS_DIR environment variable is not set"
