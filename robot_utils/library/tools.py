@@ -323,7 +323,7 @@ class tools(object):
 
     def wait_for_200(self, url, DELAY_SECONDS=2, tries=5):
         print(f"Checking {url} until status 200 is received...\n")
-        i  = 0
+        i = 0
         while i < tries:
             try:
                 response = requests.get(url)
@@ -337,4 +337,3 @@ class tools(object):
             print(f"Waiting {DELAY_SECONDS} seconds before retrying...\n")
             time.sleep(DELAY_SECONDS)
         raise Exception("Could not call  {url} in time")
-

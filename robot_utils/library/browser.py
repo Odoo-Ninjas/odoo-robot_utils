@@ -1,7 +1,9 @@
 import os
-import requests
+import subprocess
 import selenium
 from selenium.webdriver.remote.webdriver import WebDriver as RemoteDriver
+from selenium.common.exceptions import SessionNotCreatedException
+
 from pathlib import Path
 from robot.libraries.BuiltIn import BuiltIn
 import logging
@@ -25,26 +27,40 @@ class RemoteDriver2(RemoteDriver):
 
 
 def clear_sessions():
-    host = os.environ['ROBO_WEBDRIVER_HOST']
-    try:
-        url = f"http://{host}/session"
-        logger.info("Recycling geckodriver session via DELETE %s", url)
-        resp = requests.delete(url, timeout=5)
-        resp.raise_for_status()
-        logger.info("Recycle OK -> %s", resp.status_code)
-    except requests.exceptions.RequestException as exc:
-        logger.warning("Recycle failed (ignored): %s", exc)
+    cmd = os.getenv("ROBO_WEBDRIVER_KILL_SWITCH")
+    if not cmd:
+        raise Exception(
+            "Please configure ROBO_WEBDRIVER_KILL_SWITCH environment variable, example: curl http://localhost:4445/restart"
+        )
+    subprocess.run(cmd, shell=True, check=True)
 
 
-def get_driver_for_browser(download_path, headless, try_reuse_session=True, clear_session_before=False):
+def get_driver_for_browser(
+    download_path,
+    headless,
+    try_reuse_session=True,
+    clear_session_before=False,
+    trycount=1,
+):
     logger.info(f"Getting Driver For Browser: headless={headless}")
     if clear_session_before:
         clear_sessions()
-        try_reuse_session = False   # never reuse after a forced clear
+        try_reuse_session = False  # never reuse after a forced clear
 
     bd = BrowserDriver(download_path, headless)
     instance = BuiltIn().get_library_instance("SeleniumLibrary")
-    driver = bd.get_webdriver(try_reuse_session=try_reuse_session)
+    try:
+        driver = bd.get_webdriver(try_reuse_session=try_reuse_session)
+    except SessionNotCreatedException as e:
+        if trycount == 1:
+            return get_driver_for_browser(
+                download_path,
+                headless,
+                try_reuse_session=False,
+                clear_session_before=clear_session_before,
+                trycount=trycount + 1,
+            )
+        raise
     logger.info(f"Got web-driver")
     instance.register_driver(driver, alias="robodriver")
     return driver

@@ -139,15 +139,17 @@ def _load_robot_vars():
     for candidate in robo_candidates:
         consume_file(candidate)
 
+
 def get_wodoo():
     # scripts/run.py
     import importlib.util, pathlib
 
-    mod_path = pathlib.Path(__file__).parent / 'wodoo.py'
+    mod_path = pathlib.Path(__file__).parent / "wodoo.py"
     spec = importlib.util.spec_from_file_location("common_dyn", mod_path)
     common_dyn = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(common_dyn)
     return common_dyn.wodoo()
+
 
 def _load_default_values_from_env():
     b = BuiltIn()
@@ -161,7 +163,7 @@ def _load_default_values_from_env():
             except:
                 b.set_global_variable(robotkey, v)
         except Exception as ex:
-            if k not in ['PS1']:
+            if k not in ["PS1"]:
                 logger.console(
                     f"Environment Variable {k} with value {v} not parsable - perhaps not a problem: {ex}"
                 )
@@ -201,6 +203,8 @@ def _load_from_settings():
     for i in range(MAX):
         for line in ret.stdout.splitlines():
             if line.strip().startswith("#"):
+                continue
+            if "=" not in line:
                 continue
             key, value = line.split("=", 1)
             key = key.strip()

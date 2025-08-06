@@ -312,7 +312,7 @@ Activate AJAX Counter
 Get Ajax Counter
     ${counter}=    Execute Async Javascript
     ...    const callback = arguments[arguments.length - 1];
-    ...    const counter = parseInt(localStorage.getItem('robo_counter') || 0);
+    ...    const counter = parseInt(localStorage.getItem('robo_counter') || 0) || 0;
     ...    callback(counter);
     ...    console.log("Count current requests: " + counter);
     ${counter}=    Eval    int("${counter}")
