@@ -88,6 +88,9 @@ MainMenu    [Arguments]    ${menu}
         ELSE IF    ${odoo_version} == 17.0
             ${homemenu}=    Run Keyword And Return Status    Get WebElement    css=div.o_home_menu
             IF    not ${homemenu}    Wait To Click    nav a.o_menu_toggle
+        ELSE IF    ${odoo_version} == 18.0
+            ${homemenu}=    Run Keyword And Return Status    Get WebElement    css=div.o_home_menu
+            IF    not ${homemenu}    Wait To Click    nav a.o_menu_toggle
         ELSE
             Wait Until Element is visible    div.o_navbar_apps_menu
             Wait To Click    div.o_navbar_apps_menu button
