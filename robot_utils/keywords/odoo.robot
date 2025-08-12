@@ -77,47 +77,37 @@ ClickMenu    [Arguments]    ${menu}
 
     Wait Blocking And Eval Error States
 
-
-_MainMenuKeywordEnterprise   [Arguments]  ${menu}
-    IF    ${odoo_version} == 11.0
-        Log    not needed - top menue on top
-    ELSE IF    ${odoo_version} == 14.0
-        Wait Until Element is visible    nav.o_main_navbar
-    ELSE IF    ${odoo_version} == 17.0
-        ${homemenu}=    Run Keyword And Return Status    Get WebElement    css=div.o_home_menu
-        IF    not ${homemenu}    Wait To Click    nav a.o_menu_toggle
-    ELSE IF    ${odoo_version} == 18.0
-        ${homemenu}=    Run Keyword And Return Status    Get WebElement    css=div.o_home_menu
-        IF    not ${homemenu}    Wait To Click    nav a.o_menu_toggle
-    ELSE
-        Wait Until Element is visible    div.o_navbar_apps_menu
-        Wait To Click    div.o_navbar_apps_menu button
-    END
-    ${css}=    Set Variable    a[data-menu-xmlid='${menu}']
-    Wait Until Page Contains Element    css=${css}
-    Wait To Click    css=${css}
-    Wait Until Page Contains Element    css=body.o_web_client
-    Wait Blocking And Eval Error States
-
-_MainMenuKeywordCommunity  [Arguments]  ${menu}
-    # Works V16
-    Log To Console    Enterprise is not installed - there is no main menu - just the burger menu
-    IF    ${odoo_version} == 11.0
-        Log    not needed - top menue on top
-    ELSE
-        ${home_menu}=    Set Variable    nav.o_main_navbar button[title='Home Menu']
-        Wait Until Page Contains Element    css=${home_menu}
-        Wait To Click    css=${home_menu}
-    END
-    Wait To Click    css=a[data-menu-xmlid='${menu}']    position=1
-
 MainMenu    [Arguments]    ${menu}
     # works V16
     ${enterprise}=    _has_module_installed    web_enterprise
     IF    ${enterprise}
-        _Main Menu Keyword Enterprise   ${menu}
+        IF    ${odoo_version} == 11.0
+            Log    not needed - top menue on top
+        ELSE IF    ${odoo_version} == 14.0
+            Wait Until Element is visible    nav.o_main_navbar
+        ELSE IF    ${odoo_version} == 17.0
+            ${homemenu}=    Run Keyword And Return Status    Get WebElement    css=div.o_home_menu
+            IF    not ${homemenu}    Wait To Click    nav a.o_menu_toggle
+        ELSE
+            Wait Until Element is visible    div.o_navbar_apps_menu
+            Wait To Click    div.o_navbar_apps_menu button
+        END
+        ${css}=    Set Variable    a[data-menu-xmlid='${menu}']
+        Wait Until Page Contains Element    css=${css}
+        Wait To Click    css=${css}
+        Wait Until Page Contains Element    css=body.o_web_client
+        Wait Blocking And Eval Error States
     ELSE
-        _Main Menu Keyword Community  ${menu}
+        # Works V16
+        Log To Console    Enterprise is not installed - there is no main menu - just the burger menu
+        IF    ${odoo_version} == 11.0
+            Log    not needed - top menue on top
+        ELSE
+            ${home_menu}=    Set Variable    nav.o_main_navbar button[title='Home Menu']
+            Wait Until Page Contains Element    css=${home_menu}
+            Wait To Click    css=${home_menu}
+        END
+        Wait To Click    css=a[data-menu-xmlid='${menu}']    position=1
     END
 
 ApplicationMainMenuOverview
