@@ -1,3 +1,4 @@
+import sys
 import json
 import os
 import subprocess
@@ -5,6 +6,29 @@ from pathlib import Path
 from robot.libraries.BuiltIn import BuiltIn
 from robot.api import logger
 from robot.errors import VariableError
+import importlib.util
+
+import inspect
+import os
+from pathlib import Path
+current_dir = Path(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))))
+
+def load_module_from_file(module_name: str, path: str):
+    path = str(Path(path).resolve())
+    spec = importlib.util.spec_from_file_location(module_name, path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Cannot load spec for {path}")
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = mod
+    spec.loader.exec_module(mod)
+    return mod
+
+tools = load_module_from_file(
+    "tools",
+    current_dir / 'tools.py'
+)
+from tools import _make_robot_key
+from tools import get_variable
 
 
 defaults = {
@@ -59,14 +83,6 @@ def _prepare_test_token(varsfile):
     assert TOKEN == test
 
 
-def _make_robot_key(k):
-    return f"${{{k}}}"
-
-
-def os_get_env(key):
-    if key not in os.environ:
-        raise Exception(f"Please define {key} in environment variables.")
-    return os.environ[key]
 
 
 def _load_test_defaults():
@@ -84,17 +100,17 @@ def _load_test_defaults():
     # https://github.com/SeleniumHQ/selenium/issues/10352
     b = BuiltIn()
     PORT = b.get_variable_value(_make_robot_key("ROBO_ODOO_PORT"))
-    ODOO_URL = os_get_env("ROBO_ODOO_HOST")
+    ODOO_URL = get_variable("ROBO_ODOO_HOST")
     if PORT and ":" not in ODOO_URL.split("://")[-1]:
         ODOO_URL += ":" + str(PORT)
     b.set_global_variable(_make_robot_key("ODOO_URL"), ODOO_URL)
     b.set_global_variable(
         _make_robot_key("DIRECTORY UPLOAD FILES LOCAL"),
-        os_get_env("ROBO_UPLOAD_FILES_DIR_LOCAL"),
+        get_variable("ROBO_UPLOAD_FILES_DIR_LOCAL"),
     )
     b.set_global_variable(
         _make_robot_key("DIRECTORY UPLOAD FILES BROWSER DRIVER"),
-        os_get_env("ROBO_UPLOAD_FILES_DIR_BROWSER_DRIVER"),
+        get_variable("ROBO_UPLOAD_FILES_DIR_BROWSER_DRIVER"),
     )
     # Convert odoo_version to float for comparison in ifs
     b.set_global_variable(

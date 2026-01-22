@@ -1,6 +1,11 @@
 import os
 import subprocess
 import selenium
+import sys
+import importlib.util
+import inspect
+import os
+from pathlib import Path
 from selenium.webdriver.remote.webdriver import WebDriver as RemoteDriver
 from selenium.common.exceptions import SessionNotCreatedException
 
@@ -10,6 +15,25 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+current_dir = Path(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))))
+
+def load_module_from_file(module_name: str, path: str):
+    path = str(Path(path).resolve())
+    spec = importlib.util.spec_from_file_location(module_name, path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Cannot load spec for {path}")
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = mod
+    spec.loader.exec_module(mod)
+    return mod
+
+tools = load_module_from_file(
+    "tools",
+    current_dir / 'tools.py'
+)
+
+from tools import _make_robot_key
+from tools import get_variable
 
 class RemoteDriver2(RemoteDriver):
     def __init__(
@@ -66,9 +90,10 @@ def get_driver_for_browser(
     return driver
 
 
+
 class BrowserDriver(object):
     def __init__(self, download_path, headless):
-        browser = os.environ["ROBO_WEBDRIVER_BROWSER"]
+        browser = get_variable("ROBO_WEBDRIVER_BROWSER")
         assert browser in [
             "chrome",
             "firefox",
@@ -83,9 +108,7 @@ class BrowserDriver(object):
     def get_webdriver(self, try_reuse_session=True):
         options = self.create_options()
         sessionId = None
-        WEBDRIVER_HOST = os.environ[
-            "ROBO_WEBDRIVER_HOST"
-        ]  # path to geckodriver --host <ip> --port <port> example: 192.168.64.2:4444
+        WEBDRIVER_HOST = get_variable("ROBO_WEBDRIVER_HOST") # path to geckodriver --host <ip> --port <port> example: 192.168.64.2:4444
         session_file = Path("/tmp/seleniumsession")
         if session_file.exists() and try_reuse_session:
             sessionId = session_file.read_text().strip()

@@ -28,6 +28,15 @@ current_dir = Path(
     os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 )
 
+def _make_robot_key(k):
+    return f"${{{k}}}"
+
+def get_variable(name):
+    res = BuiltIn().get_variable_value(_make_robot_key(name))
+    if not res:
+        res = os.getenv(name)
+    return res
+
 
 def _exec_get_result(code, globals_dict):
     if not code:
