@@ -257,7 +257,7 @@ Goto View    [Arguments]    ${model}    ${id}    ${type}=form
     ELSE IF    '${type}' == 'form' OR '${type}' == 'list'
         Wait Until Element Is Visible    xpath=//div[@class='o_list_renderer']
     ELSE
-        FAIL    needs implementation for ${type}
+        FAIL    Goto View needs implementation for ${type}
     END
     Screenshot
     Log To Console    Goto View ${model} ${id} ${type} Done
