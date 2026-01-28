@@ -67,9 +67,11 @@ def get_driver_for_browser(
     trycount=1,
 ):
     logger.info(f"Getting Driver For Browser: headless={headless}")
+    if try_reuse_session:
+        clear_session_before = False
+
     if clear_session_before:
         clear_sessions()
-        try_reuse_session = False  # never reuse after a forced clear
 
     bd = BrowserDriver(download_path, headless)
     instance = BuiltIn().get_library_instance("SeleniumLibrary")

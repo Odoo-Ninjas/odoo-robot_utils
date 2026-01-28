@@ -4,7 +4,6 @@ Documentation       Odoo backend keywords.
 Library             ../library/browser.py
 Library             SeleniumLibrary
 Library             OperatingSystem
-Resource            debug.robot
 Resource            odoo_client.robot
 Resource            tools.robot
 Library             ../library/tools.py
