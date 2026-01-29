@@ -184,7 +184,7 @@ _Write To Element    [Arguments]    ${css}    ${value}    ${ignore_auto_complete
         FAIL    Could not write value to ${css}
         JS Scroll Into View    ${css}
     END
-    IF    ${is_autocomplete} and not ${ignore_auto_complete}
+    IF    $is_autocomplete and not $ignore_auto_complete
         IF    ${ODOO_VERSION} <= 15.0
             ${arrow_down_event}=    Get File    ${libdir}/../keywords/js/events.js
 
@@ -205,7 +205,7 @@ _Write To Element    [Arguments]    ${css}    ${value}    ${ignore_auto_complete
         ELSE
             _Write To CSS AutoComplete
         END
-    ELSE IF    ${is_autocomplete} and ${ignore_auto_complete}
+    ELSE IF    $is_autocomplete and $ignore_auto_complete
         # clicking into the element to trigger the autocomplete vanish
         ${result}=  Run Keyword And Ignore Error  Wait Until Page Contains Element  css=ul.ui-autocomplete  timeout=10s
         IF  '${result[0]}' == 'PASS'

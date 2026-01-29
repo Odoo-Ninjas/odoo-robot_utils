@@ -185,7 +185,7 @@ Write    [Documentation]
     ${eltype}=    Get From Dictionary    ${identity_type}    key
 
     ${hastooltip}=    Eval    bool(h)    h=${tooltip}
-    IF    ${hastooltip}
+    IF    $hastooltip
         ShowTooltip By Locator    ${locator_css}    tooltip=${tooltip}
     END
 
