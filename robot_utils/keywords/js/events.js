@@ -14,3 +14,7 @@ const enterEvent = new KeyboardEvent("keydown", {
   bubbles: true,
   cancelable: true,
 });
+const inputEvent = new Event("input", {
+  bubbles: true,
+  cancelable: false
+});

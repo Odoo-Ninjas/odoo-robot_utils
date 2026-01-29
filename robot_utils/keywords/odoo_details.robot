@@ -87,9 +87,7 @@ Identify Input Type    [Arguments]    ${fieldname}    ${value}    ${parent}    $
     ${all_css_list}=    Collect all css for inputs    ${fieldname}    ${value}    ${parent}    ${css_parent}
     Log To Console  message=${all_css_list}
 
-    Screenshot
     ${found}=    Search All Tabs For CSS    ${all_css_list}    ${css_parent}    ${value}
-    Screenshot
     ${found_key}=    Get From Dictionary    ${found}    key
     IF    "${found_key}" == "no match"
         Screenshot
@@ -171,6 +169,10 @@ _Write To Element    [Arguments]    ${css}    ${value}    ${ignore_auto_complete
 
     ${klass}=    Get Element Attribute    ${element}    class
     ${is_autocomplete}=    Evaluate    "autocomplete" in "${klass}"    # works for V15 and V16 and V17
+    ${is_sincev19_select}=  Evaluate  "o_select_menu_input" in "${klass}"
+    IF  ${ODOO_VERSION} < 19.0
+        ${is_sincev19_select}=    Set Variable    ${FALSE}
+    END
 
     # ${status}    ${error}=    Run Keyword And Ignore Error    Input Text    css=${css}    ${value}
     ${libdir}=    library Directory
@@ -180,25 +182,37 @@ _Write To Element    [Arguments]    ${css}    ${value}    ${ignore_auto_complete
     ...    const value =`${value}`;
     ...    ${inputelement_js}
     ${status}=    Execute Async Javascript    ${inputelement_js}
-    IF    not '${status}'
+    Should Be Equal As Strings  ${status.__class__}  <class 'bool'>
+    IF    not ${status}
         FAIL    Could not write value to ${css}
         JS Scroll Into View    ${css}
     END
-    IF    $is_autocomplete and not $ignore_auto_complete
+    IF  $is_sincev19_select
+        ${jsevents}=    Get File    ${libdir}/../keywords/js/events.js
+        ${js}=    Catenate    SEPARATOR=;
+        ...    ${jsevents};
+        ...    element.value = "${value}";
+        ...    element.dispatchEvent(inputEvent);
+        JS On Element    ${css}    ${js}
+        ${css}=    Catenate
+        ...    div.o_popover.popover.o_select_menu_menu:last-child span.o-dropdown-item[data-choice-index="0"]
+        Wait To Click    css=${css}
+
+    ELSE IF    $is_autocomplete and not $ignore_auto_complete
         IF    ${ODOO_VERSION} <= 15.0
-            ${arrow_down_event}=    Get File    ${libdir}/../keywords/js/events.js
+            ${jsevents}=    Get File    ${libdir}/../keywords/js/events.js
 
             # Set value in combobox and press down cursor to select
             ${js}=    Catenate    SEPARATOR=;
-            ...    ${arrow_down_event};
-            ...    element.value = "${value}";
+            ...    ${jsevents};
+            n...    element.value = "${value}";
             ...    element.dispatchEvent(downArrowEvent);
             JS On Element    ${css}    ${js}
             # Wait until options appear
             Wait Until Page Contains Element
             ...    xpath=//ul[contains(@class, 'ui-autocomplete')][not(contains(@style, 'display: none;'))][not(//*[contains(@class, 'fa-spin')])]
             ${js}=    Catenate    SEPARATOR=;
-            ...    ${arrow_down_event};
+            ...    ${jsevents};
             ...    element.dispatchEvent(enterEvent);
             JS On Element    ${css}    ${js}
             Sleep    500ms    # required; needed to set element value
