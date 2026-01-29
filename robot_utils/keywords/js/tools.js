@@ -88,3 +88,33 @@ async function waitForClass(element, className, timeout = 5000) {
     }, timeout);
   });
 }
+
+function waitForElementAndClick(selector, text) {
+  const matchesText = el =>
+    el.textContent.trim() === text;
+
+  const tryClick = () => {
+    const el = [...document.querySelectorAll(selector)]
+      .find(matchesText);
+
+    if (el) {
+      el.click();
+      return true;
+    }
+    return false;
+  };
+
+  // Try immediately
+  if (tryClick()) return;
+
+  const observer = new MutationObserver(() => {
+    if (tryClick()) {
+      observer.disconnect();
+    }
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+}

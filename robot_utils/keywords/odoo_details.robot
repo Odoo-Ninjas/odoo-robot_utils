@@ -188,15 +188,15 @@ _Write To Element    [Arguments]    ${css}    ${value}    ${ignore_auto_complete
         JS Scroll Into View    ${css}
     END
     IF  $is_sincev19_select
-        ${jsevents}=    Get File    ${libdir}/../keywords/js/events.js
-        ${js}=    Catenate    SEPARATOR=;
-        ...    ${jsevents};
-        ...    element.value = "${value}";
-        ...    element.dispatchEvent(inputEvent);
-        JS On Element    ${css}    ${js}
+        ${jstools}=    Get File    ${libdir}/../keywords/js/tools.js
+        Input Text  css:${css}  ${value}
         ${css}=    Catenate
         ...    div.o_popover.popover.o_select_menu_menu:last-child span.o-dropdown-item[data-choice-index="0"]
-        Wait To Click    css=${css}
+
+        ${js}=    Catenate    SEPARATOR=\n
+        ...    ${jstools};
+        ...    waitForElementAndClick(`${css}`, `${value}`);
+        Execute Javascript  ${js}
 
     ELSE IF    $is_autocomplete and not $ignore_auto_complete
         IF    ${ODOO_VERSION} <= 15.0
@@ -205,7 +205,7 @@ _Write To Element    [Arguments]    ${css}    ${value}    ${ignore_auto_complete
             # Set value in combobox and press down cursor to select
             ${js}=    Catenate    SEPARATOR=;
             ...    ${jsevents};
-            n...    element.value = "${value}";
+            ...    element.value = "${value}";
             ...    element.dispatchEvent(downArrowEvent);
             JS On Element    ${css}    ${js}
             # Wait until options appear
