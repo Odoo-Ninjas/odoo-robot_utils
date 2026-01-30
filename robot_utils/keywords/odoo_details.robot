@@ -189,7 +189,11 @@ _Write To Element    [Arguments]    ${css}    ${value}    ${ignore_auto_complete
     END
     IF  $is_sincev19_select
         ${jstools}=    Get File    ${libdir}/../keywords/js/tools.js
-        Input Text  css:${css}  ${value}
+        Clear Element Text  css:${css}
+        Click Element  css:${css}
+        Press Keys     css:${css}  ${value}
+        Mouse Down     css:${css}
+        Mouse Up     css:${css}
         ${css}=    Catenate
         ...    div.o_popover.popover.o_select_menu_menu:last-child span.o-dropdown-item[data-choice-index="0"]
 
