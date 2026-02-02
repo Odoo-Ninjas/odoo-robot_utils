@@ -189,11 +189,16 @@ _Write To Element    [Arguments]    ${css}    ${value}    ${ignore_auto_complete
     END
     IF  $is_sincev19_select
         ${jstools}=    Get File    ${libdir}/../keywords/js/tools.js
+        ${jsevents}=    Get File    ${libdir}/../keywords/js/events.js
         Clear Element Text  css:${css}
+        Scroll Element Into View  css:${css}
         Click Element  css:${css}
         Press Keys     css:${css}  ${value}
-        Mouse Down     css:${css}
-        Mouse Up     css:${css}
+        ${js}=    Catenate    SEPARATOR=\n
+        ...    element.dispatchEvent(new Event('input', { bubbles: true }));
+        ...    element.dispatchEvent(new Event('change', { bubbles: true }));
+        JS On Element  ${css}  ${js}
+        
         ${css}=    Catenate
         ...    div.o_popover.popover.o_select_menu_menu:last-child span.o-dropdown-item[data-choice-index="0"]
 
