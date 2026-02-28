@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 from selenium.webdriver.remote.webdriver import WebDriver as RemoteDriver
 from selenium.common.exceptions import SessionNotCreatedException
+from selenium.webdriver.remote.file_detector import UselessFileDetector
 
 from pathlib import Path
 from robot.libraries.BuiltIn import BuiltIn
@@ -34,6 +35,11 @@ tools = load_module_from_file(
 
 from tools import _make_robot_key
 from tools import get_variable
+
+
+def disable_remote_file_detector(driver):
+    # verhindert, dass Selenium versucht /se/file zu benutzen
+    driver.file_detector = UselessFileDetector()
 
 class RemoteDriver2(RemoteDriver):
     def __init__(
@@ -134,6 +140,7 @@ class BrowserDriver(object):
                 do_start_session=True,
             )
             session_file.write_text(driver.session_id)
+        disable_remote_file_detector(driver)
         return driver
 
     def create_options(self):

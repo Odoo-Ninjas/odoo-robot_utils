@@ -14,16 +14,15 @@ class wodoo(object):
         return self._cmd(cmd, cwd=cwd, output=True)
 
     def get_odoo_home(self):
-        path = (
-            os.getenv("ODOO_HOME")
-            or os.getenv("CUSTOMS_DIR")
-            or os.getenv("HOST_CUSTOMS_DIR")
+        for path in [os.getenv("ODOO_HOME"), os.getenv("CUSTOMS_DIR"), os.getenv("HOST_CUSTOMS_DIR")]:
+            if not path:
+                continue
+            path = Path(path)
+            if path.exists():
+                return path
+        raise Exception(
+            "ODOO_HOME or CUSTOMS_DIR or HOST_CUSTOMS_DIR environment variable is not set"
         )
-        if not path:
-            raise Exception(
-                "ODOO_HOME or CUSTOMS_DIR or HOST_CUSTOMS_DIR environment variable is not set"
-            )
-        return path
 
     def _cmd(self, cmd, output=False, cwd=None):
         env = {}

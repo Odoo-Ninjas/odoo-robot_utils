@@ -355,7 +355,8 @@ Odoo Upload File    [Arguments]    ${fieldname}    ${filepath}    ${parent}=${NO
     ${js}=    Catenate    SEPARATOR=\n
     ...    element.classList.remove("o_hidden_input_file");
     ...    element.classList.remove("o_hidden");
-    ...    element.style.display = "";
+    ...    element.classList.remove("d-none");
+    ...    element.style.display = null;
     JS On Element    ${css}    ${js}  filter_visible=${FALSE}
 
     ${file_name}=    tools.Get File Name    ${file_path}
@@ -369,7 +370,9 @@ Odoo Upload File    [Arguments]    ${fieldname}    ${filepath}    ${parent}=${NO
     tools.Copy File    ${filepath}    ${DIRECTORY UPLOAD FILES LOCAL}/${file_name}
 
     Log To Console    Choosing file from ${DIRECTORY UPLOAD FILES BROWSER DRIVER}/${file_name}
-    Choose File    css=${css}    ${DIRECTORY UPLOAD FILES BROWSER DRIVER}/${file_name}
+
+    # that input text works on file element it is required that the useless file detector is set
+    Input Text    css=${css}    ${DIRECTORY UPLOAD FILES BROWSER DRIVER}/${file_name}
     Wait Blocking And Eval Error States
     Log To Console    Done UploadFile ${fieldname}=${filepath}
 
