@@ -291,7 +291,7 @@ Odoo Execute
     ...    ${params}=${{[]}}
     ...    ${kwparams}=${{{}}}
     ...    ${dbname}=${ROBO_ODOO_DB}
-    ...    ${host}=${ODOO_URL}
+    ...    ${host}=${ODOO_URL_API}
     ...    ${user}=${ROBO_ODOO_USER}
     ...    ${pwd}=${ROBO_ODOO_PASSWORD}
     ...    ${lang}=en_US
