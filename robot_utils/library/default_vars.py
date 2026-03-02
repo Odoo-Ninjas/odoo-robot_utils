@@ -101,9 +101,12 @@ def _load_test_defaults():
     b = BuiltIn()
     PORT = b.get_variable_value(_make_robot_key("ROBO_ODOO_PORT"))
     ODOO_URL = get_variable("ROBO_ODOO_HOST")
+    ODOO_URL_API = get_variable("ROBO_ODOO_HOST_BY_API") or ODOO_URL
     if PORT and ":" not in ODOO_URL.split("://")[-1]:
         ODOO_URL += ":" + str(PORT)
+        ODOO_URL_API += ":" + str(PORT)
     b.set_global_variable(_make_robot_key("ODOO_URL"), ODOO_URL)
+    b.set_global_variable(_make_robot_key("ODOO_URL_API"), ODOO_URL_API)
     b.set_global_variable(
         _make_robot_key("DIRECTORY UPLOAD FILES LOCAL"),
         get_variable("ROBO_UPLOAD_FILES_DIR_LOCAL"),

@@ -181,4 +181,5 @@ Wait For Marker  products_on_stock
 - ROBO_ODOO_USER
 - ROBO_ODOO_PASSWORD
 - ODOO_URL
+- ODOO_URL_API
 - TOKEN

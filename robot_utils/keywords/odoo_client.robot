@@ -14,7 +14,7 @@ Technical Testname
 Odoo Conn
     [Arguments]
     ...    ${dbname}=${ROBO_ODOO_DB}
-    ...    ${host}=${ODOO_URL}
+    ...    ${host}=${ODOO_URL_API}
     ...    ${user}=${ROBO_ODOO_USER}
     ...    ${pwd}=${ROBO_ODOO_PASSWORD}
     ${conn}=    odoo._get Conn    ${host}    ${dbname}    ${user}    ${pwd}
@@ -25,7 +25,7 @@ Odoo Search
     ...    ${model}
     ...    ${domain}
     ...    ${dbname}=${ROBO_ODOO_DB}
-    ...    ${host}=${ODOO_URL}
+    ...    ${host}=${ODOO_URL_API}
     ...    ${user}=${ROBO_ODOO_USER}
     ...    ${pwd}=${ROBO_ODOO_PASSWORD}
     ...    ${count}=${FALSE}
@@ -78,7 +78,7 @@ Odoo Search Records
     ...    ${model}
     ...    ${domain}
     ...    ${dbname}=${ROBO_ODOO_DB}
-    ...    ${host}=${ODOO_URL}
+    ...    ${host}=${ODOO_URL_API}
     ...    ${user}=${ROBO_ODOO_USER}
     ...    ${pwd}=${ROBO_ODOO_PASSWORD}
     ...    ${count}=${FALSE}
@@ -111,7 +111,7 @@ Odoo Search Read Records
     ...    ${domain}
     ...    ${fields}
     ...    ${dbname}=${ROBO_ODOO_DB}
-    ...    ${host}=${ODOO_URL}
+    ...    ${host}=${ODOO_URL_API}
     ...    ${user}=${ROBO_ODOO_USER}
     ...    ${pwd}=${ROBO_ODOO_PASSWORD}
     ...    ${count}=${FALSE}
@@ -141,7 +141,7 @@ Odoo Load Data
     ...    ${filepath}
     ...    ${module_name}=robobase
     ...    ${dbname}=${ROBO_ODOO_DB}
-    ...    ${host}=${ODOO_URL}
+    ...    ${host}=${ODOO_URL_API}
     ...    ${user}=${ROBO_ODOO_USER}
     ...    ${pwd}=${ROBO_ODOO_PASSWORD}
     odoo.Load File    ${host}    ${dbname}    ${user}    ${pwd}    ${filepath}    ${module_name}
@@ -151,7 +151,7 @@ Odoo Put File
     ...    ${file_path}
     ...    ${dest_path_on_odoo_container}
     ...    ${dbname}=${ROBO_ODOO_DB}
-    ...    ${host}=${ODOO_URL}
+    ...    ${host}=${ODOO_URL_API}
     ...    ${user}=${ROBO_ODOO_USER}
     ...    ${pwd}=${ROBO_ODOO_PASSWORD}
     odoo.Put File    ${host}    ${dbname}    ${user}    ${pwd}    ${file_path}    ${dest_path_on_odoo_container}
@@ -161,7 +161,7 @@ Odoo Create
     ...    ${model}
     ...    ${values}
     ...    ${dbname}=${ROBO_ODOO_DB}
-    ...    ${host}=${ODOO_URL}
+    ...    ${host}=${ODOO_URL_API}
     ...    ${user}=${ROBO_ODOO_USER}
     ...    ${pwd}=${ROBO_ODOO_PASSWORD}
     ...    ${lang}=en_US
@@ -185,7 +185,7 @@ Odoo Write
     ...    ${ids}
     ...    ${values}
     ...    ${dbname}=${ROBO_ODOO_DB}
-    ...    ${host}=${ODOO_URL}
+    ...    ${host}=${ODOO_URL_API}
     ...    ${user}=${ROBO_ODOO_USER}
     ...    ${pwd}=${ROBO_ODOO_PASSWORD}
     ...    ${lang}=en_US
@@ -209,7 +209,7 @@ Odoo Unlink
     ...    ${model}
     ...    ${ids}
     ...    ${dbname}=${ROBO_ODOO_DB}
-    ...    ${host}=${ODOO_URL}
+    ...    ${host}=${ODOO_URL_API}
     ...    ${user}=${ROBO_ODOO_USER}
     ...    ${pwd}=${ROBO_ODOO_PASSWORD}
     ...    ${context}=${None}
@@ -229,7 +229,7 @@ Odoo Search Unlink
     ...    ${model}
     ...    ${domain}
     ...    ${dbname}=${ROBO_ODOO_DB}
-    ...    ${host}=${ODOO_URL}
+    ...    ${host}=${ODOO_URL_API}
     ...    ${user}=${ROBO_ODOO_USER}
     ...    ${pwd}=${ROBO_ODOO_PASSWORD}
     ...    ${lang}=en_US
@@ -264,7 +264,7 @@ Odoo Ref Id
     [Arguments]
     ...    ${xml_id}
     ...    ${dbname}=${ROBO_ODOO_DB}
-    ...    ${host}=${ODOO_URL}
+    ...    ${host}=${ODOO_URL_API}
     ...    ${user}=${ROBO_ODOO_USER}
     ...    ${pwd}=${ROBO_ODOO_PASSWORD}
     Log to Console    XML ID: ${xml_id}
@@ -275,7 +275,7 @@ Odoo Ref
     [Arguments]
     ...    ${xml_id}
     ...    ${dbname}=${ROBO_ODOO_DB}
-    ...    ${host}=${ODOO_URL}
+    ...    ${host}=${ODOO_URL_API}
     ...    ${user}=${ROBO_ODOO_USER}
     ...    ${pwd}=${ROBO_ODOO_PASSWORD}
     Log to Console    XML ID: ${xml_id}
@@ -316,7 +316,7 @@ Odoo Read
     ...    ${ids}
     ...    ${fields}
     ...    ${dbname}=${ROBO_ODOO_DB}
-    ...    ${host}=${ODOO_URL}
+    ...    ${host}=${ODOO_URL_API}
     ...    ${user}=${ROBO_ODOO_USER}
     ...    ${pwd}=${ROBO_ODOO_PASSWORD}
     ...    ${lang}=en_US
@@ -339,7 +339,7 @@ Odoo Read Field
     ...    ${id}
     ...    ${field}
     ...    ${dbname}=${ROBO_ODOO_DB}
-    ...    ${host}=${ODOO_URL}
+    ...    ${host}=${ODOO_URL_API}
     ...    ${user}=${ROBO_ODOO_USER}
     ...    ${pwd}=${ROBO_ODOO_PASSWORD}
     ...    ${lang}=en_US
@@ -359,7 +359,7 @@ Odoo Read Field
 Odoo Make Same Passwords
     [Arguments]
     ...    ${dbname}=${ROBO_ODOO_DB}
-    ...    ${host}=${ODOO_URL}
+    ...    ${host}=${ODOO_URL_API}
     ...    ${user}=${ROBO_ODOO_USER}
     ...    ${pwd}=${ROBO_ODOO_PASSWORD}
     ...    ${context}=${None}
