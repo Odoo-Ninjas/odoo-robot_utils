@@ -39,7 +39,7 @@ Odoo Sql
     [Arguments]
     ...    ${sql}
     ...    ${dbname}=${ROBO_ODOO_DB}
-    ...    ${host}=${ODOO_URL}
+    ...    ${host}=${ODOO_URL_API}
     ...    ${user}=${ROBO_ODOO_USER}
     ...    ${pwd}=${ROBO_ODOO_PASSWORD}
     ...    ${context}=${None}
@@ -57,7 +57,7 @@ Wait For Marker
     ...    ${appendix}
     ...    ${timeout}=120
     ...    ${dbname}=${ROBO_ODOO_DB}
-    ...    ${host}=${ODOO_URL}
+    ...    ${host}=${ODOO_URL_API}
     ...    ${user}=${ROBO_ODOO_USER}
     ...    ${pwd}=${ROBO_ODOO_PASSWORD}
     tools.Internal Wait For Marker
@@ -72,7 +72,7 @@ Set Wait Marker
     [Arguments]
     ...    ${appendix}
     ...    ${dbname}=${ROBO_ODOO_DB}
-    ...    ${host}=${ODOO_URL}
+    ...    ${host}=${ODOO_URL_API}
     ...    ${user}=${ROBO_ODOO_USER}
     ...    ${pwd}=${ROBO_ODOO_PASSWORD}
     tools.Internal Set Wait Marker    ${host}    ${dbname}    ${user}    ${pwd}    ${TEST_NAME}${appendix}
