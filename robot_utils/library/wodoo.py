@@ -1,7 +1,6 @@
-from subprocess import check_call, Popen, PIPE, STDOUT
+from subprocess import check_call
 from pathlib import Path
 import os
-import sys
 
 
 class wodoo(object):
@@ -31,29 +30,16 @@ class wodoo(object):
         for key in ["PATH", "HOME"]:
             env[key] = os.environ[key]
         if not output:
-            res = check_call(cmd, shell=True, cwd=cwd, env=env)
+            check_call(cmd, shell=True, cwd=cwd, env=env)
         else:
-            batchfile = []
-            for k, v in env.items():
-                batchfile.append(f'export {k}=\'{v}\'')
-            batchfile.append("\n")
-            batchfile.append(cmd)
-            Path("/tmp/cmd").write_text("\n".join(batchfile))
-
-            proc = Popen(
-                cmd, shell=True, cwd=cwd, env=env,
-                stdout=PIPE, stderr=STDOUT,
-                encoding="utf8"
-            )
-            lines = []
-            assert proc.stdout
-            while True:
-                line = proc.stdout.readline()
-                if not line:
-                    break
-                sys.stdout.write(line)
-                sys.stdout.flush()
-                lines.append(line)
-            proc.wait()
-            res = "".join(lines)
-            return res
+            old_dir = os.getcwd()
+            os.chdir(str(cwd) if cwd else old_dir)
+            old_env = os.environ.copy()
+            os.environ.update(env)
+            try:
+                os.system(cmd)
+            finally:
+                os.chdir(old_dir)
+                os.environ.clear()
+                os.environ.update(old_env)
+            return ""
