@@ -24,16 +24,16 @@ Login    [Arguments]    ${user}=${ROBO_ODOO_USER}    ${password}=${ROBO_ODOO_PAS
     ${snippetmode}=    Get Variable Value    ${SNIPPET_MODE}    ${FALSE}
     IF    ${snippetmode}    RETURN    ${browser_id}
     # Run Keyword and Ignore error    Click element    //a[@href="/web/login"]
-    Capture Page Screenshot
+    Screenshot
     Wait Until Element is Visible    name=login
     Log To Console    Input is visible, now entering credentials for user ${user} with password ${password}
     Input Text    css=input#login    ${user}
     Input Text    css=input#password    ${password}
     Log To Console    Clicking Login
-    Capture Page Screenshot
+    Screenshot
     Click Button    css=div.oe_login_buttons button[type='submit']
     Log To Console    Clicked login button - waiting
-    Capture Page Screenshot
+    Screenshot
     IF    ${odoo_version} <= 11.0
         Wait Until Page Contains Element    css=body.o_web_client
     ELSE IF    ${odoo_version} < 14.0
@@ -302,14 +302,14 @@ Wait To Click    [Arguments]
     Wait Ajax Requests Done
     _Wait Until Element Is Not Disabled    ${css}
     Wait Blocking And Eval Error States    error_check=${error_check}
-    Capture Page Screenshot
+    Screenshot
     Remove Cursor
     Log To Console    Done Wait To Click ${css}
     Wait Blocking And Eval Error States    error_check=${error_check}
 
-	IF  ${autowait}
-        ${contains_add}=  Eval  a in b  a=.o_list_button_add  b=${css}
-        IF  ${contains_add}
+    IF    ${autowait}
+        ${contains_add}=    Eval    a in b    a=.o_list_button_add    b=${css}
+        IF    ${contains_add}
             Wait Until Element is visible    css=div.o_form_sheet
         END
     END
@@ -317,7 +317,7 @@ Wait To Click    [Arguments]
 Click Tab    [Arguments]    ${tabcaption}
     Odoo Button    text=${tabcaption}    custom_css=a[role='tab']
 
-Odoo Button    [Arguments]    ${text}=${NONE}    ${name}=${NONE}    ${tooltip}=${NONE}    ${custom_css}=${NONE}  ${limit}=0
+Odoo Button    [Arguments]    ${text}=${NONE}    ${name}=${NONE}    ${tooltip}=${NONE}    ${custom_css}=${NONE}    ${limit}=0
 
     ${hasname}=    Eval    bool(n)    t=${text}    n=${name}
     ${hastext}=    Eval    bool(t)    t=${text}    n=${name}
@@ -332,7 +332,7 @@ Odoo Button    [Arguments]    ${text}=${NONE}    ${name}=${NONE}    ${tooltip}=$
         ELSE
             ${buttoncss}=    Set Variable    button,a
         END
-        ${css}=    CSS Identifier With Text    ${buttoncss}    ${text}  limit=${limit}
+        ${css}=    CSS Identifier With Text    ${buttoncss}    ${text}    limit=${limit}
         Wait To Click    ${css}    tooltip=${tooltip}
     ELSE
         FAIL    provide either text or name
@@ -357,7 +357,7 @@ Odoo Upload File    [Arguments]    ${fieldname}    ${filepath}    ${parent}=${NO
     ...    element.classList.remove("o_hidden");
     ...    element.classList.remove("d-none");
     ...    element.style.display = null;
-    JS On Element    ${css}    ${js}  filter_visible=${FALSE}
+    JS On Element    ${css}    ${js}    filter_visible=${FALSE}
 
     ${file_name}=    tools.Get File Name    ${file_path}
     IF    "${DIRECTORY_UPLOAD_FILES_LOCAL}" == ""
@@ -401,13 +401,16 @@ Eval Error States
     Eval JS Error Dialog
     Eval Validation User Error Dialog
 
-Add User To Group  [Arguments]  ${username}  ${groupxmlid}
+Add User To Group    [Arguments]    ${username}    ${groupxmlid}
 
-    ${group}=  Odoo Ref  ${groupxmlid}
-    ${user}=  Odoo Search Records  res.users  [('login', '=', '${username}')]
-    Eval  u.write({'groups_id': [[4, g.id]]})  u=${user}  g=${group}
+    ${group}=    Odoo Ref    ${groupxmlid}
+    ${user}=    Odoo Search Records    res.users    [('login', '=', '${username}')]
+    Eval    u.write({'groups_id': [[4, g.id]]})    u=${user}    g=${group}
 
-Odoo Field Exists  [Arguments]  ${model}  ${fieldname}
-    ${has}=    Odoo Search    ir.model.fields    [('model_id.model', '=', "${model}"), ('name', '=', '${fieldname}')]    count=${TRUE}
-    ${has}=   Eval  bool(h)  h=${has}
-    RETURN  ${has}
+Odoo Field Exists    [Arguments]    ${model}    ${fieldname}
+    ${has}=    Odoo Search
+    ...    ir.model.fields
+    ...    [('model_id.model', '=', "${model}"), ('name', '=', '${fieldname}')]
+    ...    count=${TRUE}
+    ${has}=    Eval    bool(h)    h=${has}
+    RETURN    ${has}

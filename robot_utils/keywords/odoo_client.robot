@@ -378,9 +378,7 @@ Wait Queuejobs Done
 
 Odoo Current Employee
     ${emps}=    Odoo Search Records    hr.employee    [('user_id.login', '=', '${ROBO_ODOO_USER}')]
-    ${l}=  Get Length  ${emps}
+    ${l}=    Get Length    ${emps}
 
-    IF  not ${l}
-        FAIL  Employee not found for user ${ROBO_ODOO_USER}
-    END
-    RETURN  ${emps[0].id}
+    IF    not ${l}    FAIL    Employee not found for user ${ROBO_ODOO_USER}
+    RETURN    ${emps[0].id}

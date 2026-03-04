@@ -63,8 +63,8 @@ Test Prepend
     ...    div[name='a2'] input
     ${xpaths}=    _prepend_parent    ${xpaths}    vorne
     Log2    ${xpaths}
-    ${is_list}=  Is List  ${xpaths}
-    Assert  ${is_list} == True
-    ${el}   Get From List  ${xpaths}  0
-    Assert  "${el}" == "vorne div[name='a1'] input"
-    # Assert  ${xpaths}[1] == '//vorne//div[@name='a2']//input'
+    ${is_list}=    Is List    ${xpaths}
+    Assert    ${is_list} == True
+    ${el}=    Get From List    ${xpaths}    0
+    Assert    "${el}" == "vorne div[name='a1'] input"
+    # Assert    ${xpaths}[1] == '//vorne//div[@name='a2']//input'

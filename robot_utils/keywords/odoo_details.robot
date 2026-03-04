@@ -85,7 +85,7 @@ Collect all css for inputs    [Arguments]    ${fieldname}    ${value}    ${paren
 Identify Input Type    [Arguments]    ${fieldname}    ${value}    ${parent}    ${css_parent}
     Screenshot
     ${all_css_list}=    Collect all css for inputs    ${fieldname}    ${value}    ${parent}    ${css_parent}
-    Log To Console  message=${all_css_list}
+    Log To Console    message=${all_css_list}
 
     ${found}=    Search All Tabs For CSS    ${all_css_list}    ${css_parent}    ${value}
     ${found_key}=    Get From Dictionary    ${found}    key
@@ -169,8 +169,8 @@ _Write To Element    [Arguments]    ${css}    ${value}    ${ignore_auto_complete
 
     ${klass}=    Get Element Attribute    ${element}    class
     ${is_autocomplete}=    Evaluate    "autocomplete" in "${klass}"    # works for V15 and V16 and V17
-    ${is_sincev19_select}=  Evaluate  "o_select_menu_input" in "${klass}"
-    IF  ${ODOO_VERSION} < 19.0
+    ${is_sincev19_select}=    Evaluate    "o_select_menu_input" in "${klass}"
+    IF    ${ODOO_VERSION} < 19.0
         ${is_sincev19_select}=    Set Variable    ${FALSE}
     END
 
@@ -182,31 +182,30 @@ _Write To Element    [Arguments]    ${css}    ${value}    ${ignore_auto_complete
     ...    const value =`${value}`;
     ...    ${inputelement_js}
     ${status}=    Execute Async Javascript    ${inputelement_js}
-    Should Be Equal As Strings  ${status.__class__}  <class 'bool'>
+    Should Be Equal As Strings    ${status.__class__}    <class 'bool'>
     IF    not ${status}
         FAIL    Could not write value to ${css}
         JS Scroll Into View    ${css}
     END
-    IF  $is_sincev19_select
+    IF    $is_sincev19_select
         ${jstools}=    Get File    ${libdir}/../keywords/js/tools.js
         ${jsevents}=    Get File    ${libdir}/../keywords/js/events.js
-        Clear Element Text  css:${css}
-        Scroll Element Into View  css:${css}
-        Click Element  css:${css}
-        Press Keys     css:${css}  ${value}
+        Clear Element Text    css:${css}
+        Scroll Element Into View    css:${css}
+        Click Element    css:${css}
+        Press Keys    css:${css}    ${value}
         ${js}=    Catenate    SEPARATOR=\n
         ...    element.dispatchEvent(new Event('input', { bubbles: true }));
         ...    element.dispatchEvent(new Event('change', { bubbles: true }));
-        JS On Element  ${css}  ${js}
-        
+        JS On Element    ${css}    ${js}
+
         ${css}=    Catenate
         ...    div.o_popover.popover.o_select_menu_menu:last-child span.o-dropdown-item[data-choice-index="0"]
 
         ${js}=    Catenate    SEPARATOR=\n
         ...    ${jstools};
         ...    waitForElementAndClick(`${css}`, `${value}`);
-        Execute Javascript  ${js}
-
+        Execute Javascript    ${js}
     ELSE IF    $is_autocomplete and not $ignore_auto_complete
         IF    ${ODOO_VERSION} <= 15.0
             ${jsevents}=    Get File    ${libdir}/../keywords/js/events.js
@@ -230,19 +229,22 @@ _Write To Element    [Arguments]    ${css}    ${value}    ${ignore_auto_complete
         END
     ELSE IF    $is_autocomplete and $ignore_auto_complete
         # clicking into the element to trigger the autocomplete vanish
-        ${result}=  Run Keyword And Ignore Error  Wait Until Page Contains Element  css=ul.ui-autocomplete  timeout=10s
-        IF  '${result[0]}' == 'PASS'
-            Log To Console  First round trying to click away completion element
-            ${js}=    Catenate    SEPARATOR=\n
-            ...  element.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', keyCode: 27, which: 27, bubbles: true, cancelable: true }));
-            ...  element.dispatchEvent(new KeyboardEvent('keyup', { key: 'Escape', code: 'Escape', keyCode: 27, which: 27, bubbles: true, cancelable: true} ));
-            ...  element.click();
-            JS On Element  ${css}  ${js}
-            Wait Until Page Does Not Contain Element  css=ul.ui-autocomplete li  timeout=4s
+        ${result}=    Run Keyword And Ignore Error
+        ...    Wait Until Page Contains Element
+        ...    css=ul.ui-autocomplete
+        ...    timeout=10s
+        IF    '${result[0]}' == 'PASS'
+            Log To Console    First round trying to click away completion element
+            ${js}=    Catenate
+            ...    SEPARATOR=\n
+            ...    element.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', keyCode: 27, which: 27, bubbles: true, cancelable: true }));
+            ...    element.dispatchEvent(new KeyboardEvent('keyup', { key: 'Escape', code: 'Escape', keyCode: 27, which: 27, bubbles: true, cancelable: true} ));
+            ...    element.click();
+            JS On Element    ${css}    ${js}
+            Wait Until Page Does Not Contain Element    css=ul.ui-autocomplete li    timeout=4s
         END
     END
     Highlight Element    ${css}    ${FALSE}
-
 
     # if element is part of editable tree, then it is recreated and not found;
     Run Keyword And Ignore Error    Set Element Attribute    ${css}    id    ${oldid}
@@ -329,7 +331,7 @@ Eval JS Error Dialog
     ...    funcresult = "has_error_dialog";
     ...    } else {
     ...    for (const child of element.parentElement.children) {
-    ...       if (child.textContent.includes("See details")) { funcresult = "has_error_dialog"; }
+    ...    if (child.textContent.includes("See details")) { funcresult = "has_error_dialog"; }
     ...    }
     ...    }
     ...    callback(funcresult);

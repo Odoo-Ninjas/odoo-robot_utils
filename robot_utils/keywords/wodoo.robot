@@ -1,12 +1,11 @@
 *** Settings ***
-Library    ../library/wodoo.py
+Library     ../library/wodoo.py
 
 
 *** Keywords ***
-
 Odoo Command
-    [Arguments]      ${shellcmd}  ${output}=${FALSE}
-    wodoo.command    ${shellcmd}  ${output}
+    [Arguments]    ${shellcmd}    ${output}=${FALSE}
+    wodoo.command    ${shellcmd}    ${output}
 
     # TIPP: call Wait Until Responding when doing odoo up -d
 

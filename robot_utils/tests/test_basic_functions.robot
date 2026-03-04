@@ -8,28 +8,31 @@ Documentation       Testing Basic Functions of the Robot Keywords
 
 Library             OperatingSystem
 Resource            ../keywords/odoo.robot
+Resource            ../keywords/tools.robot
 Resource            ../keywords/test_setup.robot
+
 #
 Test Setup          Setup Test
 Test Teardown       Teardown Test
 
+
 *** Variables ***
-${SNIPPET_MODE}    0
-@{INSTALL_MODULES}   sale_management  contacts  partner_autocomplete
-@{UNINSTALL_MODULES}  ${NONE}
+${SNIPPET_MODE}         0
+@{INSTALL_MODULES}      sale_management    contacts    partner_autocomplete
+@{UNINSTALL_MODULES}    ${NONE}
 
 
 *** Test Cases ***
 Test Many2one
-    Capture Page Screenshot
+    Screenshot
     MainMenu    contacts.menu_contacts
-    Capture Page Screenshot
+    Screenshot
 
     Odoo Search Unlink    res.partner    [('name', '=', 'Mickey Mouse')]
 
     # V15 is create
-    ${css1}=          CSS Identifier With Text  button  New
-    ${css2}=          CSS Identifier With Text  button  Create
+    ${css1}=    CSS Identifier With Text    button    New
+    ${css2}=    CSS Identifier With Text    button    Create
     Wait To Click    ${css1},${css2}
 
     Write    fieldname=name    value=Mickey Mouse    ignore_auto_complete=True
@@ -53,8 +56,8 @@ Test One2many-Give Dict
     Write    partner_id    Deco Addict
     Screenshot
 
-    ${css}=  CSS Identifier With Text  div#order_line a, div[name='order_line'] a  Add a product
-    Wait To Click     ${css}
+    ${css}=    CSS Identifier With Text    div#order_line a, div[name='order_line'] a    Add a product
+    Wait To Click    ${css}
     IF    ${odoo_version} < 16.0
         ${data}=    Create Dictionary    product_id=E-COM11    product_uom_qty=25
     ELSE
@@ -73,7 +76,7 @@ Test One2many-Field By Field
     Write    partner_id    Deco Addict
     Screenshot
 
-    ${css}=  CSS Identifier With Text  div#order_line a, div[name='order_line'] a  Add a product
+    ${css}=    CSS Identifier With Text    div#order_line a, div[name='order_line'] a    Add a product
     Wait To Click    ${css}
     IF    ${odoo_version} < 16.0
         Write    product_id    E-COM11    parent=order_line
