@@ -366,3 +366,6 @@ Wait Until Responding
     Log To Console    calling ${url} to wait until there
     Wait For 200    url=${url}    DELAY_SECONDS=1    tries=10
     Log To Console    url ${url} is responding
+
+Keep Alive Browser
+    Execute Javascript    document.title = document.title;
