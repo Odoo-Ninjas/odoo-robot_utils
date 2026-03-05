@@ -9,6 +9,11 @@ Odoo Command
 
     # TIPP: call Wait Until Responding when doing odoo up -d
 
+Odoo Update Docker Compose
+    [Arguments]    ${service}    ${environment}
+    wodoo.update_docker_compose    ${service}    ${environment}
+
+
 Odoo Start Queuejobs
     Odoo Command    up -d odoo_queuejobs
 

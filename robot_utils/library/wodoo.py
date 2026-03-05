@@ -14,6 +14,18 @@ class wodoo(object):
         cmd = f'odoo -p "{project_name}" ' + shellcmd
         return self._cmd(cmd, cwd=cwd, output=True)
 
+    def update_docker_compose(self, service, environment):
+        RUN_DIR = Path(os.getenv("HOST_RUN_DIR"))
+        compose_file = RUN_DIR / 'docker-compose.yml'
+        assert compose_file.exists(), f"docker-compose.yml should exist in {RUN_DIR}"
+        import yaml
+        with open(compose_file) as f:
+            compose = yaml.safe_load(f)
+        for key, value in environment.items():
+            compose['services'][service]['environment'][key] = value
+        with open(compose_file, 'w') as f:
+            yaml.dump(compose, f)
+
     def get_odoo_home(self):
         for path in [os.getenv("ODOO_HOME"), os.getenv("CUSTOMS_DIR"), os.getenv("HOST_CUSTOMS_DIR")]:
             if not path:

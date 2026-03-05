@@ -204,6 +204,21 @@ Odoo Write
     ...    context=${context}
     RETURN    ${result}
 
+Odoo Write Field
+    [Arguments]
+    ...    ${model}
+    ...    ${ids}
+    ...    ${field}
+    ...    ${value}
+    ...    ${dbname}=${ROBO_ODOO_DB}
+    ...    ${host}=${ODOO_URL_API}
+    ...    ${user}=${ROBO_ODOO_USER}
+    ...    ${pwd}=${ROBO_ODOO_PASSWORD}
+    ...    ${lang}=en_US
+    ...    ${context}=${None}
+    ${values}=    Create Dictionary    ${field}=${value}
+    RETURN  Odoo Write  ${model}    ${ids}    ${values}    ${dbname}    ${host}    ${user}    ${pwd}    ${lang}    ${context}
+
 Odoo Unlink
     [Arguments]
     ...    ${model}
