@@ -1,5 +1,6 @@
 *** Settings ***
 Library     ../library/wodoo.py
+Resource    ../keywords/tools.robot
 
 
 *** Keywords ***
@@ -16,12 +17,14 @@ Odoo Update Docker Compose
 
 Odoo Start Queuejobs
     Odoo Command    up -d odoo_queuejobs
+    Wait Until Responding
 
 Odoo Stop Queuejobs
     Odoo Command    kill odoo_queuejobs
 
 Odoo Start Cronjobs
     Odoo Command    up -d odoo_cronjobs
+    Wait Until Responding
 
 Odoo Stop Cronjobs
     Odoo Command    kill odoo_cronjobs
