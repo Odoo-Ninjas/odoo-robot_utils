@@ -16,15 +16,19 @@ Odoo Update Docker Compose
 
 
 Odoo Start Queuejobs
-    Odoo Command    up -d odoo_queuejobs
+    Odoo Command    up -d odoo_queuejobs  --no-recreate
     Wait Until Responding
 
 Odoo Stop Queuejobs
     Odoo Command    kill odoo_queuejobs
 
 Odoo Start Cronjobs
-    Odoo Command    up -d odoo_cronjobs
+    Odoo Command    up -d odoo_cronjobs --no-recreate
     Wait Until Responding
 
 Odoo Stop Cronjobs
     Odoo Command    kill odoo_cronjobs
+Start Containers By Robot
+    Odoo Command  up -d --no-recreate
+    Odoo Command  wait-for-container-postgres
+    Wait Until Responding

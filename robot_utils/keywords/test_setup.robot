@@ -16,7 +16,7 @@ Basic Teardown
 Setup Test Basic
     Load Default Vars
 
-    Wait Until Responding
+    Start Containers By Robot
 
     @{modules}=    Get Variable Value    ${INSTALL_MODULES}    ${NONE}
     IF    ${modules}    Toggle Module Installation    ${modules}    ${TRUE}
