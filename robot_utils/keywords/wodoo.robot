@@ -29,6 +29,7 @@ Odoo Start Cronjobs
 Odoo Stop Cronjobs
     Odoo Command    kill odoo_cronjobs
 Start Containers By Robot
-    Odoo Command  up -d --no-recreate
+    Odoo Command  up -d --no-recreate postgres
     Odoo Command  wait-for-container-postgres
+    Odoo Command  up -d --no-recreate
     Wait Until Responding
