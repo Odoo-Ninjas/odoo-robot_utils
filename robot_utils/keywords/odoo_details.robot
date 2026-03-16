@@ -184,8 +184,8 @@ _Write To Element    [Arguments]    ${css}    ${value}    ${ignore_auto_complete
     ${status}=    Execute Async Javascript    ${inputelement_js}
     Should Be Equal As Strings    ${status.__class__}    <class 'bool'>
     IF    not ${status}
+        Run Keyword And Ignore Error  JS Scroll Into View    ${css}
         FAIL    Could not write value to ${css}
-        JS Scroll Into View    ${css}
     END
     IF    $is_sincev19_select
         ${jstools}=    Get File    ${libdir}/../keywords/js/tools.js
@@ -428,12 +428,7 @@ _While Element Attribute Value    [Arguments]    ${css}    ${attribute}    ${ope
         END
         # Log To Console    Waiting for ${xpath} ${attribute} ${operator} ${param_value} - got ${value}
         IF    '${conversion}' == 'as_bool'
-            ${value}=    Eval    0 if i is None else i    i=${value}
-            ${status}    ${integer_number}=    Run Keyword And Ignore Error    Convert To Integer    ${value}
-            IF    '${status}' != 'FAIL'
-                ${value}=    Set Variable    ${integer_number}
-            END
-            ${value}=    Convert To Boolean    ${value}
+            ${value}=    Set Variable    ${{ bool(int($value) if $value is not None and str($value).strip().lstrip('-').isdigit() else ($value if $value is not None else 0)) }}
         END
         ${testcondition}=    Set Variable    '${value}' ${operator} '${param_value}'
         # Log To Console    ${testcondition}
