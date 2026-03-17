@@ -40,6 +40,7 @@ Odoo Search
             ${method}=    Set Variable    search_count
             ${kwparams}=    Create Dictionary
         ELSE
+            ${offset}=    Convert To Integer    ${offset}
             ${kwparams}=    Create Dictionary    limit=${limit}    offset=${offset}    order=${order}
             ${method}=    Set Variable    search
         END

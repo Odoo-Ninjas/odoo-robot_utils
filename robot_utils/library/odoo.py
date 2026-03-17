@@ -194,7 +194,6 @@ class odoo(object):
                 "count": count,
                 "limit": limit,
                 "order": order,
-                offset: int(offset or 0),
                 "context": context,
             }.items()
             if y
