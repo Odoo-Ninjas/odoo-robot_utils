@@ -4,7 +4,9 @@
     "auto_install": False,
     "author": "Marc Wimmer (marc@zebroo.de)",
     "depends": ["base"],
-    "data": [],
+    "data": [
+        "security/ir.model.access.csv",
+    ],
     "license": "Other proprietary",
     "external_dependencies": {"python": ["arrow"], "bin": []},
 }
