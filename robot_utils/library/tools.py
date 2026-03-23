@@ -114,8 +114,7 @@ class tools(object):
 
     def execute_sql(self, server, db, user, password, sql, context=None):
         odoo, uid = self._odoo(server, db, user, password)
-        odoo.execute_kw(db, uid, password, "robot.data.loader", "execute_sql", [sql])
-        return True
+        return odoo.execute_kw(db, uid, password, "robot.data.loader", "execute_sql", [sql])
 
     def get_res_id(self, server, db, user, password, model, module, name):
         odoo, uid = self._odoo(server, db, user, password)
