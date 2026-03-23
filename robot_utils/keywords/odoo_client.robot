@@ -44,7 +44,7 @@ Odoo Search
             ${kwparams}=    Create Dictionary    limit=${limit}    offset=${offset}    order=${order}
             ${method}=    Set Variable    search
         END
-        Log To Console    Doing odoo execute with [${domain}] and ${kwparams}
+        Log    Doing odoo execute with [${domain}] and ${kwparams}
         ${domain}=    Evaluate    ${domain}
         ${params}=    Eval    [d]    d=${domain}
         ${result}=    odoo.Rpc Client Execute
@@ -218,7 +218,7 @@ Odoo Write Field
     ...    ${lang}=en_US
     ...    ${context}=${None}
     ${values}=    Create Dictionary    ${field}=${value}
-    RETURN  Odoo Write  ${model}    ${ids}    ${values}    ${dbname}    ${host}    ${user}    ${pwd}    ${lang}    ${context}
+    Odoo Write    ${model}    ${ids}    ${values}    ${dbname}    ${host}    ${user}    ${pwd}    ${lang}    ${context}
 
 Odoo Unlink
     [Arguments]
