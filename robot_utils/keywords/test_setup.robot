@@ -42,7 +42,7 @@ Toggle Module Installation    [Arguments]    ${modules}    ${install_state}
             Log To Console    ${method}ing ${module}
             Odoo Command    kill odoo
             Odoo Command    ${method} ${module}
-            Odoo Command    up -d
+            Odoo Command    up -d --no-recreate
             Wait Until Responding
         END
     END
