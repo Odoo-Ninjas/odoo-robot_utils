@@ -1,23 +1,47 @@
 from subprocess import check_call
 from pathlib import Path
+import json
 import os
+from urllib.request import Request, urlopen
 from robot.libraries.BuiltIn import BuiltIn
 
-class wodoo(object):
+class zodoo(object):
     def _get_project_name(self):
         context = BuiltIn().get_library_instance("BuiltIn")
         project_name = context.get_variable_value("${project_name}")
         return project_name
 
-    def command(self, shellcmd, output=True):
-        path = self.get_odoo_home()
+    def _get_trigger_url(self):
+        return os.getenv("CODING_TRIGGER_URL")
 
+    def command(self, shellcmd, output=True):
+        trigger_url = self._get_trigger_url()
+        if trigger_url:
+            return self._cmd_via_trigger(trigger_url, shellcmd)
+
+        path = self.get_odoo_home()
         cwd = Path(path)
         assert cwd.exists(), "Path {cwd} should exist."
         project_name = self._get_project_name()
-        cmd = f"git config --global --add safe.directory '{cwd}'"
         cmd = f'odoo -p "{project_name}" ' + shellcmd if project_name else f'odoo ' + shellcmd
         return self._cmd(cmd, cwd=cwd, output=True)
+
+    def _cmd_via_trigger(self, trigger_url, shellcmd):
+        BuiltIn().log_to_console(f"\nExecuting via trigger: {shellcmd}")
+        url = f"{trigger_url}/odoo-command"
+        data = json.dumps({"command": shellcmd}).encode()
+        req = Request(url, data=data, headers={"Content-Type": "application/json"})
+        try:
+            resp = urlopen(req, timeout=300)
+            result = json.loads(resp.read())
+            if result.get("stdout"):
+                BuiltIn().log_to_console(result["stdout"])
+            if result.get("stderr"):
+                BuiltIn().log_to_console(result["stderr"])
+            return result.get("stdout", "")
+        except Exception as e:
+            BuiltIn().log_to_console(f"\nTrigger error: {e}")
+            return ""
 
     def update_docker_compose(self, service, environment):
         RUN_DIR = Path(os.getenv("HOST_RUN_DIR"))

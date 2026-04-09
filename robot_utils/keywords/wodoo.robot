@@ -1,18 +1,18 @@
 *** Settings ***
-Library     ../library/wodoo.py
+Library     ../library/zodoo.py
 Resource    ../keywords/tools.robot
 
 
 *** Keywords ***
 Odoo Command
     [Arguments]    ${shellcmd}    ${output}=${FALSE}
-    wodoo.command    ${shellcmd}    ${output}
+    zodoo.command    ${shellcmd}    ${output}
 
     # TIPP: call Wait Until Responding when doing odoo up -d
 
 Odoo Update Docker Compose
     [Arguments]    ${service}    ${environment}
-    wodoo.update_docker_compose    ${service}    ${environment}
+    zodoo.update_docker_compose    ${service}    ${environment}
 
 
 Odoo Start Queuejobs

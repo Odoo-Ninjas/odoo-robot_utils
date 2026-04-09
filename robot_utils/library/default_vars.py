@@ -215,7 +215,16 @@ def _load_default_values():
 
 
 def _load_from_settings():
-    ret = subprocess.run(["odoo", "setting"], encoding="utf8", stdout=subprocess.PIPE)
+    trigger_url = os.getenv("CODING_TRIGGER_URL")
+    if trigger_url:
+        from urllib.request import urlopen
+        resp = urlopen(f"{trigger_url}/setting", timeout=30)
+        result = json.loads(resp.read())
+        class _Ret:
+            stdout = result.get("stdout", "")
+        ret = _Ret()
+    else:
+        ret = subprocess.run(["odoo", "setting"], encoding="utf8", stdout=subprocess.PIPE)
     b = BuiltIn()
     MAX = 10
     could_not_resolve = []
