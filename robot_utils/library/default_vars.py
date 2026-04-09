@@ -152,22 +152,22 @@ def _load_robot_vars():
             BuiltIn().set_global_variable(robotkey, v)
 
     if os.getenv("ROBO_PARAMS_FILE"):
-        # those params come from wodoo command line
+        # those params come from zodoo command line
         consume_file(os.getenv("ROBO_PARAMS_FILE"))
 
     for candidate in robo_candidates:
         consume_file(candidate)
 
 
-def get_wodoo():
+def get_zodoo():
     # scripts/run.py
     import importlib.util, pathlib
 
-    mod_path = pathlib.Path(__file__).parent / "wodoo.py"
+    mod_path = pathlib.Path(__file__).parent / "zodoo.py"
     spec = importlib.util.spec_from_file_location("common_dyn", mod_path)
     common_dyn = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(common_dyn)
-    return common_dyn.wodoo()
+    return common_dyn.zodoo()
 
 
 def _load_default_values_from_env():
@@ -187,7 +187,7 @@ def _load_default_values_from_env():
                     f"Environment Variable {k} with value {v} not parsable - perhaps not a problem: {ex}"
                 )
 
-    CUSTOMS_DIR = get_wodoo().get_odoo_home()
+    CUSTOMS_DIR = get_zodoo().get_odoo_home()
     b.set_global_variable(_make_robot_key("CUSTOMS_DIR"), CUSTOMS_DIR)
     test = BuiltIn().get_variable_value(_make_robot_key("CUSTOMS_DIR"))
     assert test == CUSTOMS_DIR

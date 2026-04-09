@@ -2,7 +2,7 @@
 # For keywords have a look in addons_robot/robot_utils/keywords/documentation.md
 Resource            ${EXECDIR}/addons_robot/robot_utils/keywords/odoo.robot
 Resource            ${EXECDIR}/addons_robot/robot_utils/keywords/tools.robot
-Resource            ${EXECDIR}/addons_robot/robot_utils/keywords/wodoo.robot
+Resource            ${EXECDIR}/addons_robot/robot_utils/keywords/zodoo.robot
 Resource            ${EXECDIR}/addons_robot/robot_utils/keywords/test_setup.robot
 
 Test Setup          Setup Test

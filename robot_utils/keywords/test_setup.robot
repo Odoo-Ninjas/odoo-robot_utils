@@ -3,7 +3,7 @@ Library     SeleniumLibrary
 Library     ../library/tools.py
 Library     ../library/default_vars.py
 Resource    ./odoo.robot
-Resource    ./wodoo.robot
+Resource    ./zodoo.robot
 
 
 *** Keywords ***
