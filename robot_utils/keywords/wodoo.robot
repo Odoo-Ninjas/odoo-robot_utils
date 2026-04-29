@@ -29,7 +29,10 @@ Odoo Start Cronjobs
 Odoo Stop Cronjobs
     Odoo Command    kill odoo_cronjobs
 Start Containers By Robot
-    Odoo Command  up -d --no-recreate postgres
+    # Use up -d without --no-recreate so containers with stale network references
+    # (left by orphan cleanup in prepare_test_db) are recreated fresh. Volumes are
+    # not touched so the restored DB is preserved.
+    Odoo Command  up -d postgres
     Odoo Command  wait-for-container-postgres
-    Odoo Command  up -d --no-recreate
+    Odoo Command  up -d
     Wait Until Responding
