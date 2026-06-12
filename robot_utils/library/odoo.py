@@ -81,21 +81,43 @@ class odoo(object):
         dbname = dbname or "odoo"
         import odoorpc
 
+        # Pass the known server version so odoorpc skips its auto-detection,
+        # which calls the WEB route /web/webclient/version_info. On instances
+        # served under a URL path prefix (e.g. Odoo mounted at "/cicd") that
+        # web route lives behind the prefix and 404s at the root that odoorpc
+        # connects to. The version is informational for odoorpc; jsonrpc
+        # itself stays at the root and works regardless.
+        try:
+            version = BuiltIn().get_variable_value("${ROBO_ODOO_VERSION}")
+            version = str(version) if version else None
+        except Exception:
+            version = None
+
         db = odoorpc.ODOO(
             host=host,
             port=port,
             protocol="jsonrpc",
-            # version=self.version or None,
+            version=version,
             # timeout=self.timeout,
         )
-        db.json(
-            "/web/session/authenticate",
-            {
-                "db": dbname,
-                "login": user,
-                "password": pwd,
-            },
-        )
+        # Establishing a *web* session cookie is best-effort: on instances
+        # served under a URL path prefix (e.g. Odoo mounted at "/cicd") this
+        # web route lives behind the prefix and 404s at the server root, while
+        # odoorpc connects to host[:port] only. The jsonrpc login below
+        # (common.login over /jsonrpc, which stays at the root) is the
+        # authoritative authentication for all env/RPC operations, so a missing
+        # web route here must not abort the connection.
+        try:
+            db.json(
+                "/web/session/authenticate",
+                {
+                    "db": dbname,
+                    "login": user,
+                    "password": pwd,
+                },
+            )
+        except Exception as e:
+            logger.info(f"web session authenticate skipped ({e})")
 
         # be compatible with more than 1 database
         db.login(dbname, user, pwd)
