@@ -68,6 +68,10 @@ class odoo(object):
     def get_conn(self, host, dbname, user, pwd):
         ssl = host.startswith("https")
         host = host.split("://", 1)[-1]
+        # Strip any URL path (e.g. a "/cicd" web prefix): odoorpc connects to
+        # host[:port] only and the JSON-RPC endpoint lives at the server root.
+        # Harmless for prefix-less setups (no path -> host unchanged).
+        host = host.split("/", 1)[0]
         if ":" in host:
             host, port = host.split(":")
             port = int(port)
