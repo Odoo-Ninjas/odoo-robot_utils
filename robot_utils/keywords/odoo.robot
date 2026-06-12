@@ -175,7 +175,11 @@ Write    [Documentation]
         ${parent}=    Set Variable    div[name='${parent}'], div[id='${parent}']
     END
 
-    ${identity_type}=    Identify Input Type
+    # Retry: a field can appear asynchronously after an onchange re-render
+    # (e.g. model/model_id toggled by is_local_connection once the connection
+    # m2o is selected). Identify Input Type FAILs immediately on no-match, so
+    # without the retry a Write right after such an onchange races the render.
+    ${identity_type}=    Wait Until Keyword Succeeds    8x    500ms    Identify Input Type
     ...    ${fieldname}
     ...    ${value}
     ...    ${parent}

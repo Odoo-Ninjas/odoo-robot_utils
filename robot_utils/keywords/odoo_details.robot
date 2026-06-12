@@ -54,6 +54,8 @@ _LocatorInputAndM2O    [Arguments]    ${fieldname}    ${parent}    ${css_parent}
     ...    textarea[id='${fieldname}']
     ...    textarea[id='${fieldname}_0']
     ...    textarea[name='${fieldname}']
+    ...    td[name='${fieldname}'] input
+    ...    td[name='${fieldname}'] textarea
     RETURN    ${csss}
 
 Collect all css for inputs    [Arguments]    ${fieldname}    ${value}    ${parent}    ${css_parent}
@@ -225,7 +227,7 @@ _Write To Element    [Arguments]    ${css}    ${value}    ${ignore_auto_complete
             JS On Element    ${css}    ${js}
             Sleep    500ms    # required; needed to set element value
         ELSE
-            _Write To CSS AutoComplete
+            _Write To CSS AutoComplete    ${value}    ${css}
         END
     ELSE IF    $is_autocomplete and $ignore_auto_complete
         # clicking into the element to trigger the autocomplete vanish
@@ -257,8 +259,10 @@ _blur_active_element
     ...    callback()
     Execute Async Javascript    ${js}
 
-_Write To CSS AutoComplete
+_Write To CSS AutoComplete    [Arguments]    ${value}=${NONE}    ${input_css}=${NONE}
     Wait Blocking
+    ${has_value}=    Evaluate    bool($value) and "${value}" != "None"
+    ${has_input}=    Evaluate    bool($input_css) and "${input_css}" != "None"
     IF    ${odoo_version} == 16.0
         ${css}=    Catenate
         ...    ul.o-autocomplete--dropdown-menu.dropdown-menu:not(:has(.fa-spin)) li:first-child
@@ -268,9 +272,14 @@ _Write To CSS AutoComplete
         ...    ul.o-autocomplete--dropdown-menu[role="menu"]:not(:has(.fa-spin)) li:first-child a
         Wait To Click    css=${css}
     ELSE IF    ${odoo_version} in [18.0, 19.0]
+        # The option is <li><a role="option" href="#">...</a></li>. owl ignores
+        # the JS element.click() that Wait To Click uses, so do a REAL selenium
+        # click on the <a> (native-setter already filtered the list, so
+        # first-child is the wanted record).
         ${css}=    Catenate
         ...    ul.o-autocomplete--dropdown-menu[role="menu"]:not(:has(.fa-spin)) li:first-child a
-        Wait To Click    css=${css}
+        Wait Until Element Is Visible    css=${css}    timeout=15s
+        Click Element    css=${css}
     ELSE
         FAIL    needs implementation for ${odoo_version}
     END
