@@ -329,12 +329,14 @@ class tools(object):
     def get_elapsed_time_ms(self, start_time):
         return (time.time() * 1000) - start_time
 
-    def wait_for_200(self, url, DELAY_SECONDS=2, tries=5):
+    def wait_for_200(self, url, DELAY_SECONDS=2, tries=5, TIMEOUT_SECONDS=10):
         print(f"Checking {url} until status 200 is received...\n")
-        i = 0
-        while i < tries:
+        tries = int(tries)
+        delay = float(DELAY_SECONDS)
+        timeout = float(TIMEOUT_SECONDS)
+        for i in range(tries):
             try:
-                response = requests.get(url)
+                response = requests.get(url, timeout=timeout)
                 print(f"Status code: {response.status_code}")
                 if response.status_code == 200:
                     print("✅ Success: Received status code 200.")
@@ -342,6 +344,9 @@ class tools(object):
             except requests.exceptions.RequestException as e:
                 print(f"⚠️ Request failed: {e}")
 
-            print(f"Waiting {DELAY_SECONDS} seconds before retrying...\n")
-            time.sleep(DELAY_SECONDS)
-        raise Exception("Could not call  {url} in time")
+            print(
+                f"Try {i + 1}/{tries} failed, "
+                f"waiting {delay} seconds before retrying...\n"
+            )
+            time.sleep(delay)
+        raise Exception(f"Could not call {url} in time")
