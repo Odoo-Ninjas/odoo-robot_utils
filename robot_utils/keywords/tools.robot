@@ -364,7 +364,14 @@ JS Exists Element
 Wait Until Responding
     ${url}=    Set Variable    ${ODOO_URL_API}/web/login
     Log To Console    calling ${url} to wait until there
-    Wait For 200    url=${url}    DELAY_SECONDS=1    tries=10
+    # 10 Sekunden (1s x 10) reichen nicht, wenn mehrere CI-Jobs gleichzeitig auf
+    # derselben Maschine je einen vollen Docker-Stack hochfahren: Odoo ist dann
+    # noch nicht da und das Test-Setup bricht mit "Could not call ... in time" ab,
+    # obwohl die Instanz Sekunden spaeter laeuft. Jetzt bis zu zwei Minuten
+    # warten. Im Erfolgsfall kostet das nichts - es wird beim ersten 200 verlassen.
+    # TIMEOUT_SECONDS bewusst kleiner als der Default (10s): sonst summiert sich
+    # der Worst Case ueber 60 Versuche zu ueber zehn Minuten.
+    Wait For 200    url=${url}    DELAY_SECONDS=2    tries=60    TIMEOUT_SECONDS=5
     Log To Console    url ${url} is responding
 
 Keep Alive Browser
