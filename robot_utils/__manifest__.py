@@ -5,7 +5,7 @@
     "author": "Marc Wimmer (marc@zebroo.de)",
     "depends": ["base"],
     "data": [
-        "security/ir.model.access.csv",
+        "security/access.xml",
     ],
     "license": "Other proprietary",
     "external_dependencies": {"python": ["arrow"], "bin": []},

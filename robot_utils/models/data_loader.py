@@ -8,7 +8,7 @@ from odoo import api, models
 import tempfile
 from pathlib import Path
 from odoo import api, models
-from odoo.tools import convert_xml_import, convert_csv_import
+from odoo.tools.convert import convert_xml_import, convert_csv_import
 import inspect
 
 
