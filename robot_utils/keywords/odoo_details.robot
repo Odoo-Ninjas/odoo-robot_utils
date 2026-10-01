@@ -271,13 +271,14 @@ _Write To CSS AutoComplete    [Arguments]    ${value}=${NONE}    ${input_css}=${
         ${css}=    Catenate
         ...    ul.o-autocomplete--dropdown-menu[role="menu"]:not(:has(.fa-spin)) li:first-child a
         Wait To Click    css=${css}
-    ELSE IF    ${odoo_version} in [18.0, 19.0]
+    ELSE IF    ${odoo_version} in [18.0, 19.0, 20.0]
         # The option is <li><a role="option" href="#">...</a></li>. owl ignores
         # the JS element.click() that Wait To Click uses, so do a REAL selenium
         # click on the <a> (native-setter already filtered the list, so
-        # first-child is the wanted record).
+        # first-child is the wanted record). V20 shows the loading placeholder
+        # with .oi-spin instead of .fa-spin.
         ${css}=    Catenate
-        ...    ul.o-autocomplete--dropdown-menu[role="menu"]:not(:has(.fa-spin)) li:first-child a
+        ...    ul.o-autocomplete--dropdown-menu[role="menu"]:not(:has(.fa-spin)):not(:has(.oi-spin)) li:first-child a:not(.o_loading)
         Wait Until Element Is Visible    css=${css}    timeout=15s
         Click Element    css=${css}
     ELSE
@@ -351,7 +352,11 @@ Eval JS Error Dialog
     ...    return_callback=${TRUE}
 
     IF    '${has_error_dialog}' == 'has_error_dialog'
-        Click Element    xpath=//button[text() = 'See details' or text() = 'See technical details']
+        # V20: the toggle is a <details><summary> instead of a button; a JS
+        # click is used as the dialog may still be animating in
+        Execute Javascript
+        ...    const el = [...document.querySelectorAll('button, summary')].find(e => ['See details', 'See technical details'].some(t => e.textContent.trim().startsWith(t)));
+        ...    if (el) { el.click(); }
         ${locator}=    Set Variable    div.o_error_detail pre
         ${code_content}=    Get Text    css=${locator}
 
@@ -374,7 +379,7 @@ Search All Tabs For CSS    [Documentation]
     ELSE
         ${mode}=    Set Variable    clickall
     END
-    ${path_notebook_header}=    Set Variable    div.oe_notebook_page li a,div.o_notebook_headers li a
+    ${path_notebook_header}=    Set Variable    div.oe_notebook_page li a,div.o_notebook_headers li a,div.o_notebook_headers li button
     ${path_notebook_header}=    _prepend_parent
     ...    ${path_notebook_header}
     ...    parent=${NONE}

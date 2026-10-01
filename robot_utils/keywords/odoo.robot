@@ -225,7 +225,7 @@ Breadcrumb Back
         Wait To Click    ol.breadcrumb li:nth-last-child(1) a
     ELSE IF    ${ODOO_VERSION} in [16.0]
         Wait To Click    ol.breadcrumb li:nth-last-child(2) a
-    ELSE IF    ${ODOO_VERSION} in [18.0, 19.0]
+    ELSE IF    ${ODOO_VERSION} in [18.0, 19.0, 20.0]
         Wait To Click    ol.breadcrumb li:nth-last-child(1) a
     ELSE
         FAIL    Breadcrumb Needs implementation for ${ODOO_VERSION}
@@ -319,7 +319,7 @@ Wait To Click    [Arguments]
     END
 
 Click Tab    [Arguments]    ${tabcaption}
-    Odoo Button    text=${tabcaption}    custom_css=a[role='tab']
+    Odoo Button    text=${tabcaption}    custom_css=[role='tab']
 
 Odoo Button    [Arguments]    ${text}=${NONE}    ${name}=${NONE}    ${tooltip}=${NONE}    ${custom_css}=${NONE}    ${limit}=0
 
