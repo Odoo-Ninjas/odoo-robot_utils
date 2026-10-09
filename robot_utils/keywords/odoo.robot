@@ -314,6 +314,12 @@ Wait To Click    [Arguments]
     IF    ${autowait}
         ${contains_add}=    Eval    a in b    a=.o_list_button_add    b=${css}
         IF    ${contains_add}
+            # V20: with quotation templates (sale_management) the New button
+            # only opens a dropdown - the first entry is the plain new record
+            ${is_dropdown}=    Get Element Count    css=button.o_list_button_add.o-dropdown-caret
+            IF    ${is_dropdown}
+                Wait To Click    .o-dropdown--menu .o-dropdown-item    position=1    autowait=${FALSE}
+            END
             Wait Until Element is visible    css=div.o_form_sheet
         END
     END

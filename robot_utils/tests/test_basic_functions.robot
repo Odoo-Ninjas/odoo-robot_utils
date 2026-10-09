@@ -56,8 +56,7 @@ Test One2many-Give Dict
     Write    partner_id    Deco Addict
     Screenshot
 
-    ${css}=    CSS Identifier With Text    div#order_line a, div[name='order_line'] a    Add a product
-    Wait To Click    ${css}
+    Click Add Order Line
     IF    ${odoo_version} < 16.0
         ${data}=    Create Dictionary    product_id=E-COM11    product_uom_qty=25
     ELSE
@@ -76,8 +75,7 @@ Test One2many-Field By Field
     Write    partner_id    Deco Addict
     Screenshot
 
-    ${css}=    CSS Identifier With Text    div#order_line a, div[name='order_line'] a    Add a product
-    Wait To Click    ${css}
+    Click Add Order Line
     IF    ${odoo_version} < 16.0
         Write    product_id    E-COM11    parent=order_line
     ELSE
@@ -88,6 +86,20 @@ Test One2many-Field By Field
 
 
 *** Keywords ***
+Click Add Order Line
+    # V20 renamed the line create link, renders it as button and hides
+    # the product column by default (product is picked in the label)
+    IF    ${odoo_version} < 20.0
+        ${add_line}=    Set Variable    Add a product
+    ELSE
+        ${add_line}=    Set Variable    Add Line
+        Wait To Click    div[name='order_line'] .o_optional_columns_dropdown_toggle
+        Wait To Click    .o_optional_columns_dropdown input[name='product_template_id']
+        Wait To Click    div[name='order_line'] .o_optional_columns_dropdown_toggle
+    END
+    ${css}=    CSS Identifier With Text    div#order_line a, div[name='order_line'] a, div[name='order_line'] button    ${add_line}
+    Wait To Click    ${css}
+
 Check if there are orderlines    [Arguments]    ${LastId}=
     ${LastId}=    Evaluate    (${LastId} or [0])[0]
     ${order}=    Odoo Search Read Records
